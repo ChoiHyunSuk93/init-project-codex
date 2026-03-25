@@ -125,6 +125,7 @@ docs/
 ## Usage
 
 Use the skill when you want Codex to initialize or retrofit repository structure.
+The command alone is enough to start; you can add a very short intent phrase if needed.
 
 Examples:
 
@@ -133,7 +134,7 @@ $hschoi-init-project
 ```
 
 ```text
-Initialize this repository for Codex with a root AGENTS.md, rule/, docs/guide, and docs/implementation.
+Set up the initial project structure for this repository.
 ```
 
 If no language choice can be inferred first, the skill asks for the language before it starts initialization.
