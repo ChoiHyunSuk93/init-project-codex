@@ -1,0 +1,6 @@
+interface:
+  display_name: "HSChoi Init Project"
+  short_description: "Bootstrap Codex repo structure and rules"
+  default_prompt: "Use $hschoi-init-project to initialize or retrofit a repository with Codex AGENTS structure, root-level rule indexing, and safe GitHub workflow rules. If language is not already fixed in the request or session, first respond with exactly `1. English` and `2. Korean(한국어)` on separate lines, then wait. In existing repositories, inspect first, ask the smallest missing structural questions, and only then materialize files."
+policy:
+  allow_implicit_invocation: true
