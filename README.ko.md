@@ -29,14 +29,50 @@
 
 ## 설치
 
-Codex에서 `skill-installer`를 사용해 설치합니다.
+내장 `skill-installer` helper로 설치합니다.
+
+### 프로젝트 스코프 설치 (권장)
+
+현재 프로젝트에서만 이 스킬을 쓰고 싶을 때 사용합니다.
+`<project-root>/.codex/skills/` 아래에 설치합니다.
+
+Codex에서 설치:
+
+```text
+$skill-installer
+Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hschoi-init-project into <project-root>/.codex/skills.
+```
+
+직접 installer 스크립트를 실행하는 방법:
+
+```bash
+mkdir -p .codex/skills
+
+python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
+  --repo ChoiHyunSuk93/init-project-codex \
+  --path hschoi-init-project \
+  --ref main \
+  --dest "$PWD/.codex/skills"
+```
+
+설치 결과는 아래와 같습니다.
+
+```text
+<project-root>/.codex/skills/hschoi-init-project/
+```
+
+### 전역 설치
+
+여러 저장소에서 공통으로 쓰고 싶을 때 사용합니다.
+
+Codex에서 설치:
 
 ```text
 $skill-installer
 Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hschoi-init-project.
 ```
 
-필요하면 installer 스크립트를 직접 실행할 수도 있습니다.
+직접 installer 스크립트를 실행하는 방법:
 
 ```bash
 python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
@@ -52,7 +88,41 @@ python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-githu
   --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/main/hschoi-init-project
 ```
 
-설치 후에는 Codex를 재시작해야 새 스킬이 인식됩니다.
+Codex가 이미 실행 중이면 설치 후 재시작해야 새 스킬이 인식됩니다.
+
+## 생성 구조
+
+이 스킬은 기본적으로 아래 구조를 생성하거나 갱신합니다.
+
+```text
+AGENTS.md
+README.md
+rule/
+  index.md
+  project-structure.md
+  instruction-model.md
+  documentation-boundaries.md
+  readme-maintenance.md
+  development-standards.md
+  testing-standards.md
+  runtime-boundaries.md
+  implementation-records.md
+docs/
+  guide/
+    README.md
+    저장소-구조.md          # 기존 프로젝트 모드에서 구조 신호가 있을 때 생성
+    테스트-개요.md          # 기존 프로젝트 모드에서 테스트 신호가 있을 때 생성
+  implementation/
+    AGENTS.md
+```
+
+- `AGENTS.md`: 저장소 전역의 얇은 Codex 지침
+- root `README.md`: 사람이 읽는 대표 요약 문서
+- `rule/`: Codex 실행의 기준 규칙 문서
+- `docs/guide/`: 사람이 읽는 안내와 탐색 문서
+- `docs/implementation/`: 구현 기록 배치 규칙과 이후 구현 기록 카테고리 공간
+- 기존 프로젝트 모드에서는 관찰된 구조나 테스트 레이아웃만으로도 독자에게 도움이 되는 경우 추가 guide 문서를 생성합니다.
+- 영문 모드에서는 `repository-map.md`, `testing-overview.md` 같은 영문 guide 문서를 생성합니다.
 
 ## 사용법
 

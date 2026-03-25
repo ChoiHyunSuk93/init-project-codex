@@ -29,14 +29,50 @@ It focuses on a small, explicit baseline:
 
 ## Installation
 
-Install the skill through Codex with `skill-installer`.
+Install the skill with the built-in `skill-installer` helper.
+
+### Project-Scoped Installation (Recommended)
+
+Use this when you want the skill only for the current repository.
+Install it into `<project-root>/.codex/skills/`.
+
+Through Codex:
+
+```text
+$skill-installer
+Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hschoi-init-project into <project-root>/.codex/skills.
+```
+
+Direct installer script:
+
+```bash
+mkdir -p .codex/skills
+
+python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
+  --repo ChoiHyunSuk93/init-project-codex \
+  --path hschoi-init-project \
+  --ref main \
+  --dest "$PWD/.codex/skills"
+```
+
+This creates:
+
+```text
+<project-root>/.codex/skills/hschoi-init-project/
+```
+
+### Global Installation
+
+Use this when you want the skill available across repositories.
+
+Through Codex:
 
 ```text
 $skill-installer
 Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hschoi-init-project.
 ```
 
-You can also run the installer script directly if needed.
+Direct installer script:
 
 ```bash
 python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
@@ -52,7 +88,41 @@ python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-githu
   --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/main/hschoi-init-project
 ```
 
-After installation, restart Codex to pick up the new skill.
+If Codex is already running, restart it after installation so the new skill is picked up.
+
+## Generated Structure
+
+The skill creates or updates this baseline structure:
+
+```text
+AGENTS.md
+README.md
+rule/
+  index.md
+  project-structure.md
+  instruction-model.md
+  documentation-boundaries.md
+  readme-maintenance.md
+  development-standards.md
+  testing-standards.md
+  runtime-boundaries.md
+  implementation-records.md
+docs/
+  guide/
+    README.md
+    repository-map.md        # existing-project mode when structure signals exist
+    testing-overview.md      # existing-project mode when test signals exist
+  implementation/
+    AGENTS.md
+```
+
+- `AGENTS.md`: thin repository-wide Codex guidance
+- root `README.md`: durable human-facing repository summary
+- `rule/`: authoritative execution rules for Codex
+- `docs/guide/`: human-facing navigation and guide documents
+- `docs/implementation/`: implementation record placement rules and future record categories
+- In existing-project mode, additional guide documents are created when observed structure or test layout provides durable reader-facing material.
+- In Korean mode, non-control guide and implementation document filenames become Korean, for example `저장소-구조.md` and `테스트-개요.md`.
 
 ## Usage
 
