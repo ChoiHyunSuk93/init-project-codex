@@ -1,0 +1,31 @@
+# Instruction Model Rule
+
+## Purpose
+
+Define how root instructions, local instructions, and rule documents work together.
+
+## Authority Order
+
+1. Relevant task-specific user instructions
+2. Applicable local `AGENTS.md`
+3. Applicable referenced rule documents in `rule/`
+4. Root `AGENTS.md`
+
+Use this order to resolve scope, not to justify duplication.
+
+## Thin Root Principle
+
+- Keep the root `AGENTS.md` short.
+- Put stable, detailed behavior into `rule/*.md`.
+- Use local `AGENTS.md` files only for local scope clarification.
+
+## Non-Duplication
+
+- Do not restate the same rule in multiple places without a reason.
+- If a detailed rule changes, update the source rule document and any necessary index references instead of copying the edit into many files.
+
+## Skill Authoring Note
+
+- Use `skill-creator` when creating or updating Codex skills in this repository.
+- Write skills so both explicit invocation and implicit invocation through matching task descriptions work via clear `SKILL.md` descriptions and metadata.
+- Have each skill reference the relevant `rule/*.md` documents instead of duplicating stable repository-wide rules in the skill body.
