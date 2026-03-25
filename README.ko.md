@@ -133,7 +133,7 @@ $hschoi-init-project
 ```
 
 ```text
-Initialize this repository for Codex with a root AGENTS.md, rule/, docs/guide, and docs/implementation.
+root `AGENTS.md`, `rule/`, `docs/guide/`, `docs/implementation/`을 포함하도록 이 저장소를 Codex 기준으로 초기화해줘.
 ```
 
 요청에서 사용할 언어를 먼저 판단할 수 없으면 초기화를 시작하기 전에 언어를 먼저 확인합니다.
