@@ -40,7 +40,7 @@ Codex에서 설치:
 
 ```text
 $skill-installer
-Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hschoi-init-project into <project-root>/.codex/skills.
+GitHub repo ChoiHyunSuk93/init-project-codex 의 hschoi-init-project 경로에 있는 스킬을 <project-root>/.codex/skills 에 설치해줘.
 ```
 
 직접 installer 스크립트를 실행하는 방법:
@@ -69,7 +69,7 @@ Codex에서 설치:
 
 ```text
 $skill-installer
-Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hschoi-init-project.
+GitHub repo ChoiHyunSuk93/init-project-codex 의 hschoi-init-project 경로에 있는 스킬을 설치해줘.
 ```
 
 직접 installer 스크립트를 실행하는 방법:
@@ -110,8 +110,7 @@ rule/
 docs/
   guide/
     README.md
-    저장소-구조.md          # 기존 프로젝트 모드에서 구조 신호가 있을 때 생성
-    테스트-개요.md          # 기존 프로젝트 모드에서 테스트 신호가 있을 때 생성
+    [추가 guide 문서]       # 기존 프로젝트 모드에서 관찰된 구조나 테스트 신호가 충분할 때 생성
   implementation/
     AGENTS.md
 ```
@@ -122,7 +121,6 @@ docs/
 - `docs/guide/`: 사람이 읽는 안내와 탐색 문서
 - `docs/implementation/`: 구현 기록 배치 규칙과 이후 구현 기록 카테고리 공간
 - 기존 프로젝트 모드에서는 관찰된 구조나 테스트 레이아웃만으로도 독자에게 도움이 되는 경우 추가 guide 문서를 생성합니다.
-- 영문 모드에서는 `repository-map.md`, `testing-overview.md` 같은 영문 guide 문서를 생성합니다.
 
 ## 사용법
 
@@ -138,7 +136,8 @@ $hschoi-init-project
 Initialize this repository for Codex with a root AGENTS.md, rule/, docs/guide, and docs/implementation.
 ```
 
-언어가 아직 정해지지 않았으면 먼저 언어를 묻고, 그 다음 이 저장소를 신규 초기화로 다룰지 기존 프로젝트 retrofit으로 다룰지 결정합니다.
+요청에서 사용할 언어를 먼저 판단할 수 없으면 초기화를 시작하기 전에 언어를 먼저 확인합니다.
+언어가 정해진 뒤에 이 저장소를 신규 초기화로 다룰지 기존 프로젝트 retrofit으로 다룰지 결정합니다.
 
 ## 개발
 

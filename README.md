@@ -110,8 +110,7 @@ rule/
 docs/
   guide/
     README.md
-    repository-map.md        # existing-project mode when structure signals exist
-    testing-overview.md      # existing-project mode when test signals exist
+    [focused guide documents]   # existing-project mode when observed structure or test signals justify them
   implementation/
     AGENTS.md
 ```
@@ -122,7 +121,6 @@ docs/
 - `docs/guide/`: human-facing navigation and guide documents
 - `docs/implementation/`: implementation record placement rules and future record categories
 - In existing-project mode, additional guide documents are created when observed structure or test layout provides durable reader-facing material.
-- In Korean mode, non-control guide and implementation document filenames become Korean, for example `저장소-구조.md` and `테스트-개요.md`.
 
 ## Usage
 
@@ -138,7 +136,8 @@ $hschoi-init-project
 Initialize this repository for Codex with a root AGENTS.md, rule/, docs/guide, and docs/implementation.
 ```
 
-The skill asks for language first when language is not already fixed, then decides whether the repository should be handled as a fresh initialization or an additive retrofit.
+If no language choice can be inferred first, the skill asks for the language before it starts initialization.
+After language is fixed, it decides whether the repository should be handled as a fresh initialization or an additive retrofit.
 
 ## Development
 
