@@ -248,9 +248,6 @@ rule_tree_requires_confirmation() {
 
 list_planned_outputs() {
   readme_mode=$1
-  language=$2
-  generate_repository_guide=$3
-  generate_testing_guide=$4
 
   if [ "$readme_mode" != "skip" ]; then
     printf 'README.md\n'
@@ -270,24 +267,13 @@ rule/testing-standards.md
 rule/project-structure.md
 rule/runtime-boundaries.md
 EOF
-
-  if [ "$generate_repository_guide" -eq 1 ]; then
-    printf 'docs/guide/%s\n' "$(repository_guide_filename "$language")"
-  fi
-
-  if [ "$generate_testing_guide" -eq 1 ]; then
-    printf 'docs/guide/%s\n' "$(testing_guide_filename "$language")"
-  fi
 }
 
 detect_conflicting_outputs() {
   target_dir=$1
   readme_mode=$2
-  language=$3
-  generate_repository_guide=$4
-  generate_testing_guide=$5
 
-  list_planned_outputs "$readme_mode" "$language" "$generate_repository_guide" "$generate_testing_guide" | while IFS= read -r relative_path; do
+  list_planned_outputs "$readme_mode" | while IFS= read -r relative_path; do
     [ -n "$relative_path" ] || continue
     if [ -e "$target_dir/$relative_path" ]; then
       printf '%s\n' "$relative_path"
@@ -496,339 +482,11 @@ make_non_runtime_body() {
   render_bullets "$merged_non_runtime_dirs"
 }
 
-repository_guide_filename() {
-  language=$1
-  if [ "$language" = "ko" ]; then
-    printf '저장소-구조.md\n'
-    return 0
-  fi
-
-  printf 'repository-map.md\n'
-}
-
-testing_guide_filename() {
-  language=$1
-  if [ "$language" = "ko" ]; then
-    printf '테스트-개요.md\n'
-    return 0
-  fi
-
-  printf 'testing-overview.md\n'
-}
-
-should_generate_repository_guide() {
-  readme_mode=$1
-  runtime_dirs=$2
-  observed_dirs=$3
-  observed_files=$4
-  tooling_files=$5
-  docs_children=$6
-  rule_children=$7
-
-  if [ "$readme_mode" != "existing" ]; then
-    return 1
-  fi
-
-  if [ -n "$runtime_dirs" ] || [ -n "$observed_dirs" ] || [ -n "$observed_files" ] || [ -n "$tooling_files" ] || [ -n "$docs_children" ] || [ -n "$rule_children" ]; then
-    return 0
-  fi
-
-  return 1
-}
-
-should_generate_testing_guide() {
-  readme_mode=$1
-  test_dirs=$2
-  test_tooling_files=$3
-
-  if [ "$readme_mode" != "existing" ]; then
-    return 1
-  fi
-
-  if [ -n "$test_dirs" ] || [ -n "$test_tooling_files" ]; then
-    return 0
-  fi
-
-  return 1
-}
-
-build_repository_guide() {
-  language=$1
-  runtime_dirs=$2
-  non_runtime_dirs=$3
-  observed_dirs=$4
-  observed_files=$5
-  tooling_files=$6
-  docs_children=$7
-  rule_children=$8
-  merged_non_runtime_dirs=$(merge_non_runtime_dirs "$non_runtime_dirs")
-
-  if [ "$language" = "ko" ]; then
-    if [ -n "$observed_dirs" ]; then
-      observed_dir_block=$(render_bullets "$observed_dirs")
-    else
-      observed_dir_block='관찰된 최상위 디렉토리가 아직 없다.'
-    fi
-
-    if [ -n "$observed_files" ]; then
-      observed_file_block=$(render_bullets "$observed_files")
-    else
-      observed_file_block='관찰된 주요 최상위 파일이 아직 없다.'
-    fi
-
-    if [ -n "$runtime_dirs" ]; then
-      runtime_block=$(render_bullets "$runtime_dirs")
-    else
-      runtime_block='아직 확정된 runtime 영역은 없다.'
-    fi
-
-    non_runtime_block=$(render_bullets "$merged_non_runtime_dirs")
-
-    if [ -n "$tooling_files" ]; then
-      tooling_block=$(render_bullets "$tooling_files")
-    else
-      tooling_block='관찰된 top-level 툴링 또는 설정 파일이 아직 없다.'
-    fi
-
-    if [ -n "$docs_children" ]; then
-      docs_block=$(render_bullets "$docs_children")
-    else
-      docs_block='기존 top-level docs 항목은 관찰되지 않았다.'
-    fi
-
-    if [ -n "$rule_children" ]; then
-      rule_block=$(render_bullets "$rule_children")
-    else
-      rule_block='기존 top-level rule 항목은 관찰되지 않았다.'
-    fi
-
-    cat <<EOF
-# 저장소 구조 안내
-
-## 목적
-
-이 문서는 초기화 시점에 관찰된 저장소 구조를 사람이 빠르게 파악할 수 있도록 요약한다.
-
-## 관찰된 최상위 디렉토리
-
-$observed_dir_block
-
-## 관찰된 주요 최상위 파일
-
-$observed_file_block
-
-## Runtime 영역
-
-$runtime_block
-
-## Non-Runtime 영역
-
-$non_runtime_block
-
-## 관찰된 툴링 신호
-
-$tooling_block
-
-## 기존 docs 및 rule 신호
-
-기존 docs/ 항목:
-
-$docs_block
-
-기존 rule/ 항목:
-
-$rule_block
-
-## 안내 메모
-
-- 이 문서는 초기화 시점의 관찰 결과를 기준으로 만든다.
-- 실제 구조나 각 디렉토리의 역할이 더 분명해지면 이 문서를 갱신한다.
-- 실행 규칙은 \`rule/\` 아래 문서를 기준으로 본다.
-EOF
-    return 0
-  fi
-
-  if [ -n "$observed_dirs" ]; then
-    observed_dir_block=$(render_bullets "$observed_dirs")
-  else
-    observed_dir_block='No top-level directories were observed yet.'
-  fi
-
-  if [ -n "$observed_files" ]; then
-    observed_file_block=$(render_bullets "$observed_files")
-  else
-    observed_file_block='No significant top-level files were observed yet.'
-  fi
-
-  if [ -n "$runtime_dirs" ]; then
-    runtime_block=$(render_bullets "$runtime_dirs")
-  else
-    runtime_block='Runtime areas are not confirmed yet.'
-  fi
-
-  non_runtime_block=$(render_bullets "$merged_non_runtime_dirs")
-
-  if [ -n "$tooling_files" ]; then
-    tooling_block=$(render_bullets "$tooling_files")
-  else
-    tooling_block='No top-level tooling or config files were observed yet.'
-  fi
-
-  if [ -n "$docs_children" ]; then
-    docs_block=$(render_bullets "$docs_children")
-  else
-    docs_block='No existing top-level docs entries were observed.'
-  fi
-
-  if [ -n "$rule_children" ]; then
-    rule_block=$(render_bullets "$rule_children")
-  else
-    rule_block='No existing top-level rule entries were observed.'
-  fi
-
-  cat <<EOF
-# Repository Map
-
-## Purpose
-
-Summarize the observed repository structure so readers can navigate the project quickly.
-
-## Observed Top-Level Directories
-
-$observed_dir_block
-
-## Observed Top-Level Files
-
-$observed_file_block
-
-## Runtime Areas
-
-$runtime_block
-
-## Non-Runtime Areas
-
-$non_runtime_block
-
-## Observed Tooling Signals
-
-$tooling_block
-
-## Existing Docs And Rule Signals
-
-Existing docs/ entries:
-
-$docs_block
-
-Existing rule/ entries:
-
-$rule_block
-
-## Notes
-
-- This document is based on observed repository state at initialization time.
-- Update it as directory roles and navigation paths become clearer.
-- Use the documents under \`rule/\` as the execution authority.
-EOF
-}
-
-build_testing_guide() {
-  language=$1
-  test_dirs=$2
-  test_tooling_files=$3
-
-  if [ "$language" = "ko" ]; then
-    if [ -n "$test_dirs" ]; then
-      test_dir_block=$(render_bullets "$test_dirs")
-    else
-      test_dir_block='관찰된 테스트 디렉토리가 아직 없다.'
-    fi
-
-    if [ -n "$test_tooling_files" ]; then
-      test_tooling_block=$(render_bullets "$test_tooling_files")
-    else
-      test_tooling_block='관찰된 테스트 설정 파일이 아직 없다.'
-    fi
-
-    cat <<EOF
-# 테스트 개요
-
-## 목적
-
-이 문서는 초기화 시점에 관찰된 테스트 관련 구조를 사람이 빠르게 이해할 수 있도록 요약한다.
-
-## 관찰된 테스트 디렉토리
-
-$test_dir_block
-
-## 관찰된 테스트 설정 파일
-
-$test_tooling_block
-
-## 안내 메모
-
-- 이 문서는 관찰된 테스트 구조를 설명하는 문서다.
-- 테스트 규칙 자체는 \`rule/testing-standards.md\`를 기준으로 본다.
-- 실제 테스트 명령이나 범위가 더 분명해지면 이 문서를 갱신한다.
-EOF
-    return 0
-  fi
-
-  if [ -n "$test_dirs" ]; then
-    test_dir_block=$(render_bullets "$test_dirs")
-  else
-    test_dir_block='No test directories were observed yet.'
-  fi
-
-  if [ -n "$test_tooling_files" ]; then
-    test_tooling_block=$(render_bullets "$test_tooling_files")
-  else
-    test_tooling_block='No test config files were observed yet.'
-  fi
-
-  cat <<EOF
-# Testing Overview
-
-## Purpose
-
-Summarize the observed test structure so readers can quickly see how testing is organized in this repository.
-
-## Observed Test Directories
-
-$test_dir_block
-
-## Observed Test Config Files
-
-$test_tooling_block
-
-## Notes
-
-- This document describes observed test structure only.
-- Use \`rule/testing-standards.md\` as the authority for testing rules.
-- Update this document as real test commands and coverage boundaries become clearer.
-EOF
-}
-
 build_existing_guide_readme() {
   language=$1
-  generate_repository_guide=$2
-  generate_testing_guide=$3
-  docs_children=$4
+  docs_children=$2
 
   if [ "$language" = "ko" ]; then
-    current_guides=''
-    if [ "$generate_repository_guide" -eq 1 ]; then
-      current_guides="$current_guides- [\`$(repository_guide_filename "$language")\`](./$(repository_guide_filename "$language")): 관찰된 최상위 구조, runtime 구분, 탐색 메모를 정리한다.\n"
-    fi
-    if [ "$generate_testing_guide" -eq 1 ]; then
-      current_guides="$current_guides- [\`$(testing_guide_filename "$language")\`](./$(testing_guide_filename "$language")): 관찰된 테스트 디렉토리와 테스트 설정 파일을 정리한다.\n"
-    fi
-
-    if [ -z "$current_guides" ]; then
-      current_guides='- 아직 초기 생성된 추가 guide 문서가 없다.'
-    else
-      current_guides=$(printf '%b' "$current_guides")
-    fi
-
     if [ -n "$docs_children" ]; then
       existing_docs_block=$(render_bullets "$docs_children")
     else
@@ -838,12 +496,13 @@ build_existing_guide_readme() {
     cat <<EOF
 # 안내 문서 디렉토리
 
-이 디렉토리는 사람이 읽는 프로젝트 안내 문서를 위한 공간이다.
+이 디렉토리는 사람이 실제로 따라야 하는 사용자 가이드를 위한 공간이다.
 이 \`README.md\`는 이 디렉토리의 기본 진입점이자 안내 문서 인덱스 역할을 한다.
 
-## 현재 가이드 문서
+## 현재 상태
 
-$current_guides
+- 초기화 단계에서는 이 \`README.md\`만 기본 생성한다.
+- 실행 가이드, 배포 가이드, 테스트 실행 가이드, 디자인 요청 가이드처럼 실제 사용자가 따라야 하는 워크플로가 확인되면 관련 문서를 추가한다.
 
 ## 초기화 시점에 관찰된 기존 docs 신호
 
@@ -851,25 +510,12 @@ $existing_docs_block
 
 ## 문서 운영 원칙
 
-- 오래 유지해야 할 가이드 성격의 내용이 더 분명해지면 이 인덱스에 관련 문서를 추가한다.
+- 실제 사용자 워크플로가 분명해질 때만 이 인덱스에 관련 guide 문서를 추가한다.
 - 문서 수가 늘어나면 이 \`README.md\`를 인덱스로 유지하고, 세부 내용은 개별 문서로 분리한다.
-- 독자가 이해해야 할 내용만 두고, 실행 규칙은 \`rule/\` 아래 문서를 기준으로 본다.
+- 저장소 구조 요약, 구현 상세, 규칙 복사본은 이 디렉토리에 두지 않는다.
+- 독자가 따라야 할 안내만 두고, 실행 규칙은 \`rule/\` 아래 문서를 기준으로 본다.
 EOF
     return 0
-  fi
-
-  current_guides=''
-  if [ "$generate_repository_guide" -eq 1 ]; then
-    current_guides="$current_guides- [\`$(repository_guide_filename "$language")\`](./$(repository_guide_filename "$language")): Summarizes observed top-level structure, runtime areas, and navigation notes.\n"
-  fi
-  if [ "$generate_testing_guide" -eq 1 ]; then
-    current_guides="$current_guides- [\`$(testing_guide_filename "$language")\`](./$(testing_guide_filename "$language")): Summarizes observed test directories and test config files.\n"
-  fi
-
-  if [ -z "$current_guides" ]; then
-    current_guides='- No additional guide documents were seeded yet.'
-  else
-    current_guides=$(printf '%b' "$current_guides")
   fi
 
   if [ -n "$docs_children" ]; then
@@ -881,12 +527,13 @@ EOF
   cat <<EOF
 # Guide Directory
 
-Use this directory for human-facing project guidance.
+Use this directory for user-facing workflow guides.
 This \`README.md\` acts as the entry point and index for the guide set.
 
-## Current Guides
+## Current State
 
-$current_guides
+- This \`README.md\` is the only default guide file created at initialization time.
+- Add focused documents only when readers need a real workflow guide, such as running, deploying, testing, operations, or request intake.
 
 ## Existing Docs Signals Observed At Initialization
 
@@ -894,8 +541,9 @@ $existing_docs_block
 
 ## Documentation Maintenance
 
-- Add newly durable guide documents to this index as project understanding improves.
+- Add guide documents to this index only when a real user-facing workflow needs to be documented.
 - Keep this \`README.md\` as the guide entry point and move detail into focused documents.
+- Do not use this directory for repository maps, implementation details, or copied rule text.
 - Keep reader guidance here and keep execution rules under \`rule/\`.
 EOF
 }
@@ -1641,17 +1289,7 @@ if [ "$README_MODE" = "existing" ] && [ -z "$RUNTIME_DIRS" ]; then
 fi
 DOCS_CHILDREN=$(list_docs_children "$TARGET_DIR")
 RULE_CHILDREN=$(list_rule_children "$TARGET_DIR")
-GENERATE_REPOSITORY_GUIDE=0
-if should_generate_repository_guide "$README_MODE" "$RUNTIME_DIRS" "$OBSERVED_DIRS" "$OBSERVED_FILES" "$OBSERVED_TOOLING_FILES" "$DOCS_CHILDREN" "$RULE_CHILDREN"; then
-  GENERATE_REPOSITORY_GUIDE=1
-fi
-
-GENERATE_TESTING_GUIDE=0
-if should_generate_testing_guide "$README_MODE" "$OBSERVED_TEST_DIRS" "$OBSERVED_TEST_TOOLING_FILES"; then
-  GENERATE_TESTING_GUIDE=1
-fi
-
-CONFLICTING_OUTPUTS=$(detect_conflicting_outputs "$TARGET_DIR" "$README_MODE" "$LANGUAGE" "$GENERATE_REPOSITORY_GUIDE" "$GENERATE_TESTING_GUIDE")
+CONFLICTING_OUTPUTS=$(detect_conflicting_outputs "$TARGET_DIR" "$README_MODE")
 
 RUNTIME_NEEDS_INPUT=0
 if [ "$README_MODE" = "existing" ] && [ -z "$RUNTIME_DIRS_RAW" ] && [ -n "$OBSERVED_DIRS" ]; then
@@ -1701,13 +1339,7 @@ if [ "$README_MODE" = "fresh" ]; then
   copy_template "assets/docs/guide/README.$LANGUAGE.md" "$TARGET_DIR/docs/guide/README.md"
 elif [ "$README_MODE" = "existing" ]; then
   write_text "$TARGET_DIR/README.md" "$(build_existing_readme "$LANGUAGE" "$TARGET_DIR" "$RUNTIME_DIRS" "$NON_RUNTIME_DIRS" "$OBSERVED_DIRS" "$OBSERVED_FILES")"
-  if [ "$GENERATE_REPOSITORY_GUIDE" -eq 1 ]; then
-    write_text "$TARGET_DIR/docs/guide/$(repository_guide_filename "$LANGUAGE")" "$(build_repository_guide "$LANGUAGE" "$RUNTIME_DIRS" "$NON_RUNTIME_DIRS" "$OBSERVED_DIRS" "$OBSERVED_FILES" "$OBSERVED_TOOLING_FILES" "$DOCS_CHILDREN" "$RULE_CHILDREN")"
-  fi
-  if [ "$GENERATE_TESTING_GUIDE" -eq 1 ]; then
-    write_text "$TARGET_DIR/docs/guide/$(testing_guide_filename "$LANGUAGE")" "$(build_testing_guide "$LANGUAGE" "$OBSERVED_TEST_DIRS" "$OBSERVED_TEST_TOOLING_FILES")"
-  fi
-  write_text "$TARGET_DIR/docs/guide/README.md" "$(build_existing_guide_readme "$LANGUAGE" "$GENERATE_REPOSITORY_GUIDE" "$GENERATE_TESTING_GUIDE" "$DOCS_CHILDREN")"
+  write_text "$TARGET_DIR/docs/guide/README.md" "$(build_existing_guide_readme "$LANGUAGE" "$DOCS_CHILDREN")"
 else
   copy_template "assets/docs/guide/README.$LANGUAGE.md" "$TARGET_DIR/docs/guide/README.md"
 fi

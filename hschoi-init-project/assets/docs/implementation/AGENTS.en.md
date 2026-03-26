@@ -25,7 +25,8 @@ This directory stores human-facing implementation records.
 
 ## Related Updates
 
-- When work produces durable guide content, create or update the relevant document under `docs/guide/`.
+- If a change affects a real user-facing workflow, create or update the relevant guide document under `docs/guide/`.
+- Do not move implementation notes, repository maps, or copied rule text into `docs/guide/`.
 - When a rule gains explicit new requirements or an existing rule changes, update the relevant `rule/*.md` document and `rule/index.md` in the same change.
 - Keep implementation records aligned with `rule/testing-standards.md` when tests or verification conventions become more concrete.
 

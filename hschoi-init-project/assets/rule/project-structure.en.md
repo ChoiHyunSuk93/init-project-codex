@@ -8,7 +8,7 @@ Define the top-level directory model for this repository and make the role of ea
 
 - `AGENTS.md`: repository-wide orchestration guidance
 - `rule/`: authoritative Codex execution rules
-- `docs/guide/`: human-facing guidance
+- `docs/guide/`: user-facing workflow guides
 - `docs/implementation/`: human-facing implementation records
 
 ## Runtime Areas

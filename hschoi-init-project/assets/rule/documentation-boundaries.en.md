@@ -8,7 +8,7 @@ Define the difference between rule documents, guide documents, and implementatio
 
 - `README.md`: primary human-facing repository summary at the root
 - `rule/`: authoritative Codex execution rules
-- `docs/guide/`: human-facing guidance and reference material
+- `docs/guide/`: user-facing guides for real workflows
 - `docs/implementation/`: human-facing implementation records and outcomes
 
 ## Default Control Files
@@ -30,8 +30,9 @@ Keep these control filenames stable across language modes.
 ## Documentation Automation
 
 - Create or update the root `README.md` when durable repository-facing facts or project structure become clearer.
-- Add or update guide documents when durable guide-worthy content appears.
-- In existing repositories, seed focused guide documents from observed structure or test layout when that information is already stable enough to help readers navigate the project.
+- Add or update guide documents only when a stable user-facing workflow exists, such as running, deploying, testing, operations, or request intake.
+- Do not create guide documents from observed structure, test layout, tooling inventories, or implementation notes alone.
+- Keep implementation details in `docs/implementation/` and execution rules in `rule/`.
 - Keep implementation records synchronized with actual implementation changes.
 - Create or update rule documents when explicit rule requirements are added or changed.
 

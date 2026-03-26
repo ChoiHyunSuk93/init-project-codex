@@ -8,7 +8,7 @@
 
 - `AGENTS.md`: 저장소 전역 orchestration 지침
 - `rule/`: authoritative Codex 실행 규칙
-- `docs/guide/`: 사람이 읽는 안내 문서
+- `docs/guide/`: 사람이 읽는 사용자 가이드 문서
 - `docs/implementation/`: 사람이 읽는 구현 기록 문서
 
 ## Runtime 영역

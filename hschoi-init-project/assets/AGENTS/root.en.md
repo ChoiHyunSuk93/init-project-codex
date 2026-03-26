@@ -24,7 +24,7 @@ Keep this file thin and use it to route work to detailed documents under `rule/`
 ## Document Roles
 
 - `rule/` contains authoritative Codex execution rules.
-- `docs/guide/` contains human-facing project guidance.
+- `docs/guide/` contains user-facing guides for real project workflows.
 - `docs/implementation/` contains human-facing implementation records and work history.
 
 ## Documentation Automation
@@ -32,8 +32,8 @@ Keep this file thin and use it to route work to detailed documents under `rule/`
 - Keep the root `README.md` current as the primary human-facing summary of the repository.
 - In fresh repositories, start `README.md` from a minimal template and replace placeholders as the real project purpose becomes known.
 - In existing repositories, update `README.md` from observed project structure and durable project facts instead of inventing missing details.
-- When work produces durable human-facing guidance, create or update the appropriate guide document under `docs/guide/`.
-- In existing repositories, seed focused guide documents from observed repository structure or observed test layout when that information is already stable enough to help readers navigate the project.
+- When work creates or changes a stable user-facing workflow, such as running, deploying, testing, operations, or request intake, create or update the relevant guide document under `docs/guide/`.
+- Do not create guide documents from repository structure summaries, project rules, test directory inventories, or implementation notes alone.
 - For every implementation change, create or update the corresponding implementation record under `docs/implementation/` in the correct concern-based category and keep the record numbering in order.
 - For behavior changes, add or update the most relevant test layer when practical and keep `rule/testing-standards.md` aligned with real test conventions as they emerge.
 - When a rule gains new explicit requirements or an existing rule changes, create or update the corresponding document under `rule/` and update `rule/index.md` in the same change.

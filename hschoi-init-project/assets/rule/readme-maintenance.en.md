@@ -26,5 +26,5 @@ Define how the root `README.md` is created and maintained as the repository's pr
 
 - Update `README.md` when durable project-facing facts change, such as repository purpose, major structure, usage entry points, or contributor-facing workflow.
 - Keep `README.md` high-signal and summary-oriented.
-- Move deeper reference material into `docs/guide/` when the documentation set grows.
+- Move deeper user-facing workflow guides into `docs/guide/` when the documentation set grows.
 - Link to relevant guide documents from `README.md` when they improve navigation.

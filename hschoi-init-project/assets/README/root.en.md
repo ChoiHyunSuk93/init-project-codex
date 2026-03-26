@@ -15,7 +15,7 @@ Update this README as the real project purpose, structure, and usage become conc
 
 - `AGENTS.md`: repository-wide Codex guidance
 - `rule/`: authoritative Codex rules
-- `docs/guide/`: human-facing guidance
+- `docs/guide/`: user-facing workflow guides
 - `docs/implementation/`: implementation history
 
 ## Usage

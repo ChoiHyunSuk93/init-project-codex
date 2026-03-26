@@ -59,7 +59,7 @@ The root file must:
 - distinguish authoritative rule documents from human-facing docs
 - reinforce the principle of keeping the root thin over time
 - include the active document language policy
-- include documentation automation expectations for root `README.md`, guide docs, implementation records, and rule docs
+- include documentation automation expectations for root `README.md`, user-facing guide docs, implementation records, and rule docs
 - tell Codex to keep root `README.md` updated as durable project-facing facts change
 - include conditional guidance for skill creation when the repository contains Codex skills
 
@@ -222,7 +222,7 @@ Create these directories:
 
 Interpret them like this:
 
-- `guide`: human-facing project guidance
+- `guide`: human-facing workflow and usage guides
 - `implementation`: human-facing work history and outcome tracking
 - `rule`: authoritative Codex execution rules
 
@@ -264,15 +264,20 @@ Rationale:
 
 Do not create `docs/guide/AGENTS.md` by default unless that directory actually needs local execution rules beyond what the root file and `rule/` documents already define.
 
-In existing repositories, do not stop at `docs/guide/README.md` if the observed project already exposes durable guide-worthy structure.
-Create focused guide documents when the repository already gives enough information to do so safely.
+Keep `docs/guide/README.md` as the guide index.
+It is acceptable for that `README.md` to be the only file under `docs/guide/` at initialization time.
 
-Default expectations for existing repositories:
+Create focused guide documents only when there is a real user-facing workflow or request flow to explain safely.
+Good examples include:
 
-- create a structure-oriented guide from observed top-level layout, runtime areas, and durable navigation points
-- create a testing guide when test directories or test config files are already present
-- keep these guides observational and navigation-focused instead of inventing setup commands or behavior
-- keep `docs/guide/README.md` as the index that links to any generated guide documents
+- run or execution guides
+- deployment guides
+- test-running guides
+- design request guides
+- operator or support workflows
+
+Do not auto-create guide files from observed structure, runtime classification, test directory listings, tooling signals, or implementation notes alone.
+Do not use `docs/guide/` as a duplicate home for rule text or implementation history.
 
 If a repository already has a meaningful top-level `docs/` tree, inspect it before creating new guide structure.
 If it is unclear whether `docs/guide/` should be added alongside existing docs, ask first and continue from the answer.

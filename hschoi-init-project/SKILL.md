@@ -72,9 +72,9 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - Create or update the root `README.md` as the primary human-facing repository summary.
    - In fresh mode, start `README.md` from a minimal template and keep placeholders explicit.
    - In existing-project mode, inspect the current project and write or refine `README.md` from observed purpose, major directories, existing docs, and current entry points without inventing missing details.
-   - In existing-project mode, create focused `docs/guide/` documents when inspection reveals durable guide-worthy content.
-   - At minimum, create a structure-oriented guide from observed repository layout when the repository already contains meaningful structure.
-   - If test directories or test config files are already present, create a testing guide from those observed signals.
+   - In existing-project mode, create focused `docs/guide/` documents only when inspection or existing docs reveal stable user-facing workflows that readers actually need.
+   - Good guide targets include execution, deployment, test-running, operations, request intake, or design-request flows that a real reader can follow.
+   - Do not create guide documents that merely summarize repository layout, runtime areas, tooling signals, test directory listings, project rules, or implementation details.
    - Create a thin root `AGENTS.md` that orchestrates more detailed rules instead of duplicating them.
    - Start the root file from the language-appropriate template in the skill's `assets/AGENTS/`.
    - Create `rule/index.md` as the authoritative discovery point for detailed rules.
@@ -121,7 +121,7 @@ In existing repositories or uncertain structures, inspect first, ask the missing
 - `docs/guide/`
 - `docs/implementation/` with category-based record placement rules instead of a flat history directory by default
 - `docs/guide/README.md` by default
-- focused guide documents under `docs/guide/` when observed structure or existing project signals justify them
+- focused guide documents under `docs/guide/` only when actual user-facing workflows justify them
 - `docs/implementation/AGENTS.md` by default
 - starter rule documents including `rule/readme-maintenance.md`, `rule/development-standards.md`, and `rule/testing-standards.md`
 - other local `AGENTS.md` files where they reduce scope and context
@@ -153,8 +153,9 @@ Read [references/structure-initialization.md](references/structure-initializatio
 - Do not flatten `docs/implementation/` unless the user explicitly asks for a flat layout.
 - Do not pre-create empty implementation category directories or placeholder implementation records during initialization.
 - Do not create `docs/guide/AGENTS.md` by default when `README.md` is sufficient for that directory.
-- Do not skip obvious guide documents in existing repositories when observed structure already provides durable navigation material.
-- Do not create empty guide documents that merely restate placeholders without observed substance.
+- Do not create guide documents from repository structure, runtime classification, tooling inventories, or test layout alone.
+- Do not copy project rules or implementation notes into `docs/guide/`.
+- Do not create empty guide documents that merely restate placeholders without a real user workflow.
 - Do not leave starter rule placeholders untouched once the real structure becomes known.
 - Do not skip baseline development standards when the repository does not yet expose stronger project-specific quality rules.
 - Do not copy the skill's `assets/` directory into the target repository.

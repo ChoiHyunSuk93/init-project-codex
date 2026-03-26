@@ -15,7 +15,7 @@
 
 - `AGENTS.md`: 저장소 전역 Codex 지침
 - `rule/`: 기준 Codex 규칙
-- `docs/guide/`: 사람이 읽는 안내 문서
+- `docs/guide/`: 사람이 읽는 사용자 가이드 문서
 - `docs/implementation/`: 구현 이력 문서
 
 ## 사용 방법
