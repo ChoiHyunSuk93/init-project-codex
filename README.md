@@ -31,6 +31,7 @@ It focuses on a small, explicit baseline:
 
 Install the skill with the built-in `skill-installer` helper.
 Prefer a tagged release over `main` so later updates can follow GitHub releases.
+The current latest public release is `v0.1.1`.
 
 ### Project-Scoped Installation (Recommended)
 
@@ -99,7 +100,7 @@ If Codex is already running, restart it after installation so the new skill is p
 
 Use the bundled updater to replace the installed skill directory in place.
 `--ref latest` resolves the latest GitHub release tag, not the `main` branch.
-If your installed copy predates this updater, reinstall once from the first tagged release and use the updater after that.
+If your installed copy predates this updater, reinstall once from a tagged release and use the updater after that.
 
 Project-scoped installation:
 
@@ -119,7 +120,7 @@ The updater records the installed release source so later updates can continue f
 
 ### Maintainer Release Flow
 
-Push a semantic version tag such as `v0.1.0`.
+Push the next semantic version tag for the intended release.
 
 ```bash
 git tag vX.Y.Z
@@ -127,7 +128,7 @@ git push origin vX.Y.Z
 ```
 
 The repository includes `.github/workflows/release.yml`, which validates the skill bundle and creates a GitHub Release for tags matching `v*`.
-The first release tag must be published before `--ref latest` can resolve successfully.
+At least one GitHub release tag must exist before `--ref latest` can resolve successfully.
 Detailed versioning rules live in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Generated Structure
