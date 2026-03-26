@@ -30,6 +30,7 @@
 ## 설치
 
 내장 `skill-installer` helper로 설치합니다.
+이후 업데이트를 안정적으로 하려면 `main` 대신 태그 릴리스를 기준으로 설치하는 편이 좋습니다.
 
 ### 프로젝트 스코프 설치 (권장)
 
@@ -40,18 +41,20 @@ Codex에서 설치:
 
 ```text
 $skill-installer
-GitHub repo ChoiHyunSuk93/init-project-codex 의 hschoi-init-project 경로에 있는 스킬을 <project-root>/.codex/skills 에 설치해줘.
+GitHub repo ChoiHyunSuk93/init-project-codex 의 hschoi-init-project 경로에 있는 스킬을 릴리스 태그 vX.Y.Z 기준으로 <project-root>/.codex/skills 에 설치해줘.
 ```
 
 직접 installer 스크립트를 실행하는 방법:
 
 ```bash
+TAG=vX.Y.Z
+
 mkdir -p .codex/skills
 
 python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
   --repo ChoiHyunSuk93/init-project-codex \
   --path hschoi-init-project \
-  --ref main \
+  --ref "$TAG" \
   --dest "$PWD/.codex/skills"
 ```
 
@@ -69,26 +72,63 @@ Codex에서 설치:
 
 ```text
 $skill-installer
-GitHub repo ChoiHyunSuk93/init-project-codex 의 hschoi-init-project 경로에 있는 스킬을 설치해줘.
+GitHub repo ChoiHyunSuk93/init-project-codex 의 hschoi-init-project 경로에 있는 스킬을 릴리스 태그 vX.Y.Z 기준으로 설치해줘.
 ```
 
 직접 installer 스크립트를 실행하는 방법:
 
 ```bash
+TAG=vX.Y.Z
+
 python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
   --repo ChoiHyunSuk93/init-project-codex \
   --path hschoi-init-project \
-  --ref main
+  --ref "$TAG"
 ```
 
 URL로도 설치할 수 있습니다.
 
 ```bash
 python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
-  --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/main/hschoi-init-project
+  --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/vX.Y.Z/hschoi-init-project
 ```
 
 Codex가 이미 실행 중이면 설치 후 재시작해야 새 스킬이 인식됩니다.
+
+### 기존 설치 업데이트
+
+번들된 updater 스크립트로 현재 설치 디렉터리를 제자리에서 교체할 수 있습니다.
+`--ref latest`는 `main`이 아니라 GitHub의 최신 릴리스 태그를 해석합니다.
+이미 설치된 복사본이 이 updater 추가 이전 버전이라면, 첫 태그 릴리스로 한 번 재설치한 뒤부터 updater를 사용할 수 있습니다.
+
+프로젝트 스코프 설치:
+
+```bash
+python3 ./.codex/skills/hschoi-init-project/scripts/update-skill-release.py --ref latest
+python3 ./.codex/skills/hschoi-init-project/scripts/update-skill-release.py --ref vX.Y.Z
+```
+
+전역 설치:
+
+```bash
+python3 ~/.codex/skills/hschoi-init-project/scripts/update-skill-release.py --ref latest
+python3 ~/.codex/skills/hschoi-init-project/scripts/update-skill-release.py --ref vX.Y.Z
+```
+
+Updater는 설치 소스 정보를 기록하므로, 이후 업데이트도 같은 repo/path 기준으로 이어갈 수 있습니다. Codex가 이미 실행 중이면 업데이트 후 재시작하세요.
+
+### 유지보수자 릴리스 절차
+
+`v0.1.0` 같은 semantic version 태그를 푸시합니다.
+
+```bash
+git tag vX.Y.Z
+git push origin vX.Y.Z
+```
+
+저장소에는 `.github/workflows/release.yml`이 포함되어 있으며, `v*` 태그에 대해 스킬 번들을 검증하고 GitHub Release를 생성합니다.
+첫 릴리스 태그를 한 번 발행해야 `--ref latest` 경로가 정상적으로 동작합니다.
+상세 버전 관리 기준은 [CONTRIBUTING.md](CONTRIBUTING.md)에 둡니다.
 
 ## 생성 구조
 
@@ -150,6 +190,7 @@ $hschoi-init-project
 - 안정적인 상세 내용은 `references/`로 옮깁니다.
 - 재사용 가능한 템플릿은 `assets/`에 둡니다.
 - 반복되는 출력이 안정되면 `scripts/`를 통한 결정론적 생성을 우선합니다.
+- 릴리스 태그 기반 설치와 업데이트 안내도 함께 최신 상태로 유지합니다.
 
 ## 기여
 

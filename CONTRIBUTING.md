@@ -26,6 +26,27 @@ git checkout -b short-description-of-change
 - Include testing notes, even if no tests were run.
 - Update documentation when the change affects how the project is used or understood.
 
+## Versioning
+
+This repository uses semantic version tags in the `vMAJOR.MINOR.PATCH` format.
+
+- Start public releases at `v0.1.0`.
+- Create release tags only from commits already merged into `main`.
+- Treat release tags as immutable. Do not move, recreate, or delete a published release tag.
+- Use `PATCH` for fixes and small behavior-preserving maintenance updates.
+- Use `MINOR` for additive changes that keep existing usage and repository outputs compatible.
+- Use `MAJOR` for breaking changes to skill behavior, generated control structure, or documented upgrade expectations.
+- Use prerelease tags such as `v0.2.0-rc.1` only when maintainers want a testable release candidate before the final tag.
+
+Release flow:
+
+```bash
+git checkout main
+git pull origin main
+git tag vX.Y.Z
+git push origin vX.Y.Z
+```
+
 ## Welcome Changes
 
 The following contributions are a good fit for this repository:

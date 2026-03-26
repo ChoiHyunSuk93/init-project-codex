@@ -30,6 +30,7 @@ It focuses on a small, explicit baseline:
 ## Installation
 
 Install the skill with the built-in `skill-installer` helper.
+Prefer a tagged release over `main` so later updates can follow GitHub releases.
 
 ### Project-Scoped Installation (Recommended)
 
@@ -40,18 +41,20 @@ Through Codex:
 
 ```text
 $skill-installer
-Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hschoi-init-project into <project-root>/.codex/skills.
+Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hschoi-init-project at release tag vX.Y.Z into <project-root>/.codex/skills.
 ```
 
 Direct installer script:
 
 ```bash
+TAG=vX.Y.Z
+
 mkdir -p .codex/skills
 
 python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
   --repo ChoiHyunSuk93/init-project-codex \
   --path hschoi-init-project \
-  --ref main \
+  --ref "$TAG" \
   --dest "$PWD/.codex/skills"
 ```
 
@@ -69,26 +72,63 @@ Through Codex:
 
 ```text
 $skill-installer
-Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hschoi-init-project.
+Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hschoi-init-project at release tag vX.Y.Z.
 ```
 
 Direct installer script:
 
 ```bash
+TAG=vX.Y.Z
+
 python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
   --repo ChoiHyunSuk93/init-project-codex \
   --path hschoi-init-project \
-  --ref main
+  --ref "$TAG"
 ```
 
 You can also install it by URL:
 
 ```bash
 python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
-  --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/main/hschoi-init-project
+  --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/vX.Y.Z/hschoi-init-project
 ```
 
 If Codex is already running, restart it after installation so the new skill is picked up.
+
+### Updating An Existing Installation
+
+Use the bundled updater to replace the installed skill directory in place.
+`--ref latest` resolves the latest GitHub release tag, not the `main` branch.
+If your installed copy predates this updater, reinstall once from the first tagged release and use the updater after that.
+
+Project-scoped installation:
+
+```bash
+python3 ./.codex/skills/hschoi-init-project/scripts/update-skill-release.py --ref latest
+python3 ./.codex/skills/hschoi-init-project/scripts/update-skill-release.py --ref vX.Y.Z
+```
+
+Global installation:
+
+```bash
+python3 ~/.codex/skills/hschoi-init-project/scripts/update-skill-release.py --ref latest
+python3 ~/.codex/skills/hschoi-init-project/scripts/update-skill-release.py --ref vX.Y.Z
+```
+
+The updater records the installed release source so later updates can continue from the same repo and skill path. Restart Codex after updating if it is already running.
+
+### Maintainer Release Flow
+
+Push a semantic version tag such as `v0.1.0`.
+
+```bash
+git tag vX.Y.Z
+git push origin vX.Y.Z
+```
+
+The repository includes `.github/workflows/release.yml`, which validates the skill bundle and creates a GitHub Release for tags matching `v*`.
+The first release tag must be published before `--ref latest` can resolve successfully.
+Detailed versioning rules live in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Generated Structure
 
@@ -150,6 +190,7 @@ When changing the skill:
 - move stable detail into `references/`
 - keep reusable templates in `assets/`
 - prefer deterministic generation through `scripts/` when repeated output becomes stable
+- keep release-tag installation and update instructions current
 
 ## Contributing
 

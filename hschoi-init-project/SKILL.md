@@ -136,6 +136,7 @@ In existing repositories or uncertain structures, inspect first, ask the missing
 - starter rule templates for the default rule set in `assets/rule/`
 - canonical implementation-record templates at `assets/docs/implementation/record.en.md` and `assets/docs/implementation/record.ko.md`
 - deterministic generator script at `scripts/materialize_repo.sh`
+- release-aware updater script at `scripts/update-skill-release.py`
 
 Read [references/structure-initialization.md](references/structure-initialization.md) for the detailed structural requirements and ambiguity rules.
 
