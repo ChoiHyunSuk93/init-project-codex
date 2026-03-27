@@ -13,7 +13,7 @@ Define the difference between rule documents, guide documents, and implementatio
 
 ## Default Control Files
 
-- `rule/` -> `index.md`
+- `rule/` -> `index.md`, `rules/`
 - `docs/guide/` -> `README.md`
 - `docs/implementation/` -> `AGENTS.md`
 
@@ -34,7 +34,7 @@ Keep these control filenames stable across language modes.
 - Do not create guide documents from observed structure, test layout, tooling inventories, or implementation notes alone.
 - Keep implementation details in `docs/implementation/` and execution rules in `rule/`.
 - Keep implementation records synchronized with actual implementation changes.
-- Create or update rule documents when explicit rule requirements are added or changed.
+- Create or update rule documents under `rule/rules/` and keep `rule/index.md` aligned when explicit rule requirements are added or changed.
 
 ## Language Note
 

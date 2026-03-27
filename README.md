@@ -14,7 +14,7 @@ The skill is meant for two cases:
 It focuses on a small, explicit baseline:
 
 - root `AGENTS.md`
-- root `rule/` with `rule/index.md` and starter rule documents
+- root `rule/` with `rule/index.md` and indexed rule documents under `rule/rules/*.md`
 - `docs/guide/README.md`
 - `docs/implementation/AGENTS.md`
 - language-aware document generation
@@ -31,7 +31,7 @@ It focuses on a small, explicit baseline:
 
 Install the skill with the built-in `skill-installer` helper.
 Prefer a tagged release over `main` so later updates can follow GitHub releases.
-The current latest public release is `v0.1.1`.
+The current latest public release is `v0.1.2`.
 
 ### Project-Scoped Installation (Recommended)
 
@@ -49,10 +49,11 @@ Direct installer script:
 
 ```bash
 TAG=vX.Y.Z
+CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 
 mkdir -p .codex/skills
 
-python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
+python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo ChoiHyunSuk93/init-project-codex \
   --path hschoi-init-project \
   --ref "$TAG" \
@@ -80,8 +81,9 @@ Direct installer script:
 
 ```bash
 TAG=vX.Y.Z
+CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 
-python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
+python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo ChoiHyunSuk93/init-project-codex \
   --path hschoi-init-project \
   --ref "$TAG"
@@ -90,7 +92,9 @@ python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-githu
 You can also install it by URL:
 
 ```bash
-python3 ~/.codex/skills/.system/skill-installer/scripts/install-skill-from-github.py \
+CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
+
+python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/vX.Y.Z/hschoi-init-project
 ```
 
@@ -112,8 +116,10 @@ python3 ./.codex/skills/hschoi-init-project/scripts/update-skill-release.py --re
 Global installation:
 
 ```bash
-python3 ~/.codex/skills/hschoi-init-project/scripts/update-skill-release.py --ref latest
-python3 ~/.codex/skills/hschoi-init-project/scripts/update-skill-release.py --ref vX.Y.Z
+CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
+
+python3 "$CODEX_HOME/skills/hschoi-init-project/scripts/update-skill-release.py" --ref latest
+python3 "$CODEX_HOME/skills/hschoi-init-project/scripts/update-skill-release.py" --ref vX.Y.Z
 ```
 
 The updater records the installed release source so later updates can continue from the same repo and skill path. Restart Codex after updating if it is already running.
@@ -140,28 +146,29 @@ AGENTS.md
 README.md
 rule/
   index.md
-  project-structure.md
-  instruction-model.md
-  documentation-boundaries.md
-  readme-maintenance.md
-  development-standards.md
-  testing-standards.md
-  runtime-boundaries.md
-  implementation-records.md
+  rules/
+    project-structure.md
+    instruction-model.md
+    documentation-boundaries.md
+    readme-maintenance.md
+    development-standards.md
+    testing-standards.md
+    runtime-boundaries.md
+    implementation-records.md
 docs/
   guide/
     README.md
-    [focused guide documents]   # existing-project mode when observed structure or test signals justify them
+    [focused guide documents]   # existing-project mode when observed user-facing workflows justify them
   implementation/
     AGENTS.md
 ```
 
 - `AGENTS.md`: thin repository-wide Codex guidance
 - root `README.md`: durable human-facing repository summary
-- `rule/`: authoritative execution rules for Codex
+- `rule/`: authoritative execution rules for Codex, with `rule/index.md` as the index and `rule/rules/*.md` as the detailed rule set
 - `docs/guide/`: human-facing navigation and guide documents
 - `docs/implementation/`: implementation record placement rules and future record categories
-- In existing-project mode, additional guide documents are created when observed structure or test layout provides durable reader-facing material.
+- In existing-project mode, additional guide documents are created only when observed user-facing workflows provide durable reader-facing material.
 
 ## Usage
 

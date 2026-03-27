@@ -202,38 +202,42 @@ docs_tree_requires_confirmation() {
   '
 }
 
-list_rule_children() {
+list_rule_entries() {
   target_dir=$1
-  if [ ! -d "$target_dir/rule" ]; then
+  rule_dir=$target_dir/rule
+
+  if [ ! -d "$rule_dir" ]; then
     return 0
   fi
 
-  find "$target_dir/rule" -mindepth 1 -maxdepth 1 | while IFS= read -r path; do
+  find "$rule_dir" -mindepth 1 -maxdepth 3 | while IFS= read -r path; do
+    relative_path=${path#"$rule_dir"/}
     if [ -d "$path" ]; then
-      printf '%s/\n' "$(basename "$path")"
+      printf '%s/\n' "${relative_path%/}"
     else
-      printf '%s\n' "$(basename "$path")"
+      printf '%s\n' "$relative_path"
     fi
   done | sort
 }
 
 rule_tree_requires_confirmation() {
-  rule_children=${1-}
-  if [ -z "$rule_children" ]; then
+  rule_entries=${1-}
+  if [ -z "$rule_entries" ]; then
     return 1
   fi
 
-  printf '%s\n' "$rule_children" | awk '
+  printf '%s\n' "$rule_entries" | awk '
     BEGIN {
       allow["index.md"] = 1
-      allow["project-structure.md"] = 1
-      allow["instruction-model.md"] = 1
-      allow["documentation-boundaries.md"] = 1
-      allow["readme-maintenance.md"] = 1
-      allow["development-standards.md"] = 1
-      allow["testing-standards.md"] = 1
-      allow["runtime-boundaries.md"] = 1
-      allow["implementation-records.md"] = 1
+      allow["rules/"] = 1
+      allow["rules/project-structure.md"] = 1
+      allow["rules/instruction-model.md"] = 1
+      allow["rules/documentation-boundaries.md"] = 1
+      allow["rules/readme-maintenance.md"] = 1
+      allow["rules/development-standards.md"] = 1
+      allow["rules/testing-standards.md"] = 1
+      allow["rules/runtime-boundaries.md"] = 1
+      allow["rules/implementation-records.md"] = 1
     }
     NF {
       if (!allow[$0]) {
@@ -258,14 +262,14 @@ AGENTS.md
 docs/guide/README.md
 docs/implementation/AGENTS.md
 rule/index.md
-rule/instruction-model.md
-rule/documentation-boundaries.md
-rule/readme-maintenance.md
-rule/implementation-records.md
-rule/development-standards.md
-rule/testing-standards.md
-rule/project-structure.md
-rule/runtime-boundaries.md
+rule/rules/instruction-model.md
+rule/rules/documentation-boundaries.md
+rule/rules/readme-maintenance.md
+rule/rules/implementation-records.md
+rule/rules/development-standards.md
+rule/rules/testing-standards.md
+rule/rules/project-structure.md
+rule/rules/runtime-boundaries.md
 EOF
 }
 
@@ -286,7 +290,7 @@ print_inspection_summary() {
   readme_mode=$2
   runtime_candidates=$3
   docs_children=$4
-  rule_children=$5
+  rule_entries=$5
   conflicting_outputs=$6
   runtime_needs_input=$7
   docs_needs_input=$8
@@ -317,9 +321,9 @@ print_inspection_summary() {
       render_bullets "$docs_children"
     fi
 
-    if [ -n "$rule_children" ]; then
+    if [ -n "$rule_entries" ]; then
       printf -- '- 기존 rule/ 항목:\n'
-      render_bullets "$rule_children"
+      render_bullets "$rule_entries"
     fi
 
     if [ -n "$conflicting_outputs" ]; then
@@ -344,7 +348,7 @@ print_inspection_summary() {
         question_index=$((question_index + 1))
       fi
       if [ "$rule_needs_input" -eq 1 ]; then
-        printf '%s. 기존 `rule/` 내용을 유지한 채 누락된 starter rule만 추가해도 되는지, 그리고 건드리지 말아야 할 기존 rule 경로가 있는지 묻는다.\n' "$question_index"
+        printf '%s. 기존 `rule/` 내용을 유지한 채 `rule/index.md`와 `rule/rules/` 아래 누락된 starter rule만 추가해도 되는지, 그리고 건드리지 말아야 할 기존 rule 경로가 있는지 묻는다.\n' "$question_index"
         question_index=$((question_index + 1))
       fi
       if [ "$overwrite_needs_input" -eq 1 ]; then
@@ -372,9 +376,9 @@ print_inspection_summary() {
     render_bullets "$docs_children"
   fi
 
-  if [ -n "$rule_children" ]; then
+  if [ -n "$rule_entries" ]; then
     printf -- '- Existing rule/ entries:\n'
-    render_bullets "$rule_children"
+    render_bullets "$rule_entries"
   fi
 
   if [ -n "$conflicting_outputs" ]; then
@@ -399,7 +403,7 @@ print_inspection_summary() {
       question_index=$((question_index + 1))
     fi
     if [ "$rule_needs_input" -eq 1 ]; then
-      printf '%s. Ask whether it is acceptable to keep the current `rule/` tree and add only the missing starter rules, and whether any existing rule paths must stay untouched.\n' "$question_index"
+      printf '%s. Ask whether it is acceptable to keep the current `rule/` tree and add only the missing starter rules under `rule/index.md` and `rule/rules/`, and whether any existing rule paths must stay untouched.\n' "$question_index"
       question_index=$((question_index + 1))
     fi
     if [ "$overwrite_needs_input" -eq 1 ]; then
@@ -1096,8 +1100,8 @@ $non_runtime_body
 
 - runtime과 non-runtime 경계는 명시적으로 유지한다.
 - 실제 디렉토리 구조가 확정되면 placeholder 항목을 관찰된 경로로 교체한다.
-- 최상위 구조가 바뀌면 \`rule/project-structure.md\`에 그 구조를 실제 값으로 반영한다.
-- 확립된 최상위 영역을 이동하거나 이름 변경할 때는 \`rule/index.md\`와 관련 rule 문서도 함께 갱신한다.
+- 최상위 구조가 바뀌면 \`rule/rules/project-structure.md\`에 그 구조를 실제 값으로 반영한다.
+- 확립된 최상위 영역을 이동하거나 이름 변경할 때는 \`rule/index.md\`와 관련 \`rule/rules/*.md\` 문서도 함께 갱신한다.
 - local 구조가 복잡해지면 scope를 분명하게 해주는 곳에만 local instruction 파일을 추가한다.
 EOF
     return 0
@@ -1129,8 +1133,8 @@ $non_runtime_body
 
 - Keep runtime and non-runtime boundaries explicit.
 - Replace placeholder entries with observed paths once the real directory structure becomes known.
-- Reflect actual top-level structure changes in \`rule/project-structure.md\`.
-- Do not move or rename established top-level areas without updating \`rule/index.md\` and related rule documents.
+- Reflect actual top-level structure changes in \`rule/rules/project-structure.md\`.
+- Do not move or rename established top-level areas without updating \`rule/index.md\` and related \`rule/rules/*.md\` documents.
 - When local structure becomes complex, add local instruction files only where they improve scope clarity.
 EOF
 }
@@ -1163,7 +1167,7 @@ $non_runtime_body
 - 기존 저장소에서 경계가 불분명하면 구조를 바꾸기 전에 먼저 확인한다.
 - 가능하면 충돌하는 새 모델을 만들기보다, 이미 의미 있게 형성된 기존 구조에 맞춘다.
 - runtime과 non-runtime 경계가 실제로 드러나면 placeholder 항목을 관찰된 디렉토리로 교체한다.
-- 경계가 바뀌면 \`rule/runtime-boundaries.md\`와 필요한 관련 rule 문서를 함께 갱신한다.
+- 경계가 바뀌면 \`rule/rules/runtime-boundaries.md\`와 필요한 관련 \`rule/rules/*.md\` 문서를 함께 갱신한다.
 EOF
     return 0
   fi
@@ -1188,7 +1192,7 @@ $non_runtime_body
 - If the boundary is unclear in an existing repository, confirm it before making structural changes.
 - Align to meaningful existing structure when possible instead of inventing a conflicting model.
 - Replace placeholder entries with observed directories once runtime and non-runtime boundaries become clear.
-- When the boundary changes, update \`rule/runtime-boundaries.md\` and any related rule documents in the same change.
+- When the boundary changes, update \`rule/rules/runtime-boundaries.md\` and any related \`rule/rules/*.md\` documents in the same change.
 EOF
 }
 
@@ -1288,7 +1292,7 @@ if [ "$README_MODE" = "existing" ] && [ -z "$RUNTIME_DIRS" ]; then
   RUNTIME_CANDIDATES=$(detect_runtime_candidates "$OBSERVED_DIRS")
 fi
 DOCS_CHILDREN=$(list_docs_children "$TARGET_DIR")
-RULE_CHILDREN=$(list_rule_children "$TARGET_DIR")
+RULE_ENTRIES=$(list_rule_entries "$TARGET_DIR")
 CONFLICTING_OUTPUTS=$(detect_conflicting_outputs "$TARGET_DIR" "$README_MODE")
 
 RUNTIME_NEEDS_INPUT=0
@@ -1302,7 +1306,7 @@ if [ "$README_MODE" = "existing" ] && [ "$CONFIRM_EXISTING_DOCS" -ne 1 ] && docs
 fi
 
 RULE_NEEDS_INPUT=0
-if [ "$README_MODE" = "existing" ] && [ "$CONFIRM_EXISTING_RULE" -ne 1 ] && rule_tree_requires_confirmation "$RULE_CHILDREN"; then
+if [ "$README_MODE" = "existing" ] && [ "$CONFIRM_EXISTING_RULE" -ne 1 ] && rule_tree_requires_confirmation "$RULE_ENTRIES"; then
   RULE_NEEDS_INPUT=1
 fi
 
@@ -1312,7 +1316,7 @@ if [ -n "$CONFLICTING_OUTPUTS" ] && [ "$OVERWRITE" -ne 1 ]; then
 fi
 
 if [ "$INSPECT_ONLY" -eq 1 ]; then
-  print_inspection_summary "$LANGUAGE" "$README_MODE" "$RUNTIME_CANDIDATES" "$DOCS_CHILDREN" "$RULE_CHILDREN" "$CONFLICTING_OUTPUTS" "$RUNTIME_NEEDS_INPUT" "$DOCS_NEEDS_INPUT" "$RULE_NEEDS_INPUT" "$OVERWRITE_NEEDS_INPUT"
+  print_inspection_summary "$LANGUAGE" "$README_MODE" "$RUNTIME_CANDIDATES" "$DOCS_CHILDREN" "$RULE_ENTRIES" "$CONFLICTING_OUTPUTS" "$RUNTIME_NEEDS_INPUT" "$DOCS_NEEDS_INPUT" "$RULE_NEEDS_INPUT" "$OVERWRITE_NEEDS_INPUT"
   exit 0
 fi
 
@@ -1322,17 +1326,17 @@ if [ "$RUNTIME_NEEDS_INPUT" -eq 1 ] || [ "$DOCS_NEEDS_INPUT" -eq 1 ] || [ "$RULE
   else
     printf '[NEEDS_INPUT] Generation is paused until the missing answers are resolved.\n'
   fi
-  print_inspection_summary "$LANGUAGE" "$README_MODE" "$RUNTIME_CANDIDATES" "$DOCS_CHILDREN" "$RULE_CHILDREN" "$CONFLICTING_OUTPUTS" "$RUNTIME_NEEDS_INPUT" "$DOCS_NEEDS_INPUT" "$RULE_NEEDS_INPUT" "$OVERWRITE_NEEDS_INPUT"
+  print_inspection_summary "$LANGUAGE" "$README_MODE" "$RUNTIME_CANDIDATES" "$DOCS_CHILDREN" "$RULE_ENTRIES" "$CONFLICTING_OUTPUTS" "$RUNTIME_NEEDS_INPUT" "$DOCS_NEEDS_INPUT" "$RULE_NEEDS_INPUT" "$OVERWRITE_NEEDS_INPUT"
   exit 0
 fi
 
 copy_template "assets/AGENTS/root.$LANGUAGE.md" "$TARGET_DIR/AGENTS.md"
 copy_template "assets/docs/implementation/AGENTS.$LANGUAGE.md" "$TARGET_DIR/docs/implementation/AGENTS.md"
 copy_template "assets/rule/index.$LANGUAGE.md" "$TARGET_DIR/rule/index.md"
-copy_template "assets/rule/instruction-model.$LANGUAGE.md" "$TARGET_DIR/rule/instruction-model.md"
-copy_template "assets/rule/documentation-boundaries.$LANGUAGE.md" "$TARGET_DIR/rule/documentation-boundaries.md"
-copy_template "assets/rule/readme-maintenance.$LANGUAGE.md" "$TARGET_DIR/rule/readme-maintenance.md"
-copy_template "assets/rule/implementation-records.$LANGUAGE.md" "$TARGET_DIR/rule/implementation-records.md"
+copy_template "assets/rule/instruction-model.$LANGUAGE.md" "$TARGET_DIR/rule/rules/instruction-model.md"
+copy_template "assets/rule/documentation-boundaries.$LANGUAGE.md" "$TARGET_DIR/rule/rules/documentation-boundaries.md"
+copy_template "assets/rule/readme-maintenance.$LANGUAGE.md" "$TARGET_DIR/rule/rules/readme-maintenance.md"
+copy_template "assets/rule/implementation-records.$LANGUAGE.md" "$TARGET_DIR/rule/rules/implementation-records.md"
 
 if [ "$README_MODE" = "fresh" ]; then
   copy_template "assets/README/root.$LANGUAGE.md" "$TARGET_DIR/README.md"
@@ -1344,9 +1348,9 @@ else
   copy_template "assets/docs/guide/README.$LANGUAGE.md" "$TARGET_DIR/docs/guide/README.md"
 fi
 
-write_text "$TARGET_DIR/rule/development-standards.md" "$(build_development_standards "$LANGUAGE" "$RUNTIME_DIRS" "$NON_RUNTIME_DIRS" "$STANDARDS_MODE" "$OBSERVED_DIRS" "$OBSERVED_FILES" "$OBSERVED_TOOLING_FILES")"
-write_text "$TARGET_DIR/rule/testing-standards.md" "$(build_testing_standards "$LANGUAGE" "$STANDARDS_MODE" "$OBSERVED_TEST_DIRS" "$OBSERVED_TEST_TOOLING_FILES")"
-write_text "$TARGET_DIR/rule/project-structure.md" "$(build_project_structure "$LANGUAGE" "$RUNTIME_DIRS" "$NON_RUNTIME_DIRS")"
-write_text "$TARGET_DIR/rule/runtime-boundaries.md" "$(build_runtime_boundaries "$LANGUAGE" "$RUNTIME_DIRS" "$NON_RUNTIME_DIRS")"
+write_text "$TARGET_DIR/rule/rules/development-standards.md" "$(build_development_standards "$LANGUAGE" "$RUNTIME_DIRS" "$NON_RUNTIME_DIRS" "$STANDARDS_MODE" "$OBSERVED_DIRS" "$OBSERVED_FILES" "$OBSERVED_TOOLING_FILES")"
+write_text "$TARGET_DIR/rule/rules/testing-standards.md" "$(build_testing_standards "$LANGUAGE" "$STANDARDS_MODE" "$OBSERVED_TEST_DIRS" "$OBSERVED_TEST_TOOLING_FILES")"
+write_text "$TARGET_DIR/rule/rules/project-structure.md" "$(build_project_structure "$LANGUAGE" "$RUNTIME_DIRS" "$NON_RUNTIME_DIRS")"
+write_text "$TARGET_DIR/rule/rules/runtime-boundaries.md" "$(build_runtime_boundaries "$LANGUAGE" "$RUNTIME_DIRS" "$NON_RUNTIME_DIRS")"
 
 printf '[OK] Materialized live Codex scaffold files\n'

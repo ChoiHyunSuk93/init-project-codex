@@ -29,7 +29,7 @@ This repository develops the `hschoi-init-project` Codex skill.
 - The skill must ask for language first when the language is not already fixed.
 - The skill must create or update root `README.md`, root `AGENTS.md`, `rule/`, `docs/guide/`, and `docs/implementation/`.
 - Generated repositories should keep control filenames stable: `README.md`, `AGENTS.md`, `rule/index.md`.
-- Generated repositories should treat `rule/` as authoritative execution rules and keep `docs/guide/` and `docs/implementation/` human-facing.
+- Generated repositories should place detailed rule documents under `rule/rules/*.md`, treat `rule/` as authoritative execution rules, and keep `docs/guide/` and `docs/implementation/` human-facing.
 - Starter rules should include README maintenance, development standards, and testing standards.
 
 ## Change Rules

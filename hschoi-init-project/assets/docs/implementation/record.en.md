@@ -21,4 +21,4 @@ Describe the purpose and outcome of this change briefly.
 
 ## Related Rules
 
-- List any relevant `rule/*.md` documents.
+- List any relevant `rule/rules/*.md` documents.

@@ -27,13 +27,13 @@
 
 - 변경이 실제 사용자 워크플로를 바꾸면 `docs/guide/`의 관련 가이드를 함께 생성하거나 수정한다.
 - 구현 메모, 저장소 구조 요약, 규칙 복사본을 `docs/guide/`로 옮기지 않는다.
-- 규칙에 새로운 명시 사항이 추가되거나 기존 규칙이 바뀌면 관련 `rule/*.md`와 `rule/index.md`도 함께 갱신한다.
-- 테스트나 검증 관례가 더 구체화되면 구현 기록도 `rule/testing-standards.md`와 맞춰서 유지한다.
+- 규칙에 새로운 명시 사항이 추가되거나 기존 규칙이 바뀌면 관련 `rule/rules/*.md`와 `rule/index.md`도 함께 갱신한다.
+- 테스트나 검증 관례가 더 구체화되면 구현 기록도 `rule/rules/testing-standards.md`와 맞춰서 유지한다.
 
 ## 권한 범위
 
 - 이 디렉토리는 사람이 검토하는 작업 이력을 위한 공간이다.
-- Codex 실행 규칙의 기준 권한은 `rule/` 아래의 문서와 root `AGENTS.md`에 있다.
+- Codex 실행 규칙의 기준 권한은 root `AGENTS.md`, `rule/index.md`, 그리고 `rule/rules/` 아래의 문서에 있다.
 
 ## 언어 규칙
 

@@ -1,18 +1,18 @@
 # Repository Instructions
 
 This file defines repository-wide Codex guidance.
-Keep this file thin and use it to route work to detailed documents under `rule/`.
+Keep this file thin and use it to route work to `rule/index.md` and the detailed documents under `rule/rules/`.
 
 ## Role Of This File
 
 - Define project-wide instruction boundaries.
-- Point to authoritative rule documents in `rule/`.
+- Point to `rule/index.md` and the authoritative rule documents in `rule/rules/`.
 - Do not duplicate detailed rules that belong in rule documents or local instruction files.
 
 ## Rule Model
 
 - Treat `rule/index.md` as the discovery point for authoritative rule documents.
-- Read the relevant `rule/*.md` documents before changing project structure or writing new long-lived docs.
+- Read the relevant `rule/rules/*.md` documents before changing project structure or writing new long-lived docs.
 - Update `rule/index.md` whenever rule documents are added, removed, renamed, or moved.
 
 ## Scope Model
@@ -35,9 +35,9 @@ Keep this file thin and use it to route work to detailed documents under `rule/`
 - When work creates or changes a stable user-facing workflow, such as running, deploying, testing, operations, or request intake, create or update the relevant guide document under `docs/guide/`.
 - Do not create guide documents from repository structure summaries, project rules, test directory inventories, or implementation notes alone.
 - For every implementation change, create or update the corresponding implementation record under `docs/implementation/` in the correct concern-based category and keep the record numbering in order.
-- For behavior changes, add or update the most relevant test layer when practical and keep `rule/testing-standards.md` aligned with real test conventions as they emerge.
-- When a rule gains new explicit requirements or an existing rule changes, create or update the corresponding document under `rule/` and update `rule/index.md` in the same change.
-- When project-specific implementation standards become clearer, update `rule/development-standards.md` so it reflects observed conventions instead of generic defaults.
+- For behavior changes, add or update the most relevant test layer when practical and keep `rule/rules/testing-standards.md` aligned with real test conventions as they emerge.
+- When a rule gains new explicit requirements or an existing rule changes, create or update the corresponding document under `rule/rules/` and update `rule/index.md` in the same change.
+- When project-specific implementation standards become clearer, update `rule/rules/development-standards.md` so it reflects observed conventions instead of generic defaults.
 - If starter rules still contain placeholders, replace them with observed values once the real structure or boundaries become known.
 
 ## Skill Work
@@ -45,12 +45,13 @@ Keep this file thin and use it to route work to detailed documents under `rule/`
 - If this repository contains Codex skills or a new skill is being created, use `skill-creator`.
 - Write each skill so it can be invoked both explicitly by name and implicitly by matching task descriptions through clear `SKILL.md` descriptions and metadata.
 - Unless explicit-only behavior is requested, set `policy.allow_implicit_invocation: true` in each skill's `agents/openai.yaml`.
-- Have each skill reference the relevant `rule/*.md` documents instead of copying stable repository-wide rules into the skill body.
+- Have each skill reference the relevant `rule/rules/*.md` documents instead of copying stable repository-wide rules into the skill body.
 
 ## Language Policy
 
 - Write human-facing generated documents in English.
 - Keep control filenames stable: `README.md`, `AGENTS.md`, `rule/index.md`.
+- Keep indexed rule documents under `rule/rules/*.md`.
 - Keep directory names in English.
 - Keep code, commands, config keys, slugs, and path literals in English.
 - Keep rule document paths stable in English where predictable pathing matters.
@@ -58,5 +59,5 @@ Keep this file thin and use it to route work to detailed documents under `rule/`
 ## Non-Duplication
 
 - Keep this file thin as the project evolves.
-- Move stable, detailed guidance into `rule/*.md`.
+- Move stable, detailed guidance into `rule/rules/*.md`.
 - Add local `AGENTS.md` files only where they improve scope clarity.

@@ -31,4 +31,4 @@ non-runtime 디렉토리를 여기에 적는다.
 - runtime으로 보이는 디렉토리가 여러 개면 하나로 억지로 합치지 말고, 모두 runtime으로 볼지 먼저 확인한다.
 - 가능하면 충돌하는 새 모델을 만들기보다, 이미 의미 있게 형성된 기존 구조에 맞춘다.
 - runtime과 non-runtime 경계가 실제로 드러나면 placeholder 항목을 관찰된 디렉토리로 교체한다.
-- 경계가 바뀌면 `rule/runtime-boundaries.md`와 필요한 관련 rule 문서를 함께 갱신한다.
+- 경계가 바뀌면 `rule/rules/runtime-boundaries.md`와 필요한 관련 `rule/rules/*.md` 문서를 함께 갱신한다.

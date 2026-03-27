@@ -41,4 +41,4 @@ Define how implementation quality standards are established and maintained in th
 
 - When stronger language-specific or framework-specific standards become known, replace generic guidance with those observed conventions.
 - Prefer observed project conventions over generic defaults.
-- Keep unit-test and end-to-end-test specifics in `rule/testing-standards.md` instead of overloading this file with testing detail.
+- Keep unit-test and end-to-end-test specifics in `rule/rules/testing-standards.md` instead of overloading this file with testing detail.

@@ -71,13 +71,14 @@ Use the language-appropriate root template in:
 Use the skill-bundled templates as internal generation sources only.
 Do not create a target-repository `assets/` directory unless the user explicitly asked for project assets unrelated to this skill.
 
-Create `rule/` and `rule/index.md`.
+Create `rule/`, `rule/index.md`, and `rule/rules/`.
 
 The rule system must:
 
 - avoid duplication
 - use explicit references
 - make the rule index the discovery point for detailed rules
+- keep detailed rule documents under `rule/rules/*.md`
 - require additions, deletions, and updates to be reflected in the index
 - treat rules not listed in the index as non-authoritative until indexed
 
@@ -113,7 +114,7 @@ Recommended shape:
 ## Global Rules
 
 ### project-structure
-- Path: `rule/project-structure.md`
+- Path: `rule/rules/project-structure.md`
 - Scope: repository-wide
 - Applies to: all directories
 - Authority: global
@@ -128,23 +129,23 @@ Do not copy the source templates themselves into the target repository.
 
 Create these starter rule documents by default unless the repository already has a stronger equivalent:
 
-- `rule/project-structure.md`
-- `rule/instruction-model.md`
-- `rule/documentation-boundaries.md`
-- `rule/readme-maintenance.md`
-- `rule/development-standards.md`
-- `rule/testing-standards.md`
-- `rule/runtime-boundaries.md`
-- `rule/implementation-records.md`
+- `rule/rules/project-structure.md`
+- `rule/rules/instruction-model.md`
+- `rule/rules/documentation-boundaries.md`
+- `rule/rules/readme-maintenance.md`
+- `rule/rules/development-standards.md`
+- `rule/rules/testing-standards.md`
+- `rule/rules/runtime-boundaries.md`
+- `rule/rules/implementation-records.md`
 
 Use the language-appropriate templates in `assets/rule/` and adapt them to the repository's actual structure.
 
 Starter rule documents may begin with placeholders in fresh repositories, but they should not remain stale once real structure or policy becomes known.
-When repository structure, runtime boundaries, or rule-bearing conventions become concrete, replace placeholders with observed values in the relevant `rule/*.md` files.
+When repository structure, runtime boundaries, or rule-bearing conventions become concrete, replace placeholders with observed values in the relevant `rule/rules/*.md` files.
 
 ### Development standards requirements
 
-Treat `rule/development-standards.md` differently by mode.
+Treat `rule/rules/development-standards.md` differently by mode.
 
 In fresh repositories:
 
@@ -162,7 +163,7 @@ In existing repositories:
 
 ### Testing standards requirements
 
-Treat `rule/testing-standards.md` differently by mode.
+Treat `rule/rules/testing-standards.md` differently by mode.
 
 In fresh repositories:
 
@@ -234,7 +235,7 @@ Use these defaults unless the repository already has a stronger existing convent
 
 - `docs/guide/` -> create `README.md`
 - `docs/implementation/` -> create `AGENTS.md`
-- `rule/` -> create `index.md`
+- `rule/` -> create `index.md` and `rules/`
 
 Keep these control filenames stable across language modes.
 
@@ -260,7 +261,7 @@ Rationale:
 
 - `docs/guide/README.md` is better for human navigation and does not usually need local execution rules.
 - `docs/implementation/AGENTS.md` is better for instructing Codex where records belong, how categories work, and how ordered filenames are maintained.
-- `rule/index.md` is the rule discovery point and should replace a README-style summary for that directory.
+- `rule/index.md` is the rule discovery point, and `rule/rules/*.md` holds the detailed rule set instead of a README-style summary for that directory.
 
 Do not create `docs/guide/AGENTS.md` by default unless that directory actually needs local execution rules beyond what the root file and `rule/` documents already define.
 
@@ -301,7 +302,7 @@ Use this question template when an existing `rule/` tree needs clarification:
 I found an existing `rule/` tree before adding the Codex starter rules.
 
 Please confirm:
-1. Should I keep the current `rule/` contents as they are and add only missing starter rule files?
+1. Should I keep the current `rule/` contents as they are and add only missing starter rule files under `rule/rules/`?
 2. Are there any existing rule paths I should avoid rewriting?
 ```
 

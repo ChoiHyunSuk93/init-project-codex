@@ -1,6 +1,6 @@
 ---
 name: hschoi-init-project
-description: Bootstrap Codex-oriented repository structure for both brand-new and already-existing projects. Use when Codex needs to initialize or retrofit root and local AGENTS.md files, a root-level `rule/` directory and index, human-facing docs structure, runtime versus non-runtime separation, and GitHub repository workflow policy without guessing ambiguous structural decisions or destructively rewriting existing project contents.
+description: Bootstrap Codex-oriented repository structure for both brand-new and already-existing projects. Use when Codex needs to initialize or retrofit root and local AGENTS.md files, a root-level `rule/` directory with `rule/index.md` and `rule/rules/*.md`, human-facing docs structure, runtime versus non-runtime separation, and GitHub repository workflow policy without guessing ambiguous structural decisions or destructively rewriting existing project contents.
 ---
 
 # Init Project
@@ -66,7 +66,7 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - Keep control filenames stable in English, including `README.md`, `AGENTS.md`, and `rule/index.md`.
    - Keep directory names, code, commands, config keys, slugs, and path literals in English.
    - In Korean mode, use Korean filenames only for non-control human-facing documents generated under `docs/guide/` and `docs/implementation/`.
-   - Keep `rule/index.md` and other rule-path conventions stable in English where predictable pathing matters.
+   - Keep `rule/index.md`, `rule/rules/*.md`, and other rule-path conventions stable in English where predictable pathing matters.
    - Include the chosen language policy in generated `AGENTS.md` files.
 6. Create the rule and documentation structure.
    - Create or update the root `README.md` as the primary human-facing repository summary.
@@ -78,14 +78,15 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - Create a thin root `AGENTS.md` that orchestrates more detailed rules instead of duplicating them.
    - Start the root file from the language-appropriate template in the skill's `assets/AGENTS/`.
    - Create `rule/index.md` as the authoritative discovery point for detailed rules.
-   - Start `rule/index.md` from the language-appropriate template in the skill's `assets/rule/`, then adapt the entries to the repository's actual starter rules.
-   - Create starter rule documents from the language-appropriate templates in the skill's `assets/rule/`.
+   - Put detailed rule documents under `rule/rules/`.
+   - Start `rule/index.md` from the language-appropriate template in the skill's `assets/rule/`, then adapt the entries to the repository's actual starter rules under `rule/rules/`.
+   - Create starter rule documents under `rule/rules/` from the language-appropriate templates in the skill's `assets/rule/`.
    - Include starter rules for root README maintenance and development standards unless the repository already has stronger equivalents.
    - Include a starter rule for unit-test and end-to-end test expectations unless the repository already has a stronger equivalent.
-   - In fresh mode, make `rule/development-standards.md` provisional and refine it as real stack, tooling, and structure conventions become concrete during ongoing work.
-   - In existing-project mode, derive `rule/development-standards.md` from observed project structure, naming patterns, tooling, automation, and verification commands instead of leaving it generic.
-   - In fresh mode, make `rule/testing-standards.md` provisional and refine it as real test paths, commands, and frameworks become concrete.
-   - In existing-project mode, derive `rule/testing-standards.md` from observed test directories, naming patterns, commands, and tooling instead of leaving it generic.
+   - In fresh mode, make `rule/rules/development-standards.md` provisional and refine it as real stack, tooling, and structure conventions become concrete during ongoing work.
+   - In existing-project mode, derive `rule/rules/development-standards.md` from observed project structure, naming patterns, tooling, automation, and verification commands instead of leaving it generic.
+   - In fresh mode, make `rule/rules/testing-standards.md` provisional and refine it as real test paths, commands, and frameworks become concrete.
+   - In existing-project mode, derive `rule/rules/testing-standards.md` from observed test directories, naming patterns, commands, and tooling instead of leaving it generic.
    - Default to `docs/guide/README.md` for human navigation and `docs/implementation/AGENTS.md` for implementation-record placement rules.
    - When an implementation record is created, follow the rule-defined section shape directly, including unit-test, end-to-end test, manual-check, and gap notes in `Verification`; do not copy skill `assets/` into the target repository.
    - Do not create a target-repository `assets/` directory unless the user explicitly asked for project assets unrelated to this skill.
@@ -118,12 +119,13 @@ In existing repositories or uncertain structures, inspect first, ask the missing
 - root `README.md`
 - thin root `AGENTS.md`
 - `rule/index.md` with an explicit Markdown index
+- `rule/rules/` with the detailed starter rule documents
 - `docs/guide/`
 - `docs/implementation/` with category-based record placement rules instead of a flat history directory by default
 - `docs/guide/README.md` by default
 - focused guide documents under `docs/guide/` only when actual user-facing workflows justify them
 - `docs/implementation/AGENTS.md` by default
-- starter rule documents including `rule/readme-maintenance.md`, `rule/development-standards.md`, and `rule/testing-standards.md`
+- starter rule documents including `rule/rules/readme-maintenance.md`, `rule/rules/development-standards.md`, and `rule/rules/testing-standards.md`
 - other local `AGENTS.md` files where they reduce scope and context
 - minimal but meaningful starter content in generated files
 - no project-local `assets/` directory unless explicitly requested by the user

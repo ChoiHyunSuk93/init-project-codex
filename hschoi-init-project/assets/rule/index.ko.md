@@ -1,6 +1,6 @@
 # 규칙 인덱스
 
-이 인덱스는 `rule/` 아래의 상세 규칙 문서를 찾는 기준 문서다.
+이 인덱스는 `rule/rules/` 아래의 상세 규칙 문서를 찾는 기준 문서다.
 
 규칙을 추가, 삭제, 이름 변경, 이동할 때는 같은 변경에서 이 파일도 함께 갱신한다.
 여기에 등재되지 않은 규칙 문서는 인덱스에 추가되기 전까지 authoritative하지 않다.
@@ -16,28 +16,28 @@
 ## 전역 규칙
 
 ### project-structure
-- Path: `rule/project-structure.md`
+- Path: `rule/rules/project-structure.md`
 - Scope: repository-wide
 - Applies to: all directories
 - Authority: global
 - Summary: 최상위 구조, 디렉토리 역할, root와 local instruction 경계를 정의한다.
 
 ### instruction-model
-- Path: `rule/instruction-model.md`
+- Path: `rule/rules/instruction-model.md`
 - Scope: repository-wide
 - Applies to: `AGENTS.md`, local `AGENTS.md`, `rule/`
 - Authority: global
 - Summary: 얇은 root orchestration, local scope 규칙, 중복 금지 원칙을 정의한다.
 
 ### documentation-boundaries
-- Path: `rule/documentation-boundaries.md`
+- Path: `rule/rules/documentation-boundaries.md`
 - Scope: documentation
 - Applies to: `docs/guide/`, `docs/implementation/`, `rule/`
 - Authority: global
 - Summary: 사람이 읽는 문서, 구현 이력, authoritative rule 문서의 차이를 정의한다.
 
 ### readme-maintenance
-- Path: `rule/readme-maintenance.md`
+- Path: `rule/rules/readme-maintenance.md`
 - Scope: documentation
 - Applies to: `README.md`
 - Authority: global
@@ -46,14 +46,14 @@
 ## 품질 규칙
 
 ### development-standards
-- Path: `rule/development-standards.md`
+- Path: `rule/rules/development-standards.md`
 - Scope: repository-wide
 - Applies to: code, tests, schemas, public interfaces, and related docs
 - Authority: global
 - Summary: 기본 구현 품질, 관례 준수, 검증 기대치를 정의한다.
 
 ### testing-standards
-- Path: `rule/testing-standards.md`
+- Path: `rule/rules/testing-standards.md`
 - Scope: repository-wide
 - Applies to: unit tests, end-to-end tests, verification notes, and related test docs
 - Authority: global
@@ -62,14 +62,14 @@
 ## 구조 규칙
 
 ### runtime-boundaries
-- Path: `rule/runtime-boundaries.md`
+- Path: `rule/rules/runtime-boundaries.md`
 - Scope: structural
 - Applies to: runtime and non-runtime directories
 - Authority: global
 - Summary: runtime과 non-runtime 영역을 어떻게 구분하고 모호한 경계를 어떻게 해소하는지 정의한다.
 
 ### implementation-records
-- Path: `rule/implementation-records.md`
+- Path: `rule/rules/implementation-records.md`
 - Scope: implementation history
 - Applies to: `docs/implementation/`
 - Authority: global
@@ -79,9 +79,10 @@
 
 디렉토리별 규칙 문서가 생기면 여기에 local scope 규칙 항목을 추가한다.
 첫 실제 local rule이 생기면 아래 placeholder 항목은 삭제한다.
+local rule 문서도 특별한 요청이 없다면 `rule/rules/` 아래에 둔다.
 
 ### [local-rule-slug]
-- Path: `rule/[local-rule-file].md`
+- Path: `rule/rules/[local-rule-file].md`
 - Scope: local
 - Applies to: `[directory-or-area]`
 - Authority: local
