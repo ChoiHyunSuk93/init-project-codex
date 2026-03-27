@@ -34,7 +34,7 @@ Keep these control filenames stable across language modes.
 - Do not create guide documents from observed structure, test layout, tooling inventories, or implementation notes alone.
 - Keep implementation details in `docs/implementation/` and execution rules in `rule/`.
 - Keep implementation records synchronized with actual implementation changes.
-- Create or update rule documents under `rule/rules/` and keep `rule/index.md` aligned when explicit rule requirements are added or changed.
+- Follow `rule/rules/rule-maintenance.md` when explicit rule requirements are added or changed so the relevant `rule/rules/` document and `rule/index.md` stay aligned.
 
 ## Language Note
 

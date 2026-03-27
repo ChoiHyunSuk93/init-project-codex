@@ -131,6 +131,7 @@ Create these starter rule documents by default unless the repository already has
 
 - `rule/rules/project-structure.md`
 - `rule/rules/instruction-model.md`
+- `rule/rules/rule-maintenance.md`
 - `rule/rules/documentation-boundaries.md`
 - `rule/rules/readme-maintenance.md`
 - `rule/rules/development-standards.md`
@@ -139,6 +140,7 @@ Create these starter rule documents by default unless the repository already has
 - `rule/rules/implementation-records.md`
 
 Use the language-appropriate templates in `assets/rule/` and adapt them to the repository's actual structure.
+Use `rule/rules/rule-maintenance.md` as the canonical starter rule for keeping `rule/index.md` and detailed rule files aligned over time.
 
 Starter rule documents may begin with placeholders in fresh repositories, but they should not remain stale once real structure or policy becomes known.
 When repository structure, runtime boundaries, or rule-bearing conventions become concrete, replace placeholders with observed values in the relevant `rule/rules/*.md` files.

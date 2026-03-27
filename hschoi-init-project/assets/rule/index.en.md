@@ -29,6 +29,13 @@ Rules that are not listed here are not authoritative until they are indexed.
 - Authority: global
 - Summary: Defines thin-root orchestration, local scope rules, and non-duplication requirements.
 
+### rule-maintenance
+- Path: `rule/rules/rule-maintenance.md`
+- Scope: repository-wide
+- Applies to: `rule/index.md`, `rule/rules/`
+- Authority: global
+- Summary: Defines how rule documents are added, indexed, updated, moved, and kept authoritative over time.
+
 ### documentation-boundaries
 - Path: `rule/rules/documentation-boundaries.md`
 - Scope: documentation

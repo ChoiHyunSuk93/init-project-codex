@@ -29,6 +29,13 @@
 - Authority: global
 - Summary: 얇은 root orchestration, local scope 규칙, 중복 금지 원칙을 정의한다.
 
+### rule-maintenance
+- Path: `rule/rules/rule-maintenance.md`
+- Scope: repository-wide
+- Applies to: `rule/index.md`, `rule/rules/`
+- Authority: global
+- Summary: rule 문서를 어떻게 추가, 인덱싱, 갱신, 이동하고 authoritative 상태로 유지하는지 정의한다.
+
 ### documentation-boundaries
 - Path: `rule/rules/documentation-boundaries.md`
 - Scope: documentation

@@ -31,7 +31,7 @@ It focuses on a small, explicit baseline:
 
 Install the skill with the built-in `skill-installer` helper.
 Prefer a tagged release over `main` so later updates can follow GitHub releases.
-The current latest public release is `v0.1.2`.
+The current latest public release is `v0.1.3`.
 
 ### Project-Scoped Installation (Recommended)
 
@@ -147,14 +147,15 @@ README.md
 rule/
   index.md
   rules/
-    project-structure.md
-    instruction-model.md
-    documentation-boundaries.md
-    readme-maintenance.md
-    development-standards.md
-    testing-standards.md
-    runtime-boundaries.md
-    implementation-records.md
+    project-structure.md         # top-level structure and directory roles
+    instruction-model.md         # authority order, thin-root use, and non-duplication
+    rule-maintenance.md          # rule file lifecycle and rule-index alignment
+    documentation-boundaries.md  # boundaries between rules, guides, and implementation records
+    readme-maintenance.md        # root README creation and maintenance rules
+    development-standards.md     # baseline implementation quality and convention rules
+    testing-standards.md         # test-layer selection and verification expectations
+    runtime-boundaries.md        # runtime versus non-runtime boundary rules
+    implementation-records.md    # implementation record placement and naming rules
 docs/
   guide/
     README.md

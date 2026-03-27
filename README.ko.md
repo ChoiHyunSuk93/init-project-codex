@@ -31,7 +31,7 @@
 
 내장 `skill-installer` helper로 설치합니다.
 이후 업데이트를 안정적으로 하려면 `main` 대신 태그 릴리스를 기준으로 설치하는 편이 좋습니다.
-현재 최신 공개 릴리스는 `v0.1.2`입니다.
+현재 최신 공개 릴리스는 `v0.1.3`입니다.
 
 ### 프로젝트 스코프 설치 (권장)
 
@@ -147,14 +147,15 @@ README.md
 rule/
   index.md
   rules/
-    project-structure.md
-    instruction-model.md
-    documentation-boundaries.md
-    readme-maintenance.md
-    development-standards.md
-    testing-standards.md
-    runtime-boundaries.md
-    implementation-records.md
+    project-structure.md         # 최상위 구조와 디렉토리 역할
+    instruction-model.md         # 권한 순서, thin root, 중복 금지 원칙
+    rule-maintenance.md          # rule 문서 수명주기와 rule index 정합성 유지
+    documentation-boundaries.md  # rule, guide, implementation 문서 경계
+    readme-maintenance.md        # root README 작성 및 유지 규칙
+    development-standards.md     # 기본 구현 품질과 관례 규칙
+    testing-standards.md         # 테스트 계층 선택과 검증 기대치
+    runtime-boundaries.md        # runtime과 non-runtime 경계 규칙
+    implementation-records.md    # 구현 기록 배치와 이름 규칙
 docs/
   guide/
     README.md

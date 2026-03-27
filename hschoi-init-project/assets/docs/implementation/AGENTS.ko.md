@@ -27,7 +27,7 @@
 
 - 변경이 실제 사용자 워크플로를 바꾸면 `docs/guide/`의 관련 가이드를 함께 생성하거나 수정한다.
 - 구현 메모, 저장소 구조 요약, 규칙 복사본을 `docs/guide/`로 옮기지 않는다.
-- 규칙에 새로운 명시 사항이 추가되거나 기존 규칙이 바뀌면 관련 `rule/rules/*.md`와 `rule/index.md`도 함께 갱신한다.
+- 규칙에 새로운 명시 사항이 추가되거나 기존 규칙이 바뀌면 `rule/rules/rule-maintenance.md`를 따라 관련 규칙 문서와 `rule/index.md`를 함께 갱신한다.
 - 테스트나 검증 관례가 더 구체화되면 구현 기록도 `rule/rules/testing-standards.md`와 맞춰서 유지한다.
 
 ## 권한 범위

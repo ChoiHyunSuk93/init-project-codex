@@ -232,6 +232,7 @@ rule_tree_requires_confirmation() {
       allow["rules/"] = 1
       allow["rules/project-structure.md"] = 1
       allow["rules/instruction-model.md"] = 1
+      allow["rules/rule-maintenance.md"] = 1
       allow["rules/documentation-boundaries.md"] = 1
       allow["rules/readme-maintenance.md"] = 1
       allow["rules/development-standards.md"] = 1
@@ -263,6 +264,7 @@ docs/guide/README.md
 docs/implementation/AGENTS.md
 rule/index.md
 rule/rules/instruction-model.md
+rule/rules/rule-maintenance.md
 rule/rules/documentation-boundaries.md
 rule/rules/readme-maintenance.md
 rule/rules/implementation-records.md
@@ -1334,6 +1336,7 @@ copy_template "assets/AGENTS/root.$LANGUAGE.md" "$TARGET_DIR/AGENTS.md"
 copy_template "assets/docs/implementation/AGENTS.$LANGUAGE.md" "$TARGET_DIR/docs/implementation/AGENTS.md"
 copy_template "assets/rule/index.$LANGUAGE.md" "$TARGET_DIR/rule/index.md"
 copy_template "assets/rule/instruction-model.$LANGUAGE.md" "$TARGET_DIR/rule/rules/instruction-model.md"
+copy_template "assets/rule/rule-maintenance.$LANGUAGE.md" "$TARGET_DIR/rule/rules/rule-maintenance.md"
 copy_template "assets/rule/documentation-boundaries.$LANGUAGE.md" "$TARGET_DIR/rule/rules/documentation-boundaries.md"
 copy_template "assets/rule/readme-maintenance.$LANGUAGE.md" "$TARGET_DIR/rule/rules/readme-maintenance.md"
 copy_template "assets/rule/implementation-records.$LANGUAGE.md" "$TARGET_DIR/rule/rules/implementation-records.md"

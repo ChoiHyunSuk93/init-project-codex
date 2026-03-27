@@ -81,6 +81,7 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - Put detailed rule documents under `rule/rules/`.
    - Start `rule/index.md` from the language-appropriate template in the skill's `assets/rule/`, then adapt the entries to the repository's actual starter rules under `rule/rules/`.
    - Create starter rule documents under `rule/rules/` from the language-appropriate templates in the skill's `assets/rule/`.
+   - Include a starter rule for rule maintenance and rule-index alignment unless the repository already has a stronger equivalent.
    - Include starter rules for root README maintenance and development standards unless the repository already has stronger equivalents.
    - Include a starter rule for unit-test and end-to-end test expectations unless the repository already has a stronger equivalent.
    - In fresh mode, make `rule/rules/development-standards.md` provisional and refine it as real stack, tooling, and structure conventions become concrete during ongoing work.
@@ -125,7 +126,7 @@ In existing repositories or uncertain structures, inspect first, ask the missing
 - `docs/guide/README.md` by default
 - focused guide documents under `docs/guide/` only when actual user-facing workflows justify them
 - `docs/implementation/AGENTS.md` by default
-- starter rule documents including `rule/rules/readme-maintenance.md`, `rule/rules/development-standards.md`, and `rule/rules/testing-standards.md`
+- starter rule documents including `rule/rules/rule-maintenance.md`, `rule/rules/readme-maintenance.md`, `rule/rules/development-standards.md`, and `rule/rules/testing-standards.md`
 - other local `AGENTS.md` files where they reduce scope and context
 - minimal but meaningful starter content in generated files
 - no project-local `assets/` directory unless explicitly requested by the user

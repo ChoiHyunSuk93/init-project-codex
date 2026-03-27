@@ -13,6 +13,7 @@ Keep this file thin and use it to route work to `rule/index.md` and the detailed
 
 - Treat `rule/index.md` as the discovery point for authoritative rule documents.
 - Read the relevant `rule/rules/*.md` documents before changing project structure or writing new long-lived docs.
+- Use `rule/rules/rule-maintenance.md` when adding, deleting, renaming, or moving rule documents.
 - Update `rule/index.md` whenever rule documents are added, removed, renamed, or moved.
 
 ## Scope Model
@@ -36,7 +37,7 @@ Keep this file thin and use it to route work to `rule/index.md` and the detailed
 - Do not create guide documents from repository structure summaries, project rules, test directory inventories, or implementation notes alone.
 - For every implementation change, create or update the corresponding implementation record under `docs/implementation/` in the correct concern-based category and keep the record numbering in order.
 - For behavior changes, add or update the most relevant test layer when practical and keep `rule/rules/testing-standards.md` aligned with real test conventions as they emerge.
-- When a rule gains new explicit requirements or an existing rule changes, create or update the corresponding document under `rule/rules/` and update `rule/index.md` in the same change.
+- When a rule gains new explicit requirements or an existing rule changes, follow `rule/rules/rule-maintenance.md` so the relevant rule document and `rule/index.md` are updated in the same change.
 - When project-specific implementation standards become clearer, update `rule/rules/development-standards.md` so it reflects observed conventions instead of generic defaults.
 - If starter rules still contain placeholders, replace them with observed values once the real structure or boundaries become known.
 

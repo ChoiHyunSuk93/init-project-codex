@@ -22,7 +22,7 @@ Use this order to resolve scope, not to justify duplication.
 ## Non-Duplication
 
 - Do not restate the same rule in multiple places without a reason.
-- If a detailed rule changes, update the source rule document and any necessary index references instead of copying the edit into many files.
+- If a detailed rule changes, follow `rule/rules/rule-maintenance.md` to update the source rule document and any necessary index references instead of copying the edit into many files.
 - Put repository-wide implementation quality expectations into `rule/rules/development-standards.md` or a narrower local rule instead of scattering them across multiple instruction files.
 
 ## Skill Authoring Note
