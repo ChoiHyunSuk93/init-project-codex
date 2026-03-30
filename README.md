@@ -1,8 +1,8 @@
-# hschoi-init-project
+# hs-init-project
 
 [English](README.md) | [한국어](README.ko.md)
 
-`hschoi-init-project` is an open-source Codex skill for bootstrapping or retrofitting a repository with a Codex-oriented working structure.
+`hs-init-project` is an open-source Codex skill for bootstrapping or retrofitting a repository with a Codex-oriented working structure.
 
 ## Purpose
 
@@ -15,23 +15,24 @@ It focuses on a small, explicit baseline:
 
 - root `AGENTS.md`
 - root `rule/` with `rule/index.md` and indexed rule documents under `rule/rules/*.md`
+- `subagents_docs/` for planner / generator / evaluator working docs
 - `docs/guide/README.md`
-- `docs/implementation/AGENTS.md`
+- `docs/implementation/AGENTS.md` plus user-facing final briefings
 - language-aware document generation
 
 ## Repository Layout
 
-- `hschoi-init-project/SKILL.md`: skill behavior and workflow
-- `hschoi-init-project/agents/openai.yaml`: skill metadata
-- `hschoi-init-project/references/`: detailed supporting rules for the skill
-- `hschoi-init-project/assets/`: internal templates used by the skill
-- `hschoi-init-project/scripts/`: deterministic helper scripts used by the skill
+- `hs-init-project/SKILL.md`: skill behavior and workflow
+- `hs-init-project/agents/openai.yaml`: skill metadata
+- `hs-init-project/references/`: detailed supporting rules for the skill
+- `hs-init-project/assets/`: internal templates used by the skill
+- `hs-init-project/scripts/`: deterministic helper scripts used by the skill
 
 ## Installation
 
 Install the skill with the built-in `skill-installer` helper.
 Prefer a tagged release over `main` so later updates can follow GitHub releases.
-The current latest public release is `v0.1.3`.
+The current latest public release is `v0.1.4`.
 
 ### Project-Scoped Installation (Recommended)
 
@@ -42,7 +43,7 @@ Through Codex:
 
 ```text
 $skill-installer
-Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hschoi-init-project at release tag vX.Y.Z into <project-root>/.codex/skills.
+Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hs-init-project at release tag vX.Y.Z into <project-root>/.codex/skills.
 ```
 
 Direct installer script:
@@ -55,7 +56,7 @@ mkdir -p .codex/skills
 
 python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo ChoiHyunSuk93/init-project-codex \
-  --path hschoi-init-project \
+  --path hs-init-project \
   --ref "$TAG" \
   --dest "$PWD/.codex/skills"
 ```
@@ -63,7 +64,7 @@ python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-g
 This creates:
 
 ```text
-<project-root>/.codex/skills/hschoi-init-project/
+<project-root>/.codex/skills/hs-init-project/
 ```
 
 ### Global Installation
@@ -74,7 +75,7 @@ Through Codex:
 
 ```text
 $skill-installer
-Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hschoi-init-project at release tag vX.Y.Z.
+Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hs-init-project at release tag vX.Y.Z.
 ```
 
 Direct installer script:
@@ -85,7 +86,7 @@ CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 
 python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo ChoiHyunSuk93/init-project-codex \
-  --path hschoi-init-project \
+  --path hs-init-project \
   --ref "$TAG"
 ```
 
@@ -95,7 +96,7 @@ You can also install it by URL:
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 
 python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
-  --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/vX.Y.Z/hschoi-init-project
+  --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/vX.Y.Z/hs-init-project
 ```
 
 If Codex is already running, restart it after installation so the new skill is picked up.
@@ -109,8 +110,8 @@ If your installed copy predates this updater, reinstall once from a tagged relea
 Project-scoped installation:
 
 ```bash
-python3 ./.codex/skills/hschoi-init-project/scripts/update-skill-release.py --ref latest
-python3 ./.codex/skills/hschoi-init-project/scripts/update-skill-release.py --ref vX.Y.Z
+python3 ./.codex/skills/hs-init-project/scripts/update-skill-release.py --ref latest
+python3 ./.codex/skills/hs-init-project/scripts/update-skill-release.py --ref vX.Y.Z
 ```
 
 Global installation:
@@ -118,8 +119,8 @@ Global installation:
 ```bash
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 
-python3 "$CODEX_HOME/skills/hschoi-init-project/scripts/update-skill-release.py" --ref latest
-python3 "$CODEX_HOME/skills/hschoi-init-project/scripts/update-skill-release.py" --ref vX.Y.Z
+python3 "$CODEX_HOME/skills/hs-init-project/scripts/update-skill-release.py" --ref latest
+python3 "$CODEX_HOME/skills/hs-init-project/scripts/update-skill-release.py" --ref vX.Y.Z
 ```
 
 The updater records the installed release source so later updates can continue from the same repo and skill path. Restart Codex after updating if it is already running.
@@ -144,6 +145,12 @@ The skill creates or updates this baseline structure:
 ```text
 AGENTS.md
 README.md
+.codex/
+  config.toml
+  agents/
+    planner.toml
+    generator.toml
+    evaluator.toml
 rule/
   index.md
   rules/
@@ -156,20 +163,31 @@ rule/
     testing-standards.md         # test-layer selection and verification expectations
     runtime-boundaries.md        # runtime versus non-runtime boundary rules
     implementation-records.md    # implementation record placement and naming rules
+    subagent-orchestration.md    # planner/generator/evaluator boundaries and loop rules
+    subagents-docs.md            # working-doc ownership under subagents_docs/
+subagents_docs/
+  AGENTS.md
 docs/
   guide/
     README.md
     [focused guide documents]   # existing-project mode when observed user-facing workflows justify them
   implementation/
     AGENTS.md
+    [category]/
+      [short final cycle briefings]
 ```
 
 - `AGENTS.md`: thin repository-wide Codex guidance
 - root `README.md`: durable human-facing repository summary
+- `.codex/config.toml`: project-scoped agent runtime settings that are generated alongside `.codex/agents/*.toml`
+- `.codex/agents/`: project-scoped planner / generator / evaluator definitions
 - `rule/`: authoritative execution rules for Codex, with `rule/index.md` as the index and `rule/rules/*.md` as the detailed rule set
+- `subagents_docs/`: planner, generator, and evaluator working documents
 - `docs/guide/`: human-facing navigation and guide documents
-- `docs/implementation/`: implementation record placement rules and future record categories
+- `docs/implementation/`: user-facing short final briefings inside concern-based categories after a plan cycle passes
 - In existing-project mode, additional guide documents are created only when observed user-facing workflows provide durable reader-facing material.
+
+When the harness is requested, generated repositories run each plan in `planner -> generator -> evaluator` order. The main agent stays orchestration-only: it coordinates those roles, collects handoffs, and does not directly become planner, generator, or evaluator unless the user explicitly waives the split. The evaluator checks the implemented result against the plan and acceptance criteria, and only evaluator-reported failures or blockers send that plan back for re-planning. Independent plans may run in parallel; dependent plans should run sequentially. `subagents_docs/` working documents follow the selected language, and generated repositories include `.codex/config.toml` alongside `.codex/agents/*.toml`. If subagents are slow the coordinator waits or re-plans instead of directly implementing.
 
 ## Usage
 
@@ -179,14 +197,14 @@ The command alone is enough to start; you can add a very short intent phrase if 
 Examples:
 
 ```text
-$hschoi-init-project
+$hs-init-project
 ```
 
 ```text
 Set up the initial project structure for this repository.
 ```
 
-If no language choice can be inferred first, the skill asks for the language before it starts initialization.
+If no language choice is already fixed in the request or session, the skill asks for the language in plain text before it starts initialization.
 After language is fixed, it decides whether the repository should be handled as a fresh initialization or an additive retrofit.
 
 ## Development
