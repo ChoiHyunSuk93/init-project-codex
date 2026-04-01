@@ -1,0 +1,7 @@
+interface:
+  display_name: "Docs Sync"
+  short_description: "Starter local skill for README, guide, and rule synchronization"
+  default_prompt: "Use $docs-sync when code or policy changes require README, guides, rules, or implementation briefings to be updated in sync."
+policy:
+  allow_implicit_invocation: true
+

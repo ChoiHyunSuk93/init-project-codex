@@ -1,0 +1,7 @@
+interface:
+  display_name: "Test Debug"
+  short_description: "Starter local skill for testing and debugging"
+  default_prompt: "Use $test-debug when the work is reproducing issues, narrowing causes, adding or updating tests, or documenting the strongest available verification."
+policy:
+  allow_implicit_invocation: true
+

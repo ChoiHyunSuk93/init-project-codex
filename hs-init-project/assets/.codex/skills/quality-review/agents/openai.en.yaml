@@ -1,0 +1,6 @@
+interface:
+  display_name: "Quality Review"
+  short_description: "Starter local skill for acceptance and quality review"
+  default_prompt: "Use $quality-review when the job is to compare implemented results against acceptance criteria, expected behavior, and regression risk without editing product files."
+policy:
+  allow_implicit_invocation: true

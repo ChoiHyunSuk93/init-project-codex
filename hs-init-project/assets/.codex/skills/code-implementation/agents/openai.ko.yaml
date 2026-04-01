@@ -1,0 +1,7 @@
+interface:
+  display_name: "Code Implementation"
+  short_description: "승인된 변경 계획 구현을 위한 starter local skill"
+  default_prompt: "승인된 계획을 기준으로 코드, 설정, 스크립트, 템플릿을 수정해야 하면 $code-implementation을 사용한다. 변경 범위를 좁게 유지하고 집중 검증을 함께 남긴다."
+policy:
+  allow_implicit_invocation: true
+

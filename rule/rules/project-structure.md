@@ -7,10 +7,11 @@
 ## 최상위 영역
 
 - `AGENTS.md`: 저장소 전역 orchestration 지침
-- `.codex/`: 프로젝트 스코프 Codex 설정과 custom subagent 정의
+- `.codex/`: 프로젝트 스코프 Codex 설정과 planner/generator/evaluator 정의
 - `.github/`: 공개 저장소 운영 자동화와 정책 파일
 - `hs-init-project/`: 실제 skill 본문, metadata, template, script가 들어 있는 제품 디렉토리
 - `rule/`: authoritative Codex 실행 규칙
+- `subagents_docs/`: planner, generator, evaluator 작업 문서. 신규 cycle은 `subagents_docs/cycles/` 아래의 단일 문서 모델을 사용한다.
 - `docs/guide/`: 사람이 읽는 사용자 가이드 문서
 - `docs/implementation/`: 사람이 읽는 구현 기록 문서
 
@@ -25,6 +26,7 @@
 - `.codex/`
 - `.github/`
 - `rule/`
+- `subagents_docs/`
 - `docs/`
 
 ## 변경 규칙

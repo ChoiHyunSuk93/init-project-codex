@@ -2,6 +2,10 @@
 
 이 저장소의 하네스는 `planner`, `generator`, `evaluator` 역할 분리 방식으로 동작한다.
 메인 에이전트는 이 하네스에서 orchestration-only 역할만 맡고, 사용자가 역할 분리를 명시적으로 완화하지 않는 한 이 세 역할을 직접 겸하지 않는다.
+역할/워크플로의 authoritative 기준은 `rule/rules/subagent-orchestration.md`다.
+exact cycle 문서 형식, header, provenance, dirty-worktree 평가는 `rule/rules/cycle-document-contract.md`를 따른다.
+문서 언어와 안정적인 filename/path 규칙은 `rule/rules/language-policy.md`를 따른다.
+분석, 질문, 리뷰, 설명 요청은 사용자가 명시적으로 변경이나 materialize를 지시하기 전에는 구현 사이클로 시작하지 않는다.
 
 ## 문서 구분
 
@@ -12,15 +16,15 @@
 
 ## 사이클
 
-1. `planner`가 `subagents_docs/plans/`에 plan 문서를 작성한다.
-   - 목표, acceptance criteria, 범위/비범위, 제약, 위험요소, 의존관계를 명시한다.
-2. `generator`가 계획을 구현하고 `subagents_docs/changes/`에 변경 기록을 남긴다.
-   - 코드/템플릿/스크립트 수정 및 실무상 필요한 검증 포함
-3. `evaluator`가 구현 결과를 대상으로 end-to-end 점검을 수행하고 `subagents_docs/evaluations/`에 보고한다.
-   - 구현 결과를 plan과 acceptance criteria에 대조
-   - design quality, originality, completeness, functionality 평가
+1. `planner`가 필요하면 cycle 문서를 만들고 `subagents_docs/cycles/` 아래 같은 문서에 planner 섹션을 append한다.
+   - planner 섹션의 exact required contents는 `rule/rules/cycle-document-contract.md`를 따른다.
+2. `generator`가 계획을 구현하고 같은 cycle 문서에 generator 섹션을 append한다.
+   - generator 섹션의 exact required contents는 `rule/rules/cycle-document-contract.md`를 따른다.
+3. `evaluator`가 구현 결과를 대상으로 end-to-end 점검을 수행하고 같은 cycle 문서에 evaluator 섹션을 append한다.
+   - evaluator 섹션의 exact required contents와 dirty-worktree 비교 기준은 `rule/rules/cycle-document-contract.md`를 따른다.
 4. evaluator가 구현 결과에서 실패나 blocker를 확인했을 때만 planner가 같은 plan을 재계획하고, pass될 때까지 반복한다.
 5. subagent 응답이 느리더라도 coordinator는 직접 구현하지 않고 기다리거나 재계획한다.
+6. coordinator는 결과를 반영한 completed/unused thread를 정리한다.
 
 ## 다중 plan 운영
 
@@ -33,3 +37,10 @@
 - 작업용 plan, 변경 기록, 평가 보고서를 `docs/guide`나 `docs/implementation`에 두지 않는다.
 - `docs/guide`는 사용자 안내만 관리한다.
 - 최종 구현 브리핑은 evaluator가 통과시킨 뒤 `docs/implementation/`에서만 공개용으로 남긴다.
+- plan-only 상태나 generator-only 상태를 근거로 최종 구현 브리핑을 발행하지 않는다.
+## cycle 문서
+
+- 신규 작업은 기본적으로 `subagents_docs/cycles/NN-slug.md` 한 파일로 관리한다.
+- 상단 상태 블록은 coordinator가 관리하고, 역할 산출물은 append-only로 누적한다.
+- 섹션 이름은 `Planner v1`, `Generator v1`, `Evaluator v1`, `Planner v2`처럼 역할과 버전을 함께 쓴다.
+- exact header 상태 전이와 provenance 요구는 `rule/rules/cycle-document-contract.md`를 따른다.

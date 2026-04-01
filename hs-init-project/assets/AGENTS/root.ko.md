@@ -46,32 +46,27 @@
 ## Skill 작업
 
 - 이 저장소에 Codex skill이 있거나 새로 만들면 `skill-creator`를 사용한다.
-- 각 skill은 이름으로 직접 호출될 뿐 아니라 작업 설명만으로도 암시적으로 호출될 수 있도록 `SKILL.md` 설명과 메타데이터를 작성한다.
+- 각 skill은 명확한 `SKILL.md` 설명과 정렬된 메타데이터를 갖추도록 작성한다.
 - 각 skill의 `agents/openai.yaml`에는 특별한 이유가 없다면 `policy.allow_implicit_invocation: true`를 둔다.
+- 저장소가 `.codex/skills/` 아래 starter local skill을 함께 가지면 `SKILL.md` 설명, metadata, `allow_implicit_invocation` 설정을 서로 맞춘다.
 - 각 skill은 관련 `rule/rules/*.md` 문서를 참조형으로 연결하고, 저장소 공통 규칙을 skill 본문에 중복 복사하지 않는다.
 
 ## 서브에이전트 하네스
 
-- planner / generator / evaluator 흐름이 필요하면 먼저 `rule/rules/subagent-orchestration.md`를 읽는다.
+- 이 저장소는 기본적으로 planner / generator / evaluator 흐름을 사용하므로 먼저 `rule/rules/subagent-orchestration.md`를 읽는다.
 - 메인 에이전트는 이 흐름에서 orchestration-only 역할만 맡고, 사용자가 역할 분리를 명시적으로 완화하지 않는 한 planner/generator/evaluator를 직접 겸하지 않는다.
-- 하네스는 `planner -> generator -> evaluator` 순서로 실행한다.
-- evaluator는 generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 평가하고, 그 구현 결과에서 실패나 blocker를 확인했을 때만 planner로 되돌려 재계획한다.
-- 세 역할은 반드시 분리해서 운용하고, 서로의 소유 산출물을 수정하지 않는다.
-- subagent 응답이 느리더라도 coordinator가 직접 구현으로 개입하지 말고 기다리거나 재계획한다.
-- 하네스가 활성화되면 `.codex/agents/*.toml`, `docs/guide/subagent-workflow.md`, 관련 rule 문서를 함께 맞춘다.
-- 하네스가 활성화되면 `subagents_docs/`와 concern-based `docs/implementation/` 경계를 함께 맞춘다.
+- 분석, 질문, 리뷰, 설명 요청은 명시적 구현/변경/materialize 지시가 없으면 구현 사이클로 시작하지 않는다.
+- coordinator는 subagent 결과를 오래 기다릴 수 있지만, 반영이 끝난 completed/unused thread는 정리해야 한다.
+- stale session이나 thread limit 때문에 새 delegation이 막히면 직접 구현 대신 cleanup을 먼저 수행한다.
+- exact cycle 문서 경로, header 상태 전이, append-only section, provenance, dirty-worktree 평가 기준은 `rule/rules/cycle-document-contract.md`를 따른다.
+- 문서 언어와 안정적인 filename/path 규칙은 `rule/rules/language-policy.md`를 따른다.
+- `.codex/agents/*.toml`, `subagents_docs/AGENTS.md`, `docs/guide/subagent-workflow.md`는 이 authoritative rule들과 함께 맞춘다.
+- `subagents_docs/`는 작업 기록에만 사용하고, `docs/implementation/`은 pass된 cycle의 사용자-facing 요약 계층으로만 유지한다.
 
 ## 언어 규칙
 
-- 사람이 읽는 생성 문서는 한국어로 작성한다.
-- `subagents_docs/` 작업 문서도 선택된 언어 설정을 따른다.
-- 제어 파일 이름은 `README.md`, `AGENTS.md`, `rule/index.md`로 유지한다.
-- 상세 rule 문서는 `rule/rules/*.md` 아래에 둔다.
-- 디렉토리 이름은 영어로 유지한다.
-- 코드, 명령어, 설정 키, 슬러그, 경로 표기는 영어로 유지한다.
-- 예측 가능한 경로 유지가 중요한 rule 문서 경로는 영어로 유지한다.
+- exact 언어 규칙과 path 불변 조건은 `rule/rules/language-policy.md`를 따른다.
 - `.codex/`와 그 agent 파일명은 영어로 유지한다.
-- `docs/guide/`, `docs/implementation/`에 생성하는 문서 중 제어 파일이 아닌 문서 파일명은 한국어를 사용한다.
 
 ## 중복 금지
 

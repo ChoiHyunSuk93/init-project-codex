@@ -7,7 +7,9 @@ Define the top-level directory model for this repository and make the role of ea
 ## Top-Level Areas
 
 - `AGENTS.md`: repository-wide orchestration guidance
+- `.codex/`: project-scoped Codex configuration, planner/generator/evaluator definitions, and starter local skills
 - `rule/`: authoritative Codex execution rules
+- `subagents_docs/`: planner, generator, and evaluator working documents
 - `docs/guide/`: user-facing workflow guides
 - `docs/implementation/`: human-facing implementation records
 
@@ -25,7 +27,9 @@ List the directories treated as non-runtime here.
 
 Example placeholder:
 
+- `.codex/`
 - `rule/`
+- `subagents_docs/`
 - `docs/`
 - `[non-runtime-directory]`
 

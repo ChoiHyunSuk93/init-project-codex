@@ -46,30 +46,26 @@ Keep this file thin and use it to route work to `rule/index.md` and the detailed
 ## Skill Work
 
 - If this repository contains Codex skills or a new skill is being created, use `skill-creator`.
-- Write each skill so it can be invoked both explicitly by name and implicitly by matching task descriptions through clear `SKILL.md` descriptions and metadata.
+- Write each skill with clear `SKILL.md` descriptions and aligned metadata.
 - Unless explicit-only behavior is requested, set `policy.allow_implicit_invocation: true` in each skill's `agents/openai.yaml`.
+- If the repository ships starter local skills under `.codex/skills/`, keep their `SKILL.md` descriptions, metadata, and `allow_implicit_invocation` setting aligned.
 - Have each skill reference the relevant `rule/rules/*.md` documents instead of copying stable repository-wide rules into the skill body.
 
 ## Subagent Harness
 
-- When a task should use a planner / generator / evaluator workflow, read `rule/rules/subagent-orchestration.md` first.
+- This repository uses a planner / generator / evaluator workflow by default. Read `rule/rules/subagent-orchestration.md` first.
 - The main agent is orchestration-only in that workflow: it coordinates handoffs and does not directly become planner, generator, or evaluator unless the user explicitly waives the split.
-- Run the harness in `planner -> generator -> evaluator` order.
-- The evaluator judges the implemented result against the plan and acceptance criteria, and only evaluator-reported failures or blockers send the cycle back to planner.
-- Keep the three roles separate and do not let one role edit another role's owned outputs.
-- If subagents are slow, wait or re-plan instead of directly implementing in their place.
-- When the harness is active, keep `.codex/agents/*.toml`, `docs/guide/subagent-workflow.md`, and the related rules aligned.
-- When the harness is active, keep `subagents_docs/` aligned with the plan cycle outputs and keep `docs/implementation/` as the user-facing summary layer through concern-based categories.
+- Do not start the implementation cycle for analysis-only, question-only, review-only, or explanation-only requests.
+- The coordinator may wait as long as needed for subagent output, but it must close completed or no-longer-needed threads after integrating their outputs.
+- If stale sessions or thread limits block new delegation, perform thread cleanup before continuing.
+- Use `rule/rules/cycle-document-contract.md` for exact cycle file paths, header transitions, append-only section rules, provenance, and dirty-worktree evaluation requirements.
+- Use `rule/rules/language-policy.md` for document-language and stable filename/path rules.
+- Keep `.codex/agents/*.toml`, `subagents_docs/AGENTS.md`, and `docs/guide/subagent-workflow.md` aligned with those authoritative rules.
+- Keep `subagents_docs/` for working records and keep `docs/implementation/` as the user-facing summary layer for passed cycles only.
 
 ## Language Policy
 
-- Write human-facing generated documents in English.
-- Keep `subagents_docs/` working documents in the selected language.
-- Keep control filenames stable: `README.md`, `AGENTS.md`, `rule/index.md`.
-- Keep indexed rule documents under `rule/rules/*.md`.
-- Keep directory names in English.
-- Keep code, commands, config keys, slugs, and path literals in English.
-- Keep rule document paths stable in English where predictable pathing matters.
+- Follow `rule/rules/language-policy.md` for exact language and path rules.
 - Keep `.codex/` and its agent files in English.
 
 ## Non-Duplication

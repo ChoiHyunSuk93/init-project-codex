@@ -39,9 +39,23 @@
 ### documentation-boundaries
 - Path: `rule/rules/documentation-boundaries.md`
 - Scope: documentation
-- Applies to: `docs/guide/`, `docs/implementation/`, `rule/`
+- Applies to: `docs/guide/`, `docs/implementation/`, `subagents_docs/`, `rule/`
 - Authority: global
-- Summary: 사람이 읽는 문서, 구현 이력, authoritative rule 문서의 차이를 정의한다.
+- Summary: 사람이 읽는 문서, subagent 작업 문서, 구현 이력, authoritative rule 문서의 차이를 정의한다.
+
+### cycle-document-contract
+- Path: `rule/rules/cycle-document-contract.md`
+- Scope: repository-wide workflow
+- Applies to: `subagents_docs/cycles/`, `.codex/agents/`, cycle-aware docs
+- Authority: global
+- Summary: cycle 파일 경로, header 상태 전이, append-only section, provenance, dirty-worktree 평가 기준을 정의한다.
+
+### language-policy
+- Path: `rule/rules/language-policy.md`
+- Scope: repository-wide documentation
+- Applies to: `AGENTS.md`, `rule/`, `docs/guide/`, `docs/implementation/`, `subagents_docs/`
+- Authority: global
+- Summary: 생성 문서의 언어 규칙과 안정적인 filename/path 불변 조건을 정의한다.
 
 ### readme-maintenance
 - Path: `rule/rules/readme-maintenance.md`
@@ -49,6 +63,20 @@
 - Applies to: `README.md`
 - Authority: global
 - Summary: root README를 어떻게 만들고 분석하며 저장소 대표 요약 문서로 유지하는지 정의한다.
+
+### subagent-orchestration
+- Path: `rule/rules/subagent-orchestration.md`
+- Scope: repository-wide workflow
+- Applies to: `.codex/agents/`, `subagents_docs/`, root coordination
+- Authority: global
+- Summary: planner, generator, evaluator의 역할 경계, orchestration 순서, cycle 반복 규칙을 정의한다.
+
+### subagents-docs
+- Path: `rule/rules/subagents-docs.md`
+- Scope: repository-wide workflow
+- Applies to: `subagents_docs/`
+- Authority: global
+- Summary: `subagents_docs/` working area와 역할별 소유권 경계를 정의한다.
 
 ## 품질 규칙
 

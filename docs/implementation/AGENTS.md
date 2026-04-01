@@ -18,7 +18,8 @@
 - 각 카테고리 안의 번호는 순서에 맞게 유지한다.
 - flat layout을 명시적으로 요청하지 않았다면 기록을 `docs/implementation/` 루트에 평평하게 쌓지 않는다.
 - 서브에이전트 하네스 작업의 작업용 문서는 `subagents_docs/`에 두고, 이 디렉토리에는 최종 요약만 둔다.
-- 최종 요약은 evaluator가 구현 결과를 pass로 판정한 뒤 concern-based category directory에 두고, 브리핑 형식으로 작성한다.
+- 최종 요약은 evaluator가 cycle 문서 안에서 구현 결과를 pass로 판정한 뒤 concern-based category directory에 두고, 브리핑 형식으로 작성한다.
+- plan 문서나 generator change record만 있는 상태에서는 최종 요약을 만들거나 갱신하지 않는다.
 - `briefings/`라는 별도 상위 디렉토리는 만들지 않는다.
 - category 예시는 `subagent-harness/`처럼 결과의 관심사를 드러내는 이름을 사용한다.
 
@@ -27,7 +28,7 @@
 - 각 구현 기록은 최소한 `요약`, `변경 내용`, `이유`, `검증`, `관련 규칙` 섹션을 포함한다.
 - 새 기록을 만들 때는 이 최소 구조를 유지한 상태에서 실제 변경 내용으로 채운다.
 - 구분이 의미 있을 때는 `검증` 섹션 안에서 단위 테스트, E2E 테스트, 수동 검증을 분리해서 적는다.
-- planner/generator/evaluator 작업 문서의 형식은 `subagents_docs/` 규칙을 따른다.
+- planner/generator/evaluator 작업 문서의 형식은 `subagents_docs/cycles/` 중심 규칙을 따른다.
 
 ## 연계 규칙
 

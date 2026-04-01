@@ -25,11 +25,13 @@ In existing projects:
 - preserve unrelated contents
 - avoid arbitrary moves or renames
 - prefer additive initialization over restructuring
+- let observed runtime, test, tooling, and docs signals make generated starter skills and selected baseline docs more specific when that information is actually present
 
 Read [language-output.md](language-output.md) before generating any user-facing document so the initial language choice is applied consistently.
 If no valid language selection exists yet, ask the plain-text language question and wait before inspecting repository contents.
 If the request or session already fixes the language, do not ask again.
 Load only the templates for the selected language unless you are explicitly updating the skill itself.
+If the user request is analysis-only, question-only, review-only, or explanation-only, stop before materialization and answer analytically instead of entering the implementation cycle.
 
 ## Stop-and-ask conditions
 
@@ -46,6 +48,7 @@ Do not guess these decisions.
 Do not present partial final structure as if it were complete.
 If a deterministic generation step discovers one of these gaps, convert it into a question-and-resume flow instead of treating it as a terminal failure.
 If existing `docs/` or `rule/` trees are already compatible with the planned structure and do not need reinterpretation, proceed without asking.
+Do not treat a non-implementation request as permission to materialize files just because the skill matched.
 
 ## Rule structure requirements
 
@@ -59,7 +62,7 @@ The root file must:
 - explain how detailed rules are referenced
 - distinguish authoritative rule documents from human-facing docs
 - reinforce the principle of keeping the root thin over time
-- include the active document language policy
+- point readers to `rule/rules/language-policy.md` for the active document language policy
 - include documentation automation expectations for root `README.md`, user-facing guide docs, implementation records, and rule docs
 - tell Codex to keep root `README.md` updated as durable project-facing facts change
 - include conditional guidance for skill creation when the repository contains Codex skills
@@ -82,6 +85,7 @@ The rule system must:
 - keep detailed rule documents under `rule/rules/*.md`
 - require additions, deletions, and updates to be reflected in the index
 - treat rules not listed in the index as non-authoritative until indexed
+- keep generated docs and prompts pointing to authoritative rule documents instead of duplicating long stable contracts
 
 ### Rule index standard
 
@@ -134,11 +138,15 @@ Create these starter rule documents by default unless the repository already has
 - `rule/rules/instruction-model.md`
 - `rule/rules/rule-maintenance.md`
 - `rule/rules/documentation-boundaries.md`
+- `rule/rules/cycle-document-contract.md`
+- `rule/rules/language-policy.md`
 - `rule/rules/readme-maintenance.md`
 - `rule/rules/development-standards.md`
 - `rule/rules/testing-standards.md`
 - `rule/rules/runtime-boundaries.md`
 - `rule/rules/implementation-records.md`
+- `rule/rules/subagent-orchestration.md`
+- `rule/rules/subagents-docs.md`
 
 Use the language-appropriate templates in `assets/rule/` and adapt them to the repository's actual structure.
 Use `rule/rules/rule-maintenance.md` as the canonical starter rule for keeping `rule/index.md` and detailed rule files aligned over time.
@@ -220,6 +228,8 @@ Treat root `README.md` as the primary human-facing repository summary outside `d
 
 Create these directories:
 
+- `.codex/`
+- `subagents_docs/`
 - `docs/guide/`
 - `docs/implementation/`
 - `rule/`
@@ -229,6 +239,8 @@ Interpret them like this:
 - `guide`: human-facing workflow and usage guides
 - `implementation`: human-facing work history and outcome tracking
 - `rule`: authoritative Codex execution rules
+- `.codex`: project-scoped planner/generator/evaluator harness configuration plus process-oriented starter local skills
+- `subagents_docs`: planner, generator, and evaluator working documents
 
 Do not treat `guide` or `implementation` as primary rule authority.
 
@@ -236,7 +248,10 @@ Do not treat `guide` or `implementation` as primary rule authority.
 
 Use these defaults unless the repository already has a stronger existing convention:
 
+- `.codex/` -> create `config.toml`, `agents/`, and process-oriented starter local skills under `skills/`
+- `subagents_docs/` -> create `AGENTS.md` and `cycles/`
 - `docs/guide/` -> create `README.md`
+- `docs/guide/` -> create `subagent-workflow.md`
 - `docs/implementation/` -> create `AGENTS.md`
 - `rule/` -> create `index.md` and `rules/`
 
@@ -359,7 +374,7 @@ When generating the root `AGENTS.md` or a local `docs/implementation/AGENTS.md`,
 - add a new category only when the current categories no longer describe the work cleanly
 - do not dump records flat under `docs/implementation/` unless the user explicitly requested a flat layout
 - include the active language policy for human-facing generated documents
-- when the subagent harness is active, `subagents_docs/` working documents also follow the selected language
+- `subagents_docs/` working documents also follow the selected language
 - implementation records should use a stable minimal section structure such as summary, changes, why, verification, and related rules
 - implementation records should stay short and readable for users
 - verification notes should separate unit tests, end-to-end tests, manual checks, and remaining gaps when that distinction is meaningful

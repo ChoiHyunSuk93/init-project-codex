@@ -1,0 +1,7 @@
+interface:
+  display_name: "Code Implementation"
+  short_description: "Starter local skill for implementing approved changes"
+  default_prompt: "Use $code-implementation when the work is to apply an approved plan to code, config, scripts, or templates and pair the change with focused verification."
+policy:
+  allow_implicit_invocation: true
+

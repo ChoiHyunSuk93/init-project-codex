@@ -236,6 +236,8 @@ rule_tree_requires_confirmation() {
       allow["rules/instruction-model.md"] = 1
       allow["rules/rule-maintenance.md"] = 1
       allow["rules/documentation-boundaries.md"] = 1
+      allow["rules/cycle-document-contract.md"] = 1
+      allow["rules/language-policy.md"] = 1
       allow["rules/readme-maintenance.md"] = 1
       allow["rules/development-standards.md"] = 1
       allow["rules/testing-standards.md"] = 1
@@ -271,6 +273,16 @@ AGENTS.md
 docs/guide/README.md
 docs/guide/subagent-workflow.md
 docs/implementation/AGENTS.md
+.codex/skills/change-analysis/SKILL.md
+.codex/skills/change-analysis/agents/openai.yaml
+.codex/skills/code-implementation/SKILL.md
+.codex/skills/code-implementation/agents/openai.yaml
+.codex/skills/test-debug/SKILL.md
+.codex/skills/test-debug/agents/openai.yaml
+.codex/skills/docs-sync/SKILL.md
+.codex/skills/docs-sync/agents/openai.yaml
+.codex/skills/quality-review/SKILL.md
+.codex/skills/quality-review/agents/openai.yaml
 subagents_docs/AGENTS.md
 rule/index.md
 rule/rules/instruction-model.md
@@ -519,7 +531,7 @@ build_existing_guide_readme() {
 
 ## 현재 상태
 
-- 초기화 단계에서는 이 \`README.md\`만 기본 생성한다.
+- 초기화 단계에서는 이 \`README.md\`와 \`subagent-workflow.md\`를 기본 생성한다.
 - 실행 가이드, 배포 가이드, 테스트 실행 가이드, 디자인 요청 가이드처럼 실제 사용자가 따라야 하는 워크플로가 확인되면 관련 문서를 추가한다.
 
 ## 초기화 시점에 관찰된 기존 docs 신호
@@ -550,7 +562,7 @@ This \`README.md\` acts as the entry point and index for the guide set.
 
 ## Current State
 
-- This \`README.md\` is the only default guide file created at initialization time.
+- This \`README.md\` and \`subagent-workflow.md\` are the default guide files created at initialization time.
 - Add focused documents only when readers need a real workflow guide, such as running, deploying, testing, operations, or request intake.
 
 ## Existing Docs Signals Observed At Initialization
@@ -686,6 +698,498 @@ $non_runtime_block
 Keep this README focused on durable project-facing facts and navigation.
 As deeper reference material grows, move it into \`docs/guide/\` and keep this file high-signal.
 EOF
+}
+
+build_change_analysis_skill() {
+  language=$1
+  skill_mode=$2
+  runtime_dirs=$3
+  observed_dirs=$4
+  docs_children=$5
+
+  if [ "$skill_mode" = "existing" ]; then
+    if [ "$language" = "ko" ]; then
+      if [ -n "$runtime_dirs" ]; then
+        runtime_block=$(render_bullets "$runtime_dirs")
+      else
+        runtime_block='- 아직 확정된 runtime 영역은 없다.'
+      fi
+
+      if [ -n "$observed_dirs" ]; then
+        observed_dir_block=$(render_bullets "$observed_dirs")
+      else
+        observed_dir_block='- 관찰된 최상위 디렉토리가 아직 없다.'
+      fi
+
+      if [ -n "$docs_children" ]; then
+        docs_block=$(render_bullets "$docs_children")
+      else
+        docs_block='- 관찰된 top-level docs 신호가 아직 없다.'
+      fi
+
+      cat <<EOF
+---
+name: change-analysis
+description: 요구사항 해석, 영향 범위 파악, acceptance criteria 정리, non-goal과 위험 식별 같은 변경 분석 작업에 사용한다. 구현이 확정되지 않은 상태에서는 이 skill을 우선 사용한다.
+---
+
+# Change Analysis
+
+작성 전에 \`rule/index.md\`, \`rule/rules/instruction-model.md\`, \`rule/rules/subagent-orchestration.md\`, \`rule/rules/cycle-document-contract.md\`, \`rule/rules/language-policy.md\`를 읽는다.
+
+이 저장소는 기존 프로젝트를 관찰한 뒤 Codex 구조를 얹은 상태다. 변경 분석은 아래 관찰 신호부터 시작한다.
+
+## 관찰된 runtime 영역
+
+$runtime_block
+
+## 관찰된 최상위 구조
+
+$observed_dir_block
+
+## 관찰된 docs 신호
+
+$docs_block
+
+- 영향 범위, acceptance criteria, non-goal, 위험 요소를 위 관찰 영역 기준으로 정리한다.
+- 기존 docs/rule 신호가 있으면 generic placeholder보다 우선 참조한다.
+- 구현 자체를 대신하지 않고, 관련 근거는 cycle 문서와 rule 문서에 참조형으로 남긴다.
+EOF
+      return 0
+    fi
+
+    if [ -n "$runtime_dirs" ]; then
+      runtime_block=$(render_bullets "$runtime_dirs")
+    else
+      runtime_block='- Runtime areas are not confirmed yet.'
+    fi
+
+    if [ -n "$observed_dirs" ]; then
+      observed_dir_block=$(render_bullets "$observed_dirs")
+    else
+      observed_dir_block='- No top-level directories were observed yet.'
+    fi
+
+    if [ -n "$docs_children" ]; then
+      docs_block=$(render_bullets "$docs_children")
+    else
+      docs_block='- No top-level docs signals were observed yet.'
+    fi
+
+    cat <<EOF
+---
+name: change-analysis
+description: Use for change analysis work such as interpreting requests, mapping impact scope, defining acceptance criteria, and identifying non-goals and risks before implementation is locked in.
+---
+
+# Change Analysis
+
+Read \`rule/index.md\`, \`rule/rules/instruction-model.md\`, \`rule/rules/subagent-orchestration.md\`, \`rule/rules/cycle-document-contract.md\`, and \`rule/rules/language-policy.md\` before writing.
+
+This repository was inspected before the Codex structure was added. Start change analysis from these observed signals.
+
+## Observed Runtime Areas
+
+$runtime_block
+
+## Observed Top-Level Structure
+
+$observed_dir_block
+
+## Observed Docs Signals
+
+$docs_block
+
+- Define impact scope, acceptance criteria, non-goals, and risks from the observed areas first.
+- Prefer observed docs and rule signals over generic placeholders when they already exist.
+- Do not use this as an implementation shortcut; keep rationale referenced through cycle and rule documents.
+EOF
+    return 0
+  fi
+
+  copy_template_body=$SKILL_DIR/assets/.codex/skills/change-analysis/SKILL.$language.md
+  cat "$copy_template_body"
+}
+
+build_code_implementation_skill() {
+  language=$1
+  skill_mode=$2
+  runtime_dirs=$3
+  tooling_files=$4
+
+  if [ "$skill_mode" = "existing" ]; then
+    if [ "$language" = "ko" ]; then
+      if [ -n "$runtime_dirs" ]; then
+        runtime_block=$(render_bullets "$runtime_dirs")
+      else
+        runtime_block='- 아직 확정된 runtime 영역은 없다.'
+      fi
+
+      if [ -n "$tooling_files" ]; then
+        tooling_block=$(render_bullets "$tooling_files")
+      else
+        tooling_block='- 관찰된 top-level 툴링 또는 설정 파일이 아직 없다.'
+      fi
+
+      cat <<EOF
+---
+name: code-implementation
+description: 승인된 변경 계획을 기준으로 코드, 설정, 스크립트, 템플릿을 수정하고 집중된 검증을 수행하는 구현 작업에 사용한다.
+---
+
+# Code Implementation
+
+편집 전에 \`rule/index.md\`, \`rule/rules/instruction-model.md\`, \`rule/rules/subagent-orchestration.md\`, \`rule/rules/cycle-document-contract.md\`, \`rule/rules/language-policy.md\`를 읽는다.
+
+이 저장소는 기존 프로젝트 신호를 관찰한 상태이므로 구현은 아래 영역과 툴링부터 우선 고려한다.
+
+## 관찰된 runtime 영역
+
+$runtime_block
+
+## 관찰된 툴링 또는 설정 파일
+
+$tooling_block
+
+- 승인된 변경 계획 기준으로 위 runtime 영역을 우선 수정 대상으로 본다.
+- 관찰된 툴링과 설정 파일이 있으면 그 신호에 맞춰 검증과 편집 범위를 맞춘다.
+- user-facing 문서와 working record를 섞지 않고, 구현 근거는 cycle 문서와 rule 문서를 참조형으로 남긴다.
+EOF
+      return 0
+    fi
+
+    if [ -n "$runtime_dirs" ]; then
+      runtime_block=$(render_bullets "$runtime_dirs")
+    else
+      runtime_block='- Runtime areas are not confirmed yet.'
+    fi
+
+    if [ -n "$tooling_files" ]; then
+      tooling_block=$(render_bullets "$tooling_files")
+    else
+      tooling_block='- No top-level tooling or config files were observed yet.'
+    fi
+
+    cat <<EOF
+---
+name: code-implementation
+description: Use for implementation work that updates code, config, scripts, or templates from an approved change plan and pairs the edits with focused verification.
+---
+
+# Code Implementation
+
+Read \`rule/index.md\`, \`rule/rules/instruction-model.md\`, \`rule/rules/subagent-orchestration.md\`, \`rule/rules/cycle-document-contract.md\`, and \`rule/rules/language-policy.md\` before editing.
+
+This repository was inspected before the Codex structure was added, so implementation should start from the observed runtime areas and tooling signals below.
+
+## Observed Runtime Areas
+
+$runtime_block
+
+## Observed Tooling Or Config Files
+
+$tooling_block
+
+- Apply the approved plan to these runtime areas first.
+- Let observed tooling and config files shape the editing and verification path when they exist.
+- Keep user-facing docs separate from working records and leave rationale referenced through cycle and rule documents.
+EOF
+    return 0
+  fi
+
+  copy_template_body=$SKILL_DIR/assets/.codex/skills/code-implementation/SKILL.$language.md
+  cat "$copy_template_body"
+}
+
+build_test_debug_skill() {
+  language=$1
+  skill_mode=$2
+  test_dirs=$3
+  test_tooling_files=$4
+
+  if [ "$skill_mode" = "existing" ]; then
+    if [ "$language" = "ko" ]; then
+      if [ -n "$test_dirs" ]; then
+        test_dir_block=$(render_bullets "$test_dirs")
+      else
+        test_dir_block='- 관찰된 테스트 디렉토리가 아직 없다.'
+      fi
+
+      if [ -n "$test_tooling_files" ]; then
+        test_tooling_block=$(render_bullets "$test_tooling_files")
+      else
+        test_tooling_block='- 관찰된 테스트 설정 파일이 아직 없다.'
+      fi
+
+      cat <<EOF
+---
+name: test-debug
+description: 버그 재현, 원인 축소, 테스트 추가/수정, 검증 자동화, 수동 검증 정리 같은 테스트와 디버깅 작업에 사용한다.
+---
+
+# Test Debug
+
+작성 전에 \`rule/index.md\`, \`rule/rules/testing-standards.md\`, \`rule/rules/instruction-model.md\`, \`rule/rules/language-policy.md\`를 읽는다.
+
+이 저장소에서는 아래 테스트 신호를 우선 기준으로 테스트와 디버깅 경로를 잡는다.
+
+## 관찰된 테스트 디렉토리
+
+$test_dir_block
+
+## 관찰된 테스트 설정 파일
+
+$test_tooling_block
+
+- 버그 재현과 원인 축소는 위 테스트 구조와 설정 신호를 먼저 활용한다.
+- 변경에 맞는 가장 작은 자동화 테스트 계층을 우선 선택한다.
+- 자동화 경로가 불명확하면 수동 검증 공백을 명시하고 관련 rule 문서를 참조형으로 남긴다.
+EOF
+      return 0
+    fi
+
+    if [ -n "$test_dirs" ]; then
+      test_dir_block=$(render_bullets "$test_dirs")
+    else
+      test_dir_block='- No dedicated test directories were observed yet.'
+    fi
+
+    if [ -n "$test_tooling_files" ]; then
+      test_tooling_block=$(render_bullets "$test_tooling_files")
+    else
+      test_tooling_block='- No test config files were observed yet.'
+    fi
+
+    cat <<EOF
+---
+name: test-debug
+description: Use for testing and debugging work such as reproducing bugs, narrowing causes, adding or updating tests, automating verification, and documenting manual checks.
+---
+
+# Test Debug
+
+Read \`rule/index.md\`, \`rule/rules/testing-standards.md\`, \`rule/rules/instruction-model.md\`, and \`rule/rules/language-policy.md\` before writing.
+
+Use the observed test signals below as the first guide for testing and debugging work in this repository.
+
+## Observed Test Directories
+
+$test_dir_block
+
+## Observed Test Config Files
+
+$test_tooling_block
+
+- Start reproduction and diagnosis from the observed test structure and configs.
+- Prefer the smallest relevant automated test layer for the change.
+- If automation is still unclear, record the manual verification gap and anchor it to the relevant rule documents.
+EOF
+    return 0
+  fi
+
+  copy_template_body=$SKILL_DIR/assets/.codex/skills/test-debug/SKILL.$language.md
+  cat "$copy_template_body"
+}
+
+build_docs_sync_skill() {
+  language=$1
+  skill_mode=$2
+  docs_children=$3
+  observed_files=$4
+
+  if [ "$skill_mode" = "existing" ]; then
+    if [ "$language" = "ko" ]; then
+      if [ -n "$docs_children" ]; then
+        docs_block=$(render_bullets "$docs_children")
+      else
+        docs_block='- 관찰된 top-level docs 항목이 아직 없다.'
+      fi
+
+      if [ -n "$observed_files" ]; then
+        observed_file_block=$(render_bullets "$observed_files")
+      else
+        observed_file_block='- 관찰된 주요 최상위 파일이 아직 없다.'
+      fi
+
+      cat <<EOF
+---
+name: docs-sync
+description: 코드나 규칙 변경에 맞춰 README, guide, rule, implementation briefing을 동기화하는 문서 정리 작업에 사용한다.
+---
+
+# Docs Sync
+
+작성 전에 \`rule/index.md\`, \`rule/rules/documentation-boundaries.md\`, \`rule/rules/readme-maintenance.md\`, \`rule/rules/language-policy.md\`를 읽는다.
+
+이 저장소는 기존 문서 신호를 가진 상태에서 초기화되므로 문서 동기화는 아래 관찰값부터 시작한다.
+
+## 관찰된 docs 항목
+
+$docs_block
+
+## 관찰된 주요 최상위 파일
+
+$observed_file_block
+
+- 기존 README와 docs 구조가 의미 있으면 generic 재서술보다 우선 보존·보강한다.
+- README, guide, rule, implementation briefing의 경계를 유지한다.
+- 실제로 바뀐 사용자 영향과 운영 사실만 반영하고, stable rule text는 참조형으로 연결한다.
+EOF
+      return 0
+    fi
+
+    if [ -n "$docs_children" ]; then
+      docs_block=$(render_bullets "$docs_children")
+    else
+      docs_block='- No top-level docs entries were observed yet.'
+    fi
+
+    if [ -n "$observed_files" ]; then
+      observed_file_block=$(render_bullets "$observed_files")
+    else
+      observed_file_block='- No significant top-level files were observed yet.'
+    fi
+
+    cat <<EOF
+---
+name: docs-sync
+description: Use for documentation-sync work that keeps README, guides, rules, and implementation briefings aligned with code or policy changes.
+---
+
+# Docs Sync
+
+Read \`rule/index.md\`, \`rule/rules/documentation-boundaries.md\`, \`rule/rules/readme-maintenance.md\`, and \`rule/rules/language-policy.md\` before writing.
+
+This repository was initialized on top of existing docs signals, so documentation sync should start from the observed entries below.
+
+## Observed Docs Entries
+
+$docs_block
+
+## Observed Top-Level Files
+
+$observed_file_block
+
+- Prefer preserving and extending meaningful existing README or docs structure over generic rewrites.
+- Keep the boundary between README, guides, rules, and implementation briefings.
+- Reflect only real user-impact or operating facts that changed and reference stable rules instead of copying them.
+EOF
+    return 0
+  fi
+
+  copy_template_body=$SKILL_DIR/assets/.codex/skills/docs-sync/SKILL.$language.md
+  cat "$copy_template_body"
+}
+
+build_quality_review_skill() {
+  language=$1
+  skill_mode=$2
+  runtime_dirs=$3
+  test_dirs=$4
+  docs_children=$5
+
+  if [ "$skill_mode" = "existing" ]; then
+    if [ "$language" = "ko" ]; then
+      if [ -n "$runtime_dirs" ]; then
+        runtime_block=$(render_bullets "$runtime_dirs")
+      else
+        runtime_block='- 아직 확정된 runtime 영역은 없다.'
+      fi
+
+      if [ -n "$test_dirs" ]; then
+        test_dir_block=$(render_bullets "$test_dirs")
+      else
+        test_dir_block='- 관찰된 테스트 디렉토리가 아직 없다.'
+      fi
+
+      if [ -n "$docs_children" ]; then
+        docs_block=$(render_bullets "$docs_children")
+      else
+        docs_block='- 관찰된 top-level docs 항목이 아직 없다.'
+      fi
+
+      cat <<EOF
+---
+name: quality-review
+description: 변경 결과를 acceptance criteria와 기대 동작에 대조해 검토하고, 회귀 위험과 남은 공백을 정리하는 품질 검토 작업에 사용한다.
+---
+
+# Quality Review
+
+평가 전에 \`rule/index.md\`, \`rule/rules/subagent-orchestration.md\`, \`rule/rules/testing-standards.md\`, \`rule/rules/language-policy.md\`를 읽는다.
+
+이 저장소의 품질 검토는 아래 구조 신호를 기준으로 관찰 범위를 잡는다.
+
+## 관찰된 runtime 영역
+
+$runtime_block
+
+## 관찰된 테스트 디렉토리
+
+$test_dir_block
+
+## 관찰된 docs 항목
+
+$docs_block
+
+- acceptance criteria와 기대 동작을 위 구조 신호에 대조해 검토한다.
+- 회귀 위험과 남은 공백을 구분해 기록한다.
+- 제품 파일은 수정하지 않고, 관찰과 판단 근거를 관련 rule과 검증 기록에 참조형으로 남긴다.
+EOF
+      return 0
+    fi
+
+    if [ -n "$runtime_dirs" ]; then
+      runtime_block=$(render_bullets "$runtime_dirs")
+    else
+      runtime_block='- Runtime areas are not confirmed yet.'
+    fi
+
+    if [ -n "$test_dirs" ]; then
+      test_dir_block=$(render_bullets "$test_dirs")
+    else
+      test_dir_block='- No dedicated test directories were observed yet.'
+    fi
+
+    if [ -n "$docs_children" ]; then
+      docs_block=$(render_bullets "$docs_children")
+    else
+      docs_block='- No top-level docs entries were observed yet.'
+    fi
+
+    cat <<EOF
+---
+name: quality-review
+description: Use for quality review work that checks implemented results against acceptance criteria and expected behavior, then records regression risks and remaining gaps.
+---
+
+# Quality Review
+
+Read \`rule/index.md\`, \`rule/rules/subagent-orchestration.md\`, \`rule/rules/testing-standards.md\`, and \`rule/rules/language-policy.md\` before reviewing.
+
+Use the observed structure below to scope quality review and acceptance checks.
+
+## Observed Runtime Areas
+
+$runtime_block
+
+## Observed Test Directories
+
+$test_dir_block
+
+## Observed Docs Entries
+
+$docs_block
+
+- Compare implemented results against acceptance criteria and expected behavior through these observed runtime, test, and docs surfaces.
+- Separate regression risks from remaining gaps.
+- Do not modify product files; leave the review grounded in relevant rules and verification records.
+EOF
+    return 0
+  fi
+
+  copy_template_body=$SKILL_DIR/assets/.codex/skills/quality-review/SKILL.$language.md
+  cat "$copy_template_body"
 }
 
 build_development_standards() {
@@ -1098,7 +1602,7 @@ build_project_structure() {
 ## 최상위 영역
 
 - \`AGENTS.md\`: 저장소 전역 orchestration 지침
-- \`.codex/\`: 프로젝트 스코프 Codex 설정과 subagent 정의
+- \`.codex/\`: 프로젝트 스코프 Codex 설정, subagent 정의, starter local skill 세트
 - \`rule/\`: authoritative Codex 실행 규칙
 - \`subagents_docs/\`: planner, generator, evaluator의 작업 문서 영역
 - \`docs/guide/\`: 사람이 읽는 안내 문서
@@ -1133,7 +1637,7 @@ Define the top-level directory model for this repository and make the role of ea
 ## Top-Level Areas
 
 - \`AGENTS.md\`: repository-wide orchestration guidance
-- \`.codex/\`: project-scoped Codex configuration and subagent definitions
+- \`.codex/\`: project-scoped Codex configuration, subagent definitions, and starter local skills
 - \`rule/\`: authoritative Codex execution rules
 - \`subagents_docs/\`: planner, generator, and evaluator working documents
 - \`docs/guide/\`: human-facing guidance
@@ -1235,9 +1739,12 @@ build_subagents_docs_rule() {
 
 ## 디렉토리 역할
 
-- `subagents_docs/plans/`: planner가 쓰는 계획 문서
-- `subagents_docs/changes/`: generator가 쓰는 구현 기록
-- `subagents_docs/evaluations/`: evaluator가 쓰는 평가 기록
+- `subagents_docs/cycles/`: planner, generator, evaluator가 함께 참조하는 plan별 단일 working document
+
+## 문서 계약
+
+- exact cycle 문서 경로, header 상태 전이, append-only section, provenance는 `rule/rules/cycle-document-contract.md`를 기준으로 한다.
+- 문서 본문 언어와 path 표기 규칙은 `rule/rules/language-policy.md`를 기준으로 한다.
 
 ## 순환 규칙
 
@@ -1250,7 +1757,9 @@ build_subagents_docs_rule() {
 ## 문서 경계
 
 - `subagents_docs/`에는 작업용 문서만 둔다.
+- 신규 working record는 `subagents_docs/cycles/`에 쓴다.
 - 사용자-facing 최종 브리핑은 evaluator pass 이후 `docs/implementation/`의 관심사 카테고리 안에 짧고 읽기 쉽게 남긴다.
+- plan-only 상태나 generator-only 상태를 근거로 `docs/implementation/` 최종 브리핑을 만들거나 갱신하지 않는다.
 - 역할별 소유 문서를 섞어 쓰지 않는다.
 - top-level `docs/implementation/briefings/` 디렉토리는 만들지 않는다.
 EOF
@@ -1274,9 +1783,12 @@ Define `subagents_docs/` as the working-document area used by planner, generator
 
 ## Directory Roles
 
-- `subagents_docs/plans/`: planner-owned planning documents
-- `subagents_docs/changes/`: generator-owned implementation records
-- `subagents_docs/evaluations/`: evaluator-owned evaluation records
+- `subagents_docs/cycles/`: one append-only working document per plan
+
+## Document Contract
+
+- Use `rule/rules/cycle-document-contract.md` for exact cycle file path, header transitions, append-only sections, provenance, and dirty-worktree rules.
+- Use `rule/rules/language-policy.md` for document language and stable filename/path rules.
 
 ## Cycle Rules
 
@@ -1290,6 +1802,7 @@ Define `subagents_docs/` as the working-document area used by planner, generator
 
 - Keep working documents only under `subagents_docs/`.
 - Leave short, human-facing final briefings under concern-based categories in `docs/implementation/` only after evaluator pass.
+- Do not create or update final briefings from a plan-only or generator-only state.
 - Do not mix role-owned working documents into user-facing documentation.
 - Do not create a top-level `docs/implementation/briefings/` directory.
 EOF
@@ -1435,6 +1948,8 @@ copy_template "assets/rule/index.$LANGUAGE.md" "$TARGET_DIR/rule/index.md"
 copy_template "assets/rule/instruction-model.$LANGUAGE.md" "$TARGET_DIR/rule/rules/instruction-model.md"
 copy_template "assets/rule/rule-maintenance.$LANGUAGE.md" "$TARGET_DIR/rule/rules/rule-maintenance.md"
 copy_template "assets/rule/documentation-boundaries.$LANGUAGE.md" "$TARGET_DIR/rule/rules/documentation-boundaries.md"
+copy_template "assets/rule/cycle-document-contract.$LANGUAGE.md" "$TARGET_DIR/rule/rules/cycle-document-contract.md"
+copy_template "assets/rule/language-policy.$LANGUAGE.md" "$TARGET_DIR/rule/rules/language-policy.md"
 copy_template "assets/rule/readme-maintenance.$LANGUAGE.md" "$TARGET_DIR/rule/rules/readme-maintenance.md"
 copy_template "assets/rule/implementation-records.$LANGUAGE.md" "$TARGET_DIR/rule/rules/implementation-records.md"
 copy_template "assets/rule/subagent-orchestration.$LANGUAGE.md" "$TARGET_DIR/rule/rules/subagent-orchestration.md"
@@ -1442,7 +1957,27 @@ copy_template "assets/.codex/agents/planner.toml" "$TARGET_DIR/.codex/agents/pla
 copy_template "assets/.codex/agents/generator.toml" "$TARGET_DIR/.codex/agents/generator.toml"
 copy_template "assets/.codex/agents/evaluator.toml" "$TARGET_DIR/.codex/agents/evaluator.toml"
 copy_template "assets/.codex/config.toml" "$TARGET_DIR/.codex/config.toml"
+if [ "$README_MODE" = "existing" ]; then
+  write_text "$TARGET_DIR/.codex/skills/change-analysis/SKILL.md" "$(build_change_analysis_skill "$LANGUAGE" "existing" "$RUNTIME_DIRS" "$OBSERVED_DIRS" "$DOCS_CHILDREN")"
+  write_text "$TARGET_DIR/.codex/skills/code-implementation/SKILL.md" "$(build_code_implementation_skill "$LANGUAGE" "existing" "$RUNTIME_DIRS" "$OBSERVED_TOOLING_FILES")"
+  write_text "$TARGET_DIR/.codex/skills/test-debug/SKILL.md" "$(build_test_debug_skill "$LANGUAGE" "existing" "$OBSERVED_TEST_DIRS" "$OBSERVED_TEST_TOOLING_FILES")"
+  write_text "$TARGET_DIR/.codex/skills/docs-sync/SKILL.md" "$(build_docs_sync_skill "$LANGUAGE" "existing" "$DOCS_CHILDREN" "$OBSERVED_FILES")"
+  write_text "$TARGET_DIR/.codex/skills/quality-review/SKILL.md" "$(build_quality_review_skill "$LANGUAGE" "existing" "$RUNTIME_DIRS" "$OBSERVED_TEST_DIRS" "$DOCS_CHILDREN")"
+else
+  copy_template "assets/.codex/skills/change-analysis/SKILL.$LANGUAGE.md" "$TARGET_DIR/.codex/skills/change-analysis/SKILL.md"
+  copy_template "assets/.codex/skills/code-implementation/SKILL.$LANGUAGE.md" "$TARGET_DIR/.codex/skills/code-implementation/SKILL.md"
+  copy_template "assets/.codex/skills/test-debug/SKILL.$LANGUAGE.md" "$TARGET_DIR/.codex/skills/test-debug/SKILL.md"
+  copy_template "assets/.codex/skills/docs-sync/SKILL.$LANGUAGE.md" "$TARGET_DIR/.codex/skills/docs-sync/SKILL.md"
+  copy_template "assets/.codex/skills/quality-review/SKILL.$LANGUAGE.md" "$TARGET_DIR/.codex/skills/quality-review/SKILL.md"
+fi
+copy_template "assets/.codex/skills/change-analysis/agents/openai.$LANGUAGE.yaml" "$TARGET_DIR/.codex/skills/change-analysis/agents/openai.yaml"
+copy_template "assets/.codex/skills/code-implementation/agents/openai.$LANGUAGE.yaml" "$TARGET_DIR/.codex/skills/code-implementation/agents/openai.yaml"
+copy_template "assets/.codex/skills/test-debug/agents/openai.$LANGUAGE.yaml" "$TARGET_DIR/.codex/skills/test-debug/agents/openai.yaml"
+copy_template "assets/.codex/skills/docs-sync/agents/openai.$LANGUAGE.yaml" "$TARGET_DIR/.codex/skills/docs-sync/agents/openai.yaml"
+copy_template "assets/.codex/skills/quality-review/agents/openai.$LANGUAGE.yaml" "$TARGET_DIR/.codex/skills/quality-review/agents/openai.yaml"
 copy_template "assets/subagents_docs/AGENTS.$LANGUAGE.md" "$TARGET_DIR/subagents_docs/AGENTS.md"
+mkdir -p \
+  "$TARGET_DIR/subagents_docs/cycles"
 write_text "$TARGET_DIR/rule/rules/subagents-docs.md" "$(build_subagents_docs_rule "$LANGUAGE")"
 
 if [ "$README_MODE" = "fresh" ]; then

@@ -7,7 +7,9 @@
 ## 최상위 영역
 
 - `AGENTS.md`: 저장소 전역 orchestration 지침
+- `.codex/`: 프로젝트 스코프 Codex 설정, planner/generator/evaluator 정의, starter local skill 세트
 - `rule/`: authoritative Codex 실행 규칙
+- `subagents_docs/`: planner, generator, evaluator 작업 문서
 - `docs/guide/`: 사람이 읽는 사용자 가이드 문서
 - `docs/implementation/`: 사람이 읽는 구현 기록 문서
 
@@ -25,7 +27,9 @@ non-runtime으로 취급하는 디렉토리를 여기에 적는다.
 
 예시 placeholder:
 
+- `.codex/`
 - `rule/`
+- `subagents_docs/`
 - `docs/`
 - `[non-runtime-directory]`
 

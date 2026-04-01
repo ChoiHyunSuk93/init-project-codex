@@ -15,6 +15,7 @@
 
 - 초기화 단계에서 빈 카테고리 디렉토리나 placeholder 기록 문서를 미리 만들지 않는다.
 - evaluator가 통과시킨 각 plan cycle마다 해당 최종 브리핑을 생성하거나 수정한다.
+- plan 문서나 generator change record만 있는 상태에서는 최종 브리핑을 만들거나 갱신하지 않는다.
 - 각 카테고리 안에서는 `NN-name.md` 형식을 사용한다.
 - 각 카테고리 안의 번호는 순서에 맞게 유지한다.
 - flat layout을 명시적으로 요청하지 않았다면 기록을 `docs/implementation/` 루트에 평평하게 쌓지 않는다.
@@ -32,6 +33,7 @@
 - 규칙에 새로운 명시 사항이 추가되거나 기존 규칙이 바뀌면 `rule/rules/rule-maintenance.md`를 따라 관련 규칙 문서와 `rule/index.md`를 함께 갱신한다.
 - 테스트나 검증 관례가 더 구체화되면 구현 기록도 `rule/rules/testing-standards.md`와 맞춰서 유지한다.
 - planner 문서, generator 구현 기록, evaluator 보고서는 `subagents_docs/`에 서로 다른 소유 산출물로 유지한다.
+- cycle working record가 `docs/implementation/`으로 섞이지 않도록 exact 계약은 `rule/rules/cycle-document-contract.md`를 따른다.
 
 ## 권한 범위
 
@@ -40,8 +42,7 @@
 
 ## 언어 규칙
 
-- 사람이 읽는 기록 문서는 활성 언어 규칙을 따른다.
-- `subagents_docs/` 작업 문서도 선택된 언어 설정을 별도 디렉토리에서 따른다.
+- 사람이 읽는 기록 문서의 exact 언어 규칙과 filename/path 불변 조건은 `rule/rules/language-policy.md`를 따른다.
+- `subagents_docs/` 작업 문서도 같은 rule을 작업 문서 경계 안에서 따른다.
 - 이 제어 파일의 이름은 `AGENTS.md`로 유지한다.
-- Korean 모드에서는 제어 파일이 아닌 기록 문서의 사람이 읽는 파일명 부분을 한글로 써도 된다.
 - 코드, 명령어, 설정 키, 슬러그, 경로 표기는 영어로 유지한다.

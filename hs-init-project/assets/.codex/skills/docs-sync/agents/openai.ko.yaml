@@ -1,0 +1,7 @@
+interface:
+  display_name: "Docs Sync"
+  short_description: "README, guide, rule 동기화를 위한 starter local skill"
+  default_prompt: "코드나 규칙 변경과 함께 README, guide, rule, implementation briefing을 맞춰야 하면 $docs-sync를 사용한다. 문서 경계를 지키고 바뀐 사실만 반영한다."
+policy:
+  allow_implicit_invocation: true
+

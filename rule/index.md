@@ -43,6 +43,20 @@
 - Authority: global
 - Summary: 사용자-facing 문서, subagent 작업 문서, category-based 구현 브리핑, authoritative rule 문서의 차이를 정의한다.
 
+### cycle-document-contract
+- Path: `rule/rules/cycle-document-contract.md`
+- Scope: repository-wide workflow
+- Applies to: `subagents_docs/cycles/`, `.codex/agents/`, cycle-aware docs
+- Authority: global
+- Summary: cycle 문서 경로, header 상태 전이, append-only section, provenance, dirty worktree 평가 기준을 정의한다.
+
+### language-policy
+- Path: `rule/rules/language-policy.md`
+- Scope: repository-wide documentation
+- Applies to: `AGENTS.md`, `rule/`, `docs/guide/`, `docs/implementation/`, `subagents_docs/`, generated structures
+- Authority: global
+- Summary: current repo와 generated structure의 문서 본문 언어, 제어 파일 이름, 경로 표기 불변 조건을 정의한다.
+
 ### readme-maintenance
 - Path: `rule/rules/readme-maintenance.md`
 - Scope: documentation
@@ -55,14 +69,14 @@
 - Scope: repository-wide workflow
 - Applies to: `.codex/agents/`, `subagents_docs/`, root coordination
 - Authority: global
-- Summary: planner, generator, evaluator의 역할 경계, subagents_docs 소유권, 언어 정책, handoff 순서를 정의한다.
+- Summary: planner, generator, evaluator의 역할 경계, orchestration 순서, cycle 반복 규칙을 정의한다.
 
 ### subagents-docs
 - Path: `rule/rules/subagents-docs.md`
 - Scope: repository-wide workflow
 - Applies to: `subagents_docs/`
 - Authority: global
-- Summary: planner, generator, evaluator가 읽고 쓰는 작업 문서 영역, 언어 정책, cycle 기록 규칙을 정의한다.
+- Summary: `subagents_docs/` working area, 소유권 경계, working record 배치 규칙을 정의한다.
 
 ## 품질 규칙
 

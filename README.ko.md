@@ -32,7 +32,7 @@
 
 내장 `skill-installer` helper로 설치합니다.
 이후 업데이트를 안정적으로 하려면 `main` 대신 태그 릴리스를 기준으로 설치하는 편이 좋습니다.
-현재 최신 공개 릴리스는 `v0.1.4`입니다.
+direct installer 스크립트는 `--ref latest`를 지원하며, 설치 시 저장소의 최신 버전 태그를 해석합니다.
 
 ### 프로젝트 스코프 설치 (권장)
 
@@ -43,13 +43,12 @@ Codex에서 설치:
 
 ```text
 $skill-installer
-GitHub repo ChoiHyunSuk93/init-project-codex 의 hs-init-project 경로에 있는 스킬을 릴리스 태그 vX.Y.Z 기준으로 <project-root>/.codex/skills 에 설치해줘.
+GitHub repo ChoiHyunSuk93/init-project-codex 의 hs-init-project 경로에 있는 스킬을 최신 버전으로 <project-root>/.codex/skills 에 설치해줘.
 ```
 
 직접 installer 스크립트를 실행하는 방법:
 
 ```bash
-TAG=vX.Y.Z
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 
 mkdir -p .codex/skills
@@ -57,9 +56,11 @@ mkdir -p .codex/skills
 python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo ChoiHyunSuk93/init-project-codex \
   --path hs-init-project \
-  --ref "$TAG" \
+  --ref latest \
   --dest "$PWD/.codex/skills"
 ```
+
+특정 릴리스를 고정하고 싶다면 `latest` 대신 `vX.Y.Z` 같은 태그를 넣으면 됩니다.
 
 설치 결과는 아래와 같습니다.
 
@@ -75,19 +76,18 @@ Codex에서 설치:
 
 ```text
 $skill-installer
-GitHub repo ChoiHyunSuk93/init-project-codex 의 hs-init-project 경로에 있는 스킬을 릴리스 태그 vX.Y.Z 기준으로 설치해줘.
+GitHub repo ChoiHyunSuk93/init-project-codex 의 hs-init-project 경로에 있는 스킬을 최신 버전으로 설치해줘.
 ```
 
 직접 installer 스크립트를 실행하는 방법:
 
 ```bash
-TAG=vX.Y.Z
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 
 python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo ChoiHyunSuk93/init-project-codex \
   --path hs-init-project \
-  --ref "$TAG"
+  --ref latest
 ```
 
 URL로도 설치할 수 있습니다.
@@ -96,7 +96,7 @@ URL로도 설치할 수 있습니다.
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 
 python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
-  --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/vX.Y.Z/hs-init-project
+  --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/latest/hs-init-project
 ```
 
 Codex가 이미 실행 중이면 설치 후 재시작해야 새 스킬이 인식됩니다.
@@ -104,7 +104,8 @@ Codex가 이미 실행 중이면 설치 후 재시작해야 새 스킬이 인식
 ### 기존 설치 업데이트
 
 번들된 updater 스크립트로 현재 설치 디렉터리를 제자리에서 교체할 수 있습니다.
-`--ref latest`는 `main`이 아니라 GitHub의 최신 릴리스 태그를 해석합니다.
+updater의 `--ref latest`는 `main`이 아니라 GitHub의 최신 릴리스 태그를 해석합니다.
+이 의미는 direct installer의 `--ref latest`가 저장소의 최신 버전 태그를 해석하는 것과 다릅니다.
 이미 설치된 복사본이 이 updater 추가 이전 버전이라면, 태그 릴리스로 한 번 재설치한 뒤부터 updater를 사용할 수 있습니다.
 
 프로젝트 스코프 설치:
@@ -151,6 +152,27 @@ README.md
     planner.toml
     generator.toml
     evaluator.toml
+  skills/
+    change-analysis/
+      SKILL.md
+      agents/
+        openai.yaml
+    code-implementation/
+      SKILL.md
+      agents/
+        openai.yaml
+    test-debug/
+      SKILL.md
+      agents/
+        openai.yaml
+    docs-sync/
+      SKILL.md
+      agents/
+        openai.yaml
+    quality-review/
+      SKILL.md
+      agents/
+        openai.yaml
 rule/
   index.md
   rules/
@@ -167,6 +189,8 @@ rule/
     subagents-docs.md            # subagents_docs 작업 문서 소유권 규칙
 subagents_docs/
   AGENTS.md
+  cycles/
+    [NN-plan-slug].md
 docs/
   guide/
     README.md
@@ -181,13 +205,14 @@ docs/
 - root `README.md`: 사람이 읽는 대표 요약 문서
 - `.codex/config.toml`: `.codex/agents/*.toml`과 함께 생성되는 프로젝트 스코프 agent 런타임 설정
 - `.codex/agents/`: 프로젝트 스코프 planner / generator / evaluator 정의
+- `.codex/skills/`: 변경 분석, 구현, 테스트/디버깅, 문서 동기화, 품질 검토 같은 일반적인 개발 절차를 위한 starter local skill 세트
 - `rule/`: `rule/index.md`를 인덱스로 두고 `rule/rules/*.md`에 상세 규칙을 두는 Codex 실행 기준 문서
-- `subagents_docs/`: planner, generator, evaluator가 읽고 쓰는 작업 문서
+- `subagents_docs/`: planner, generator, evaluator가 읽고 쓰는 작업 문서이며, 신규 plan cycle은 `subagents_docs/cycles/` 아래의 append-only 단일 문서로 관리
 - `docs/guide/`: 사람이 읽는 안내와 탐색 문서
 - `docs/implementation/`: plan cycle이 통과된 뒤 관심사 카테고리 안에 남기는 사용자-facing 짧은 최종 브리핑 문서
 - 기존 프로젝트 모드에서는 실제 사용자 워크플로가 확인될 때만 추가 guide 문서를 생성합니다.
 
-하네스를 요청하면 생성된 저장소는 각 plan을 `planner -> generator -> evaluator` 순서로 실행합니다. 메인 에이전트는 orchestration-only 역할로 남아 이 세 역할의 순서를 조정하고 handoff를 모으기만 하며, 사용자가 역할 분리를 명시적으로 풀지 않는 한 planner/generator/evaluator를 직접 겸하지 않습니다. evaluator는 generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 평가하고, 그 구현 결과에서 실패나 blocker를 확인했을 때만 planner가 재계획합니다. 서로 독립인 계획은 병렬로, 의존성이 있는 계획은 순차로 진행합니다. `subagents_docs/` 작업 문서는 선택된 언어를 따르며, 생성된 저장소에는 `.codex/config.toml`이 `.codex/agents/*.toml`과 함께 포함됩니다. subagent 응답이 느려도 coordinator는 직접 구현하지 않고 기다리거나 재계획합니다.
+생성된 저장소는 기본 구조 자체로 각 plan을 `planner -> generator -> evaluator` 순서로 실행합니다. 메인 에이전트는 orchestration-only 역할로 남아 이 세 역할의 순서를 조정하고 handoff를 모으기만 하며, 사용자가 역할 분리를 명시적으로 풀지 않는 한 planner/generator/evaluator를 직접 겸하지 않습니다. 신규 작업은 plan마다 `subagents_docs/cycles/` 아래의 append-only 단일 문서로 관리하고, 문서 상단에는 `Status`, `Current Plan Version`, `Next Handoff`를 두며, 본문에는 `Planner vN` / `Generator vN` / `Evaluator vN` 섹션을 순서대로 쌓습니다. evaluator는 generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 평가하고, 그 구현 결과에서 실패나 blocker를 확인했을 때만 planner가 재계획합니다. 서로 독립인 계획은 병렬로, 의존성이 있는 계획은 순차로 진행합니다. `subagents_docs/` 작업 문서는 선택된 언어를 따르며, 생성된 저장소에는 `.codex/config.toml`, `.codex/agents/*.toml`, 그리고 `.codex/skills/` 아래의 개발 절차 중심 starter local skill 세트가 함께 포함됩니다. 기존 프로젝트 모드에서는 inspect 결과를 바탕으로 starter skill과 일부 README/rule/guide 산출물이 관찰된 runtime, test, docs 신호를 반영해 더 구체적으로 생성됩니다. subagent 응답이 느려도 coordinator는 직접 구현하지 않고 기다리거나 재계획합니다.
 
 ## 사용법
 

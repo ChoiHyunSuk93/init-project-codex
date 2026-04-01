@@ -1,0 +1,7 @@
+interface:
+  display_name: "Quality Review"
+  short_description: "변경 결과 검토와 acceptance 점검을 위한 starter local skill"
+  default_prompt: "변경 결과를 acceptance criteria와 기대 동작에 대조하고 회귀 위험을 점검해야 하면 $quality-review를 사용한다. 제품 파일을 수정하지 말고 관찰 근거를 남긴다."
+policy:
+  allow_implicit_invocation: true
+

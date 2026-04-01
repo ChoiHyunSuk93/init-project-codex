@@ -1,0 +1,7 @@
+interface:
+  display_name: "Change Analysis"
+  short_description: "Starter local skill for change analysis and scope definition"
+  default_prompt: "Use $change-analysis when the work is mainly about interpreting the request, mapping impact scope, or defining acceptance criteria and risks before implementation."
+policy:
+  allow_implicit_invocation: true
+

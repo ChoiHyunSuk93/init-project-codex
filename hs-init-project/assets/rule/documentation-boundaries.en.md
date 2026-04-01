@@ -41,4 +41,4 @@ Keep these control filenames stable across language modes.
 
 ## Language Note
 
-Apply the active language policy to human-facing docs and `subagents_docs/` working docs, while keeping directory names, code, commands, and path literals in English.
+Use `rule/rules/language-policy.md` for the exact document-language and filename/path rules that apply to human-facing docs and `subagents_docs/` working docs.

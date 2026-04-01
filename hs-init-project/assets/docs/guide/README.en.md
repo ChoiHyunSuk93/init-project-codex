@@ -18,7 +18,7 @@ This `README.md` acts as the default entry point and index for the directory.
 - As the guide set grows, keep this `README.md` as an index and move detailed content into focused documents.
 - Do not put repository maps, implementation details, or copied rule text here.
 - Keep reader guidance here and keep execution rules in `rule/index.md` and `rule/rules/`.
-- If the repository uses a subagent harness, document the user-facing flow here, but keep working plans, change notes, and evaluation reports in `subagents_docs/`.
+- Document the user-facing planner/generator/evaluator flow here, but keep working plans, change notes, and evaluation reports in `subagents_docs/`.
 
 ## Authority
 

@@ -32,7 +32,7 @@ It focuses on a small, explicit baseline:
 
 Install the skill with the built-in `skill-installer` helper.
 Prefer a tagged release over `main` so later updates can follow GitHub releases.
-The current latest public release is `v0.1.4`.
+The direct installer script supports `--ref latest` and resolves the newest version tag in the repository at install time.
 
 ### Project-Scoped Installation (Recommended)
 
@@ -43,13 +43,12 @@ Through Codex:
 
 ```text
 $skill-installer
-Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hs-init-project at release tag vX.Y.Z into <project-root>/.codex/skills.
+Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hs-init-project at the latest version into <project-root>/.codex/skills.
 ```
 
 Direct installer script:
 
 ```bash
-TAG=vX.Y.Z
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 
 mkdir -p .codex/skills
@@ -57,9 +56,11 @@ mkdir -p .codex/skills
 python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo ChoiHyunSuk93/init-project-codex \
   --path hs-init-project \
-  --ref "$TAG" \
+  --ref latest \
   --dest "$PWD/.codex/skills"
 ```
+
+If you want to pin a specific release instead, replace `latest` with a tag such as `vX.Y.Z`.
 
 This creates:
 
@@ -75,19 +76,18 @@ Through Codex:
 
 ```text
 $skill-installer
-Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hs-init-project at release tag vX.Y.Z.
+Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hs-init-project at the latest version.
 ```
 
 Direct installer script:
 
 ```bash
-TAG=vX.Y.Z
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 
 python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo ChoiHyunSuk93/init-project-codex \
   --path hs-init-project \
-  --ref "$TAG"
+  --ref latest
 ```
 
 You can also install it by URL:
@@ -96,7 +96,7 @@ You can also install it by URL:
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 
 python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
-  --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/vX.Y.Z/hs-init-project
+  --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/latest/hs-init-project
 ```
 
 If Codex is already running, restart it after installation so the new skill is picked up.
@@ -104,7 +104,8 @@ If Codex is already running, restart it after installation so the new skill is p
 ### Updating An Existing Installation
 
 Use the bundled updater to replace the installed skill directory in place.
-`--ref latest` resolves the latest GitHub release tag, not the `main` branch.
+For the updater, `--ref latest` resolves the latest GitHub release tag, not the `main` branch.
+This differs from the direct installer, where `--ref latest` resolves the newest version tag in the repository.
 If your installed copy predates this updater, reinstall once from a tagged release and use the updater after that.
 
 Project-scoped installation:
@@ -151,6 +152,27 @@ README.md
     planner.toml
     generator.toml
     evaluator.toml
+  skills/
+    change-analysis/
+      SKILL.md
+      agents/
+        openai.yaml
+    code-implementation/
+      SKILL.md
+      agents/
+        openai.yaml
+    test-debug/
+      SKILL.md
+      agents/
+        openai.yaml
+    docs-sync/
+      SKILL.md
+      agents/
+        openai.yaml
+    quality-review/
+      SKILL.md
+      agents/
+        openai.yaml
 rule/
   index.md
   rules/
@@ -167,6 +189,8 @@ rule/
     subagents-docs.md            # working-doc ownership under subagents_docs/
 subagents_docs/
   AGENTS.md
+  cycles/
+    [NN-plan-slug].md
 docs/
   guide/
     README.md
@@ -181,13 +205,14 @@ docs/
 - root `README.md`: durable human-facing repository summary
 - `.codex/config.toml`: project-scoped agent runtime settings that are generated alongside `.codex/agents/*.toml`
 - `.codex/agents/`: project-scoped planner / generator / evaluator definitions
+- `.codex/skills/`: starter local skills for common development workflows such as change analysis, implementation, test/debug, docs sync, and quality review
 - `rule/`: authoritative execution rules for Codex, with `rule/index.md` as the index and `rule/rules/*.md` as the detailed rule set
-- `subagents_docs/`: planner, generator, and evaluator working documents
+- `subagents_docs/`: planner, generator, and evaluator working documents, with new plan cycles tracked as one append-only document per plan under `subagents_docs/cycles/`
 - `docs/guide/`: human-facing navigation and guide documents
 - `docs/implementation/`: user-facing short final briefings inside concern-based categories after a plan cycle passes
 - In existing-project mode, additional guide documents are created only when observed user-facing workflows provide durable reader-facing material.
 
-When the harness is requested, generated repositories run each plan in `planner -> generator -> evaluator` order. The main agent stays orchestration-only: it coordinates those roles, collects handoffs, and does not directly become planner, generator, or evaluator unless the user explicitly waives the split. The evaluator checks the implemented result against the plan and acceptance criteria, and only evaluator-reported failures or blockers send that plan back for re-planning. Independent plans may run in parallel; dependent plans should run sequentially. `subagents_docs/` working documents follow the selected language, and generated repositories include `.codex/config.toml` alongside `.codex/agents/*.toml`. If subagents are slow the coordinator waits or re-plans instead of directly implementing.
+Generated repositories run each plan in `planner -> generator -> evaluator` order as part of the default baseline. The main agent stays orchestration-only: it coordinates those roles, collects handoffs, and does not directly become planner, generator, or evaluator unless the user explicitly waives the split. New work is tracked as one append-only cycle document per plan, with `Status`, `Current Plan Version`, and `Next Handoff` at the top and role-specific `Planner vN` / `Generator vN` / `Evaluator vN` sections below. The evaluator checks the implemented result against the plan and acceptance criteria, and only evaluator-reported failures or blockers send that plan back for re-planning. Independent plans may run in parallel; dependent plans should run sequentially. `subagents_docs/` working documents follow the selected language, and generated repositories include `.codex/config.toml`, `.codex/agents/*.toml`, and process-oriented starter local skills under `.codex/skills/`. In existing-project mode, inspection results are used to make starter skills and selected README/rule/guide outputs more specific to the observed runtime, test, and docs signals. If subagents are slow the coordinator waits or re-plans instead of directly implementing.
 
 ## Usage
 

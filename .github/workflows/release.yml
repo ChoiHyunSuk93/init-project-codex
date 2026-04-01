@@ -30,13 +30,13 @@ jobs:
 
       - name: Validate skill bundle
         run: |
-          test -f hschoi-init-project/SKILL.md
-          test -f hschoi-init-project/agents/openai.yaml
-          test -f hschoi-init-project/scripts/materialize_repo.sh
-          test -f hschoi-init-project/scripts/update-skill-release.py
-          python3 -m py_compile hschoi-init-project/scripts/update-skill-release.py
-          python3 hschoi-init-project/scripts/update-skill-release.py --help >/dev/null
-          sh -n hschoi-init-project/scripts/materialize_repo.sh
+          test -f hs-init-project/SKILL.md
+          test -f hs-init-project/agents/openai.yaml
+          test -f hs-init-project/scripts/materialize_repo.sh
+          test -f hs-init-project/scripts/update-skill-release.py
+          python3 -m py_compile hs-init-project/scripts/update-skill-release.py
+          python3 hs-init-project/scripts/update-skill-release.py --help >/dev/null
+          sh -n hs-init-project/scripts/materialize_repo.sh
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2

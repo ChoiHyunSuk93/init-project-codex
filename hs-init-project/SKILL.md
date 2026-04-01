@@ -25,10 +25,10 @@ Do not repeat the same question unless the user starts a new attempt.
 ## Overview
 
 Initialize repository structure from the real current state, not from assumptions. Support two modes: full initialization for near-empty repositories, and additive Codex-structure initialization for repositories that already contain source code, directories, or documentation.
-When the request calls for it, layer a role-separated `planner` / `generator` / `evaluator` harness on top of that existing structure without changing the underlying README/rule/docs model.
+Every initialized repository must include the role-separated `planner` / `generator` / `evaluator` harness and a minimal starter local skill set under `.codex/skills/` as part of the baseline structure without changing the underlying README/rule/docs model.
 
 Read [references/language-output.md](references/language-output.md) before generating any user-facing document.
-Read [references/subagent-orchestration.md](references/subagent-orchestration.md) when the task should use the planner / generator / evaluator harness.
+Read [references/subagent-orchestration.md](references/subagent-orchestration.md) before generating the required planner / generator / evaluator harness.
 Use `scripts/materialize_repo.sh` as a materialization step after inspection and clarification, not as a substitute for asking questions.
 In existing repositories or uncertain structures, inspect first, ask the missing questions, then rerun the generator with resolved inputs.
 
@@ -48,30 +48,35 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - After a valid selection is made, do not repeat the question in the same session.
    - If the environment is non-interactive and no answer can be collected, ask once and stop instead of repeating the same prompt.
    - Use the selected language for generated documentation, `subagents_docs/` working documents, and all later clarification questions.
-2. Inspect the repository before changing anything.
+2. Classify the user intent before entering the implementation cycle.
+   - If the user is asking for analysis, questions, review, explanation, comparison, or other non-implementation guidance, do not materialize files and do not enter planner -> generator -> evaluator implementation flow.
+   - Start the implementation cycle only when the user explicitly requests initialization, creation, change, update, fix, or materialization, or when the task unambiguously requires repository changes.
+   - If the implementation intent is ambiguous, ask or answer analytically instead of guessing and editing files.
+3. Inspect the repository before changing anything.
    - Check whether the project is effectively empty or already has meaningful structure.
    - Look for existing source directories, docs, AGENTS-like files, rule docs, and runtime/non-runtime boundaries.
    - Inspect the remote default branch and active GitHub protection system before changing workflow policy.
-3. Stop on structural ambiguity by asking, not by abandoning the run.
+4. Stop on structural ambiguity by asking, not by abandoning the run.
    - If directory semantics, runtime boundaries, naming boundaries with existing directories, incorporation of existing `docs/` or `rule/` trees, or overwrite of existing control files are unclear, ask minimal clarification questions and wait.
    - Do not guess high-impact structure decisions.
    - Do not produce partial final structure when core structural decisions are unresolved.
    - Do not surface raw generator ambiguity as a final failure when the missing decision can be resolved by asking the user.
-4. Choose the operating mode.
+5. Choose the operating mode.
    - Fresh mode: create the full base structure from scratch.
    - Existing-project mode: add Codex-compatible structure around the existing repository without arbitrary moves, renames, or destructive edits.
    - In existing-project mode, prefer an inspect pass first. Use `scripts/materialize_repo.sh --inspect` to gather runtime candidates, existing `docs/` and `rule/` signals, and overwrite conflicts before materializing files.
    - After the user answers, rerun the generator with explicit confirmation flags such as `--runtime-dirs`, `--confirm-existing-docs`, `--confirm-existing-rule`, and `--overwrite` as needed.
-5. Apply the language policy to output.
-   - If English is selected, generate human-facing document contents and filenames in English by default.
-   - If Korean is selected, generate human-facing document contents in Korean.
+6. Apply the language policy to output.
+   - Follow [references/language-output.md](references/language-output.md) for the language-selection flow and template-loading behavior.
+   - Materialize `rule/rules/language-policy.md` and keep generated `AGENTS.md`, guide docs, and `subagents_docs/` aligned with that authoritative rule.
    - Read and use only the selected-language templates unless you are explicitly updating the skill itself.
-   - Keep control filenames stable in English, including `README.md`, `AGENTS.md`, and `rule/index.md`.
-   - Keep directory names, code, commands, config keys, slugs, and path literals in English.
-   - In Korean mode, use Korean filenames only for non-control human-facing documents generated under `docs/guide/` and `docs/implementation/`.
-   - Keep `rule/index.md`, `rule/rules/*.md`, and other rule-path conventions stable in English where predictable pathing matters.
-   - Include the chosen language policy in generated `AGENTS.md` files.
-6. Create the rule and documentation structure.
+   - Keep control filenames, directory names, code, commands, config keys, slugs, and predictable rule-path conventions aligned with the generated language rule.
+7. Create the rule, subagent, and documentation structure.
+   - Create `.codex/config.toml` and `.codex/agents/planner.toml`, `.codex/agents/generator.toml`, `.codex/agents/evaluator.toml` as required baseline files.
+   - Create process-oriented starter local skills under `.codex/skills/change-analysis/`, `.codex/skills/code-implementation/`, `.codex/skills/test-debug/`, `.codex/skills/docs-sync/`, and `.codex/skills/quality-review/`, each with a thin `SKILL.md` and `agents/openai.yaml`.
+   - Write those starter skills with clear task-matching descriptions, aligned metadata, and `policy.allow_implicit_invocation: true`.
+   - Keep starter skill bodies thin and rule-referencing. Do not copy stable repository rules into the skill body.
+   - In existing-project mode, use inspect results to make starter local skill bodies more specific from observed runtime areas, test/tooling signals, and docs structure without inventing unobserved details.
    - Create or update the root `README.md` as the primary human-facing repository summary.
    - In fresh mode, start `README.md` from a minimal template and keep placeholders explicit.
    - In existing-project mode, inspect the current project and write or refine `README.md` from observed purpose, major directories, existing docs, and current entry points without inventing missing details.
@@ -91,38 +96,41 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - In existing-project mode, derive `rule/rules/development-standards.md` from observed project structure, naming patterns, tooling, automation, and verification commands instead of leaving it generic.
    - In fresh mode, make `rule/rules/testing-standards.md` provisional and refine it as real test paths, commands, and frameworks become concrete.
    - In existing-project mode, derive `rule/rules/testing-standards.md` from observed test directories, naming patterns, commands, and tooling instead of leaving it generic.
-   - Default to `docs/guide/README.md` for human navigation and `docs/implementation/AGENTS.md` for implementation-record placement rules.
+   - Include `rule/rules/subagent-orchestration.md` and `rule/rules/subagents-docs.md` in the starter rule set unless the repository already has stronger equivalents.
+   - Create `subagents_docs/AGENTS.md` plus the `subagents_docs/cycles/` working area as baseline harness structure.
+   - Default to `docs/guide/README.md`, `docs/guide/subagent-workflow.md`, and `docs/implementation/AGENTS.md`.
    - When an implementation record is created, follow the rule-defined section shape directly, including unit-test, end-to-end test, manual-check, and gap notes in `Verification`; do not copy skill `assets/` into the target repository.
    - Do not create a target-repository `assets/` directory unless the user explicitly asked for project assets unrelated to this skill.
    - Do not pre-create empty implementation category directories during initialization.
    - Create other local `AGENTS.md` files only where they improve scope clarity.
    - Keep `rule/` authoritative for Codex execution. Treat `docs/guide/` and `docs/implementation/` as human-facing, not primary rule authority.
    - Put guidance into the generated `AGENTS.md` files stating that implementation categories are concern-based and chosen by Codex from observed repository structure.
-7. Use the subagent harness when requested.
-   - `planner` defines what to build and writes the planning document.
-   - `generator` implements from the plan and updates focused verification.
-   - `evaluator` performs the strongest feasible end-to-end evaluation of the implemented result against the plan and acceptance criteria, then records findings.
+8. Apply the required subagent harness.
+   - Follow [references/subagent-orchestration.md](references/subagent-orchestration.md) for the harness model and role boundaries.
+   - Materialize `rule/rules/cycle-document-contract.md` and keep generated cycle docs, prompts, and user-facing workflow docs aligned with that authoritative rule.
    - The main agent stays orchestration-only: it coordinates planner/generator/evaluator handoffs and does not directly become one of those roles unless the user explicitly waives the split.
-   - Keep the roles separate and do not let one role edit another role's owned outputs.
-   - If subagents are slow, the coordinator must wait or re-plan instead of directly implementing on their behalf.
+   - The main agent may wait as long as needed for subagent output, but it must close completed or no-longer-needed subagent threads after their outputs are integrated.
+   - If stale sessions or thread-limit blockage prevent further delegation, treat thread cleanup as required orchestration work before continuing.
    - Re-run the same plan through planner -> generator -> evaluator until evaluator passes the implemented result.
    - Re-planning happens only after evaluator findings identify failures or blockers in the implemented result.
+   - Do not create or update final `docs/implementation/` briefings from a plan-only or generator-only state.
+   - Keep starter local skills aligned through clear `SKILL.md` descriptions, matching metadata, and `allow_implicit_invocation` support.
    - Split multiple plans into separate plan cycles; run them in parallel only when they are independent and in order when they are dependent.
    - Treat design quality and originality as higher-weight evaluation criteria than completeness and functionality.
-8. Preserve existing projects carefully.
+9. Preserve existing projects carefully.
    - Prefer additive initialization.
    - Reuse meaningful existing structure where possible.
    - Ask before reinterpreting existing directory meaning or folding existing `docs/` or `rule/` trees into the new rule model.
    - If the inspect pass reports existing `docs/`, existing `rule/`, or generated-file overwrite conflicts, ask the user and continue after the answer instead of treating that state as terminal.
-9. Derive implementation categories instead of outsourcing the decision.
+10. Derive implementation categories instead of outsourcing the decision.
    - Choose `docs/implementation/` categories from the repository's observed source areas, architecture boundaries, documentation domains, and recurring work streams when an implementation record is actually being written.
    - If the repository is new or sparse, do not pre-create placeholder categories. Defer category creation until the first implementation record is needed.
    - Avoid weak catch-all category names.
-10. Configure GitHub workflow policy when the user asked for it.
+11. Configure GitHub workflow policy when the user asked for it.
    - Prefer the protection mechanism already in use by the repository.
    - Verify the observed remote state after every change.
    - Prefer non-destructive checks such as `git push --dry-run` when validating direct-push behavior.
-11. Report exact observed state.
+12. Report exact observed state.
    - Distinguish between intended policy and observed remote behavior.
    - List what was created, what was preserved, what was left untouched, and what is blocked pending clarification.
    - If the run pauses for clarification, report the exact questions still pending and resume from those answers instead of restarting the entire workflow.
@@ -133,14 +141,36 @@ In existing repositories or uncertain structures, inspect first, ask the missing
 
 - root `README.md`
 - thin root `AGENTS.md`
+- `.codex/config.toml`
+- `.codex/agents/planner.toml`
+- `.codex/agents/generator.toml`
+- `.codex/agents/evaluator.toml`
+- `.codex/skills/change-analysis/SKILL.md`
+- `.codex/skills/change-analysis/agents/openai.yaml`
+- `.codex/skills/code-implementation/SKILL.md`
+- `.codex/skills/code-implementation/agents/openai.yaml`
+- `.codex/skills/test-debug/SKILL.md`
+- `.codex/skills/test-debug/agents/openai.yaml`
+- `.codex/skills/docs-sync/SKILL.md`
+- `.codex/skills/docs-sync/agents/openai.yaml`
+- `.codex/skills/quality-review/SKILL.md`
+- `.codex/skills/quality-review/agents/openai.yaml`
 - `rule/index.md` with an explicit Markdown index
 - `rule/rules/` with the detailed starter rule documents
+- `rule/rules/subagent-orchestration.md`
+- `rule/rules/subagents-docs.md`
+- `rule/rules/cycle-document-contract.md`
+- `rule/rules/language-policy.md`
+- `subagents_docs/AGENTS.md`
+- `subagents_docs/cycles/`
 - `docs/guide/`
 - `docs/implementation/` with category-based record placement rules instead of a flat history directory by default
 - `docs/guide/README.md` by default
+- `docs/guide/subagent-workflow.md` by default
 - focused guide documents under `docs/guide/` only when actual user-facing workflows justify them
 - `docs/implementation/AGENTS.md` by default
 - starter rule documents including `rule/rules/rule-maintenance.md`, `rule/rules/readme-maintenance.md`, `rule/rules/development-standards.md`, and `rule/rules/testing-standards.md`
+- authoritative cycle and language rules at `rule/rules/cycle-document-contract.md` and `rule/rules/language-policy.md`
 - other local `AGENTS.md` files where they reduce scope and context
 - minimal but meaningful starter content in generated files
 - no project-local `assets/` directory unless explicitly requested by the user
@@ -149,8 +179,13 @@ In existing repositories or uncertain structures, inspect first, ask the missing
 
 - canonical root README templates at `assets/README/root.en.md` and `assets/README/root.ko.md`
 - canonical root templates at `assets/AGENTS/root.en.md` and `assets/AGENTS/root.ko.md`
+- canonical `.codex` harness templates at `assets/.codex/config.toml` and `assets/.codex/agents/*.toml`
+- canonical starter local skill templates at `assets/.codex/skills/change-analysis/`, `assets/.codex/skills/code-implementation/`, `assets/.codex/skills/test-debug/`, `assets/.codex/skills/docs-sync/`, and `assets/.codex/skills/quality-review/`
 - canonical starter templates at `assets/rule/index.en.md` and `assets/rule/index.ko.md`
 - starter rule templates for the default rule set in `assets/rule/`
+- canonical cycle and language rule templates at `assets/rule/cycle-document-contract.en.md`, `assets/rule/cycle-document-contract.ko.md`, `assets/rule/language-policy.en.md`, and `assets/rule/language-policy.ko.md`
+- canonical subagent workflow templates at `assets/docs/guide/subagent-workflow.en.md` and `assets/docs/guide/subagent-workflow.ko.md`
+- canonical `subagents_docs/AGENTS.md` templates at `assets/subagents_docs/AGENTS.en.md` and `assets/subagents_docs/AGENTS.ko.md`
 - canonical implementation-record templates at `assets/docs/implementation/record.en.md` and `assets/docs/implementation/record.ko.md`
 - deterministic generator script at `scripts/materialize_repo.sh`
 - release-aware updater script at `scripts/update-skill-release.py`
@@ -184,6 +219,9 @@ Read [references/structure-initialization.md](references/structure-initializatio
 - Do not treat an inspect result that needs user clarification as a terminal failure.
 - Do not ask about `docs/` or `rule/` when the existing tree is already compatible with the planned structure and no reinterpretation is needed.
 - Do not duplicate rules across root and local instruction files.
+- Do not start planner/generator/evaluator implementation flow for analysis-only, question-only, review-only, or explanation-only requests.
+- Keep starter local skills aligned through clear descriptions, matching metadata, and `allow_implicit_invocation` support.
+- Do not leave completed or no-longer-needed subagent threads open after their outputs have been integrated.
 - Do not use free-form prose or table-first layouts for the rule index when the standard section-and-fields format is sufficient.
 - Do not skip the initial language check: use the already fixed language when present, otherwise ask once in plain text.
 - Do not claim branch protection or ruleset enforcement without verifying the remote result.
