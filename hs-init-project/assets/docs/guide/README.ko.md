@@ -8,8 +8,8 @@
 - 실행 가이드
 - 배포 가이드
 - 테스트 실행 가이드
-- 디자인 요청 가이드
-- planner/generator/evaluator 워크플로 가이드
+- 요청 절차 가이드
+- team + Ralph 워크플로 가이드
 - 사람이 실제로 따라야 하는 운영 절차
 
 ## 문서 운영 원칙
@@ -18,10 +18,4 @@
 - 문서 수가 늘어나면 이 `README.md`를 인덱스로 유지하고, 세부 내용은 개별 문서로 분리한다.
 - 저장소 구조 요약, 구현 상세, 프로젝트 규약 복사본은 이 디렉토리에 두지 않는다.
 - 독자가 따라야 할 안내만 두고, 실행 규칙은 `rule/index.md`와 `rule/rules/` 아래의 문서에 둔다.
-- subagent 하네스의 사용자-facing 흐름은 여기에 두되, 작업용 계획, 변경 노트, 평가 보고서는 `subagents_docs/`에 둔다.
-
-## 권한 범위
-
-- 이 디렉토리는 Codex 실행 규칙의 기준 권한이 아니다.
-- 기준 실행 규칙은 root `AGENTS.md`, `rule/index.md`, 그리고 `rule/rules/` 아래의 문서에 있다.
-- `docs/guide/AGENTS.md`는 이 디렉토리에 local 실행 규칙이 실제로 필요할 때만 추가한다.
+- OMX runtime coordination은 `.omx/`에 남기고, 저장소 문서는 reader-facing flow와 final outcome 중심으로 유지한다.
