@@ -15,7 +15,7 @@ Use this order to resolve scope, not to justify duplication.
 
 ## Thin Root Principle
 
-- Keep repository-specific additions to the root `AGENTS.md` as an overlay on top of the OMX-generated base.
+- Keep the root `AGENTS.md` short.
 - Put stable, detailed behavior into `rule/rules/*.md`.
 - Use local `AGENTS.md` files only for local scope clarification.
 
@@ -36,5 +36,5 @@ Use this order to resolve scope, not to justify duplication.
 - Use `skill-creator` when creating or updating Codex skills in this repository.
 - Write skills with clear `SKILL.md` descriptions and aligned metadata.
 - Unless explicit-only behavior is required, set `policy.allow_implicit_invocation: true` in `agents/openai.yaml`.
-- If the repository intentionally adds project-local skills on top of the OMX-managed `.codex/skills/` catalog, keep their descriptions, metadata, and invocation policy aligned.
+- If the repository carries starter local skills under `.codex/skills/`, keep their `SKILL.md` descriptions, metadata, and `allow_implicit_invocation` setting aligned.
 - Have each skill reference the relevant `rule/rules/*.md` documents instead of duplicating stable repository-wide rules in the skill body.
