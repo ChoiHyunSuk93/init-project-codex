@@ -45,10 +45,24 @@ omx doctor
 Use this when you want the skill only for the current repository.
 Install it into `<project-root>/.codex/skills/`.
 
+Through Codex:
+
+```text
+$skill-installer
+Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hs-init-project at the latest version into <project-root>/.codex/skills.
+```
+
 ### Global Installation
 
 Use this when you want the skill available across repositories.
 This pairs naturally with the skill's project-generation flow because the skill will later call `omx setup --scope project` inside the target repository.
+
+Through Codex:
+
+```text
+$skill-installer
+Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hs-init-project at the latest version.
+```
 
 ## Generated Structure
 

@@ -44,10 +44,24 @@ omx doctor
 현재 프로젝트에서만 이 스킬을 쓰고 싶을 때 사용합니다.
 `<project-root>/.codex/skills/` 아래에 설치합니다.
 
+Codex에서 설치:
+
+```text
+$skill-installer
+GitHub repo ChoiHyunSuk93/init-project-codex 의 hs-init-project 경로에 있는 스킬을 최신 버전으로 <project-root>/.codex/skills 에 설치해줘.
+```
+
 ### 전역 설치
 
 여러 저장소에서 공통으로 쓰고 싶을 때 사용합니다.
 이 경우 스킬이 나중에 대상 저장소 안에서 `omx setup --scope project`를 실행하는 흐름과 잘 맞습니다.
+
+Codex에서 설치:
+
+```text
+$skill-installer
+GitHub repo ChoiHyunSuk93/init-project-codex 의 hs-init-project 경로에 있는 스킬을 최신 버전으로 설치해줘.
+```
 
 ## 생성 구조
 
