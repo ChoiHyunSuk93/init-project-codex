@@ -63,6 +63,27 @@ $skill-installer
 GitHub repo ChoiHyunSuk93/init-project-codex 의 hs-init-project 경로에 있는 스킬을 최신 버전으로 설치해줘.
 ```
 
+### 기존 설치 업데이트
+
+같은 scope를 대상으로 `skill-installer`를 다시 실행해 업데이트합니다.
+이 README 기준의 지원 경로는 새 버전으로 재설치하는 방식입니다.
+
+프로젝트 스코프 업데이트:
+
+```text
+$skill-installer
+GitHub repo ChoiHyunSuk93/init-project-codex 의 hs-init-project 경로에 있는 스킬을 최신 버전으로 <project-root>/.codex/skills 에 설치해줘.
+```
+
+전역 업데이트:
+
+```text
+$skill-installer
+GitHub repo ChoiHyunSuk93/init-project-codex 의 hs-init-project 경로에 있는 스킬을 최신 버전으로 설치해줘.
+```
+
+Codex가 이미 실행 중이면 업데이트 후 재시작해야 새 스킬이 반영됩니다.
+
 ## 생성 구조
 
 ```text

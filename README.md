@@ -64,6 +64,27 @@ $skill-installer
 Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hs-init-project at the latest version.
 ```
 
+### Updating an Existing Installation
+
+Use `skill-installer` again with the same target scope.
+Reinstalling at the newer version is the supported update path in this README.
+
+Project-scoped update through Codex:
+
+```text
+$skill-installer
+Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hs-init-project at the latest version into <project-root>/.codex/skills.
+```
+
+Global update through Codex:
+
+```text
+$skill-installer
+Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hs-init-project at the latest version.
+```
+
+If Codex is already running, restart it after the update so the refreshed skill is picked up.
+
 ## Generated Structure
 
 ```text
