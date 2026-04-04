@@ -9,7 +9,7 @@
 - `subagents_docs/cycles/`
 - `.codex/agents/*.toml`
 - `subagents_docs/AGENTS.md`
-- `docs/guide/subagent-workflow.md`
+- cycle-aware prompt와 harness reference
 - cycle 문서를 참조하거나 생성하는 rule/doc/prompt
 
 ## 파일 경로 규약

@@ -43,7 +43,7 @@ exact cycle 문서 경로, header 상태 전이, append-only section, provenance
 
 ### evaluator
 
-- generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 end-to-end로 점검하고 `subagents_docs/cycles/` 안의 evaluator 섹션에 판정한다.
+- generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 실제 사용자 수준 테스트를 포함한 strongest feasible end-to-end 검증으로 점검하고 `subagents_docs/cycles/` 안의 evaluator 섹션에 판정한다.
 - 기능, 구조, 실행 규칙 준수도를 함께 점검한다.
 - exact PASS/FAIL 기록, provenance, dirty-worktree 비교 기준은 `rule/rules/cycle-document-contract.md`를 따른다.
 - 구현 파일이나 계획 산출물을 수정하지 않는다.
@@ -60,7 +60,8 @@ exact cycle 문서 경로, header 상태 전이, append-only section, provenance
 2. generator가 최신 planner 섹션을 기준으로 구현한다.
 3. evaluator가 구현 결과 점검 결과를 같은 문서에 append한다.
 4. evaluator가 구현 결과에서 실패나 blocker를 확인했을 때만 planner가 원인을 반영해 재계획하고 generator/evaluator가 다시 반복한다.
-5. plan이 pass될 때까지 순환한다.
+5. evaluator가 `FAIL`을 기록하면 coordinator는 외부 입력이 정말 필요한 blocker가 아닌 한 사용자 질문 없이 다음 cycle을 다시 시작한다.
+6. plan이 pass될 때까지 순환한다.
 
 ## 다중 계획 실행
 

@@ -43,7 +43,7 @@ Use `rule/rules/cycle-document-contract.md` as the authoritative detailed rule f
 
 ### evaluator
 
-- Validates the implemented result end-to-end against the plan and acceptance criteria, then appends evaluator sections under `subagents_docs/cycles/`.
+- Validates the implemented result against the plan and acceptance criteria with the strongest feasible end-to-end check, including a real user-level test when that surface exists, then appends evaluator sections under `subagents_docs/cycles/`.
 - Tests functionality, structure, and workflow compliance.
 - Follows `rule/rules/cycle-document-contract.md` for exact PASS/FAIL recording, provenance, and dirty-worktree comparison requirements.
 - Does not edit implementation files or planning outputs.
@@ -60,7 +60,8 @@ Use `rule/rules/cycle-document-contract.md` as the authoritative detailed rule f
 2. generator implements from the latest planner section.
 3. evaluator checks the implemented result and appends the current evaluation section.
 4. If evaluator finds failures or blockers in the implemented result, planner re-plans with corrections, then generator and evaluator repeat.
-5. Continue the cycle until the plan passes.
+5. When evaluator records `FAIL`, the coordinator restarts the cycle without another user question unless the blocker truly requires external input.
+6. Continue the cycle until the plan passes.
 
 ## Multi-Plan Execution
 

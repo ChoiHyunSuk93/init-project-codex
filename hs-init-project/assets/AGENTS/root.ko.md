@@ -60,7 +60,7 @@
 - stale session이나 thread limit 때문에 새 delegation이 막히면 직접 구현 대신 cleanup을 먼저 수행한다.
 - exact cycle 문서 경로, header 상태 전이, append-only section, provenance, dirty-worktree 평가 기준은 `rule/rules/cycle-document-contract.md`를 따른다.
 - 문서 언어와 안정적인 filename/path 규칙은 `rule/rules/language-policy.md`를 따른다.
-- `.codex/agents/*.toml`, `subagents_docs/AGENTS.md`, `docs/guide/subagent-workflow.md`는 이 authoritative rule들과 함께 맞춘다.
+- `.codex/agents/*.toml`과 `subagents_docs/AGENTS.md`는 이 authoritative rule들과 함께 맞춘다.
 - `subagents_docs/`는 작업 기록에만 사용하고, `docs/implementation/`은 pass된 cycle의 사용자-facing 요약 계층으로만 유지한다.
 
 ## 언어 규칙

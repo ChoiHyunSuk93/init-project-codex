@@ -71,7 +71,7 @@ cycle 문서 형식, header 상태 전이, provenance 요구는 `rule/rules/cycl
 ### evaluator
 
 - 관점: 평가자
-- 목적: generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 end-to-end 점검하고 품질 평가를 남긴다.
+- 목적: generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 실제 사용자 수준 테스트를 포함한 strongest feasible end-to-end 검증과 품질 평가를 남긴다.
 - 소유 산출물: `subagents_docs/cycles/` 아래 cycle 문서의 evaluator 섹션
 - 금지 사항:
   - 제품 코드 수정 금지
@@ -98,7 +98,8 @@ cycle 문서 형식, header 상태 전이, provenance 요구는 `rule/rules/cycl
 2. generator는 같은 cycle 문서의 최신 planner 섹션을 읽고 구현/기록을 `hs-init-project/`와 cycle 문서의 generator 섹션에 남긴다.
 3. evaluator는 같은 cycle 문서에서 planner/generator 섹션을 참조하며 구현 결과를 점검한다.
 4. evaluator가 구현 결과에서 실패나 blocker를 확인했을 때만 동일 plan에서 planner가 재계획을 남기고, generator와 evaluator를 다시 순환한다.
-5. 모든 plan이 `pass` 판정될 때까지 단계 1~4를 반복한다.
+5. evaluator가 `FAIL`을 기록하면 coordinator는 외부 입력이 정말 필요한 blocker가 아닌 한 사용자 질문 없이 다음 planner cycle을 즉시 시작한다.
+6. 모든 plan이 `pass` 판정될 때까지 단계 1~5를 반복한다.
 
 제품 구조 변경, skill 동작 변경, 문서 생성 흐름 변경처럼 의미 있는 작업은 이 세 단계를 모두 거친다.
 
@@ -133,6 +134,6 @@ cycle 문서 형식, header 상태 전이, provenance 요구는 `rule/rules/cycl
 ## 검증 규칙
 
 - generator는 단위 수준 또는 가장 가까운 자동화 검증을 우선한다.
-- evaluator는 plan과 acceptance criteria를 기준으로 가능한 가장 실제적인 end-to-end 검증을 우선한다.
+- evaluator는 plan과 acceptance criteria를 기준으로 가능한 가장 실제적인 end-to-end 검증과 실제 사용자 수준 테스트를 우선한다.
 - 완전한 자동화가 불가능하면 evaluator는 남은 공백을 문서로 남긴다.
 - evaluator가 구현 결과에서 실패나 blocker를 확인하면 같은 plan을 다시 planner -> generator -> evaluator로 순환시킨다.

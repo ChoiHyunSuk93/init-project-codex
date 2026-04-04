@@ -19,10 +19,6 @@
 - 독자가 따라야 할 안내만 두고, 실행 규칙은 `rule/index.md`와 `rule/rules/` 아래의 문서에 둔다.
 - planner, generator, evaluator가 읽고 쓰는 작업 문서는 `subagents_docs/`에 둔다.
 
-## 현재 가이드
-
-- `subagent-workflow.md`: planner, generator, evaluator 하네스를 어떤 순서와 문서로 운영하는지 설명한다.
-
 ## 권한 범위
 
 - 이 디렉토리는 Codex 실행 규칙의 기준 권한이 아니다.

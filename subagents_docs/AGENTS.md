@@ -17,7 +17,8 @@
 - 각 plan은 `planner -> generator -> evaluator` 순서로 진행한다.
 - 메인 에이전트는 orchestration-only 역할만 맡고 planner, generator, evaluator를 직접 대행하지 않는다. 실제 작업은 각 subagent 산출물에 위임한다.
 - 분석, 질문, 리뷰, 설명 요청은 명시적 구현 지시가 없으면 implementation cycle로 열지 않는다.
-- 평가가 실패하면 같은 plan은 pass될 때까지 다시 순환한다.
+- evaluator는 구현 결과를 실제 사용자 수준 테스트를 포함한 strongest feasible 검증으로 평가한다.
+- 평가가 실패하면 같은 plan은 외부 입력이 정말 필요한 blocker가 아닌 한 질문 없이 pass될 때까지 다시 순환한다.
 - 독립적인 plan은 병렬로 진행할 수 있고, 의존적인 plan은 순서를 지킨다.
 - 각 plan은 필요한 pass 조건이 모두 충족될 때만 완료된다.
 

@@ -17,8 +17,8 @@ This directory stores working documents used by the planner, generator, and eval
 - Each plan follows planner -> generator -> evaluator.
 - The main agent stays orchestration-only and does not directly become planner, generator, or evaluator unless the user explicitly waives the split.
 - Do not open an implementation cycle for analysis-only, question-only, review-only, or explanation-only requests.
-- Evaluator reviews the implemented result against the plan and acceptance criteria.
-- If evaluator finds failures or blockers in the implemented result, the same plan cycles again until it passes.
+- Evaluator reviews the implemented result against the plan and acceptance criteria with the strongest feasible real user-level validation.
+- If evaluator finds failures or blockers in the implemented result, the same plan cycles again until it passes, and `FAIL` restarts automatically unless the blocker truly needs external input.
 - Independent plans may run in parallel. Dependent plans must run in order.
 - Multiple plans should be numbered and handled as separate cycles when they are not independent.
 - If subagents are slow, the coordinator must wait or re-plan instead of directly implementing.

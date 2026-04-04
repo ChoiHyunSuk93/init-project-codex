@@ -60,7 +60,7 @@ Keep this file thin and use it to route work to `rule/index.md` and the detailed
 - If stale sessions or thread limits block new delegation, perform thread cleanup before continuing.
 - Use `rule/rules/cycle-document-contract.md` for exact cycle file paths, header transitions, append-only section rules, provenance, and dirty-worktree evaluation requirements.
 - Use `rule/rules/language-policy.md` for document-language and stable filename/path rules.
-- Keep `.codex/agents/*.toml`, `subagents_docs/AGENTS.md`, and `docs/guide/subagent-workflow.md` aligned with those authoritative rules.
+- Keep `.codex/agents/*.toml` and `subagents_docs/AGENTS.md` aligned with those authoritative rules.
 - Keep `subagents_docs/` for working records and keep `docs/implementation/` as the user-facing summary layer for passed cycles only.
 
 ## Language Policy

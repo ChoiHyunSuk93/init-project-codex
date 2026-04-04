@@ -2,18 +2,15 @@
 
 ## Purpose
 
-Define how runtime and non-runtime areas are separated in this repository.
+Define how a single source root and non-runtime areas are separated in this repository.
 
-## Runtime Directories
+## Source Root Directory
 
-List runtime directories here.
-
-Multiple runtime directories are valid.
-Examples include `backend/` and `frontend/`, or `api/` and `web/`.
+List the single source-root directory here.
 
 Example placeholder:
 
-- `[runtime-directory]`
+- `[source-root-directory]`
 
 ## Non-Runtime Directories
 
@@ -28,7 +25,7 @@ Example placeholder:
 ## Ambiguity Handling
 
 - If the boundary is unclear in an existing repository, confirm it before making structural changes.
-- If several likely runtime directories exist, present them together and confirm whether they should all be treated as runtime.
+- If several likely source-root candidates exist, confirm which single directory should be treated as the source root.
 - Align to meaningful existing structure when possible instead of inventing a conflicting model.
 - Replace placeholder entries with observed directories once runtime and non-runtime boundaries become clear.
 - When the boundary changes, update `rule/rules/runtime-boundaries.md` and any related `rule/rules/*.md` documents in the same change.

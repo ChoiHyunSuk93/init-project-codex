@@ -13,13 +13,13 @@ Define the top-level directory model for this repository and make the role of ea
 - `docs/guide/`: user-facing workflow guides
 - `docs/implementation/`: human-facing implementation records
 
-## Runtime Areas
+## Source Root Area
 
-List the directories treated as runtime here.
+List the single source-root directory that groups implementation areas under the project root.
 
 Example placeholder:
 
-- `[runtime-directory]`
+- `[source-root-directory]`
 
 ## Non-Runtime Areas
 
@@ -36,6 +36,7 @@ Example placeholder:
 ## Change Rules
 
 - Keep runtime and non-runtime boundaries explicit.
+- Do not spread multiple top-level runtime directories directly under the project root; keep implementation areas under one source root.
 - Replace placeholder entries with observed paths once the real directory structure becomes known.
 - Reflect actual top-level structure changes in `rule/rules/project-structure.md`.
 - Do not move or rename established top-level areas without updating `rule/index.md` and related `rule/rules/*.md` documents.

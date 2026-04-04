@@ -37,7 +37,7 @@ If the user request is analysis-only, question-only, review-only, or explanation
 
 Stop and ask clear, minimal questions before proceeding when any of these are ambiguous:
 
-- runtime versus non-runtime directory naming
+- single source-root versus non-runtime directory naming
 - boundaries between existing directories and new structure
 - naming conventions
 - whether existing docs should be incorporated, preserved, or ignored
@@ -192,35 +192,35 @@ In existing repositories:
 
 ## Runtime versus non-runtime requirements
 
-Make the runtime versus non-runtime split explicit in both structure and guidance.
+Make the single source-root versus non-runtime split explicit in both structure and guidance.
 
-Multiple runtime directories are valid.
-Examples include repositories with `backend/` and `frontend/`, or `api/` and `web/`.
-Do not force the repository into a single runtime root when the observed project is clearly split across multiple runtime areas.
+The generated structure should use one source-root directory under the project root.
+Put implementation directories under that source root instead of scattering multiple top-level runtime directories directly under the project root.
+Do not default to several top-level runtime directories.
 
 In existing projects:
 
-- detect whether this distinction already exists
+- detect whether a clear single source root already exists
 - align to the existing distinction when possible
 - ask before inventing a conflicting boundary model
-- if several obvious runtime candidates exist, present them together and ask whether they should all be treated as runtime
+- if several obvious source-root candidates exist, ask which single directory should be treated as the source root, or whether a new source-root label should be introduced in guidance before materialization
 
 Reflect the distinction in generated `AGENTS.md` files where relevant.
 
 Use this question template when the runtime/non-runtime split is unclear:
 
 ```md
-I need to place the Codex structure around an explicit runtime/non-runtime split, but the current repository does not make that boundary clear.
+I need to place the Codex structure around an explicit single source-root/non-runtime split, but the current repository does not make that boundary clear.
 
 Please confirm:
-1. Which directories should be treated as runtime?
+1. Which directory should be treated as the single source root?
 2. Which directories should be treated as non-runtime?
-3. Should I align to existing names, or introduce explicit runtime/non-runtime labels in new guidance?
+3. Should I align to an existing source-root name, or introduce a new source-root label in guidance?
 4. Should existing directories be reclassified, or only documented as they are?
 ```
 
-If existing repositories already expose likely runtime candidates, adapt the question to confirm them instead of asking from scratch.
-Example candidates may include `backend/`, `frontend/`, `api/`, `web/`, `src/`, or `app/`.
+If existing repositories already expose likely source-root candidates, adapt the question to confirm them instead of asking from scratch.
+Example candidates may include `src/`, `app/`, `packages/`, or another top-level directory that already groups implementation areas.
 
 ## Documentation structure requirements
 
@@ -251,7 +251,6 @@ Use these defaults unless the repository already has a stronger existing convent
 - `.codex/` -> create `config.toml`, `agents/`, and process-oriented starter local skills under `skills/`
 - `subagents_docs/` -> create `AGENTS.md` and `cycles/`
 - `docs/guide/` -> create `README.md`
-- `docs/guide/` -> create `subagent-workflow.md`
 - `docs/implementation/` -> create `AGENTS.md`
 - `rule/` -> create `index.md` and `rules/`
 
@@ -399,8 +398,8 @@ Do not spam local `AGENTS.md` files into every directory without purpose.
 Once language choice and structural ambiguity are resolved, prefer the deterministic generator in `scripts/materialize_repo.sh`.
 Use the script to materialize live files directly in the target repository instead of copying the skill's `assets/` tree.
 In existing repositories or uncertain structures, run `scripts/materialize_repo.sh --inspect` first.
-Use the inspection output to ask the missing questions, then rerun without `--inspect` once runtime boundaries, docs handling, and overwrite decisions are resolved.
-Pass the resolved answers explicitly through flags such as `--runtime-dirs`, `--confirm-existing-docs`, `--confirm-existing-rule`, and `--overwrite`.
+Use the inspection output to ask the missing questions, then rerun without `--inspect` once source-root boundaries, docs handling, and overwrite decisions are resolved.
+Pass the resolved answers explicitly through flags such as `--source-root-dir`, `--confirm-existing-docs`, `--confirm-existing-rule`, and `--overwrite`.
 
 ## Existing project safety rules
 

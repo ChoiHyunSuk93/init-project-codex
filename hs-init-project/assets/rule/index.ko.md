@@ -101,7 +101,7 @@
 - Scope: structural
 - Applies to: runtime and non-runtime directories
 - Authority: global
-- Summary: runtime과 non-runtime 영역을 어떻게 구분하고 모호한 경계를 어떻게 해소하는지 정의한다.
+- Summary: 단일 source root와 non-runtime 영역을 어떻게 구분하고 모호한 경계를 어떻게 해소하는지 정의한다.
 
 ### implementation-records
 - Path: `rule/rules/implementation-records.md`

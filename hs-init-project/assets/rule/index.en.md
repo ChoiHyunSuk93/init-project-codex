@@ -101,7 +101,7 @@ Rules that are not listed here are not authoritative until they are indexed.
 - Scope: structural
 - Applies to: runtime and non-runtime directories
 - Authority: global
-- Summary: Defines how runtime and non-runtime areas are separated and how ambiguous boundaries are resolved.
+- Summary: Defines how a single source root and non-runtime areas are separated and how ambiguous boundaries are resolved.
 
 ### implementation-records
 - Path: `rule/rules/implementation-records.md`

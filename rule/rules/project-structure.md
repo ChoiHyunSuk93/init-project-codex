@@ -15,9 +15,9 @@
 - `docs/guide/`: 사람이 읽는 사용자 가이드 문서
 - `docs/implementation/`: 사람이 읽는 구현 기록 문서
 
-## Runtime 영역
+## Source Root 영역
 
-이 저장소에서 실제 제품 변경이 집중되는 디렉토리는 아래와 같다.
+이 저장소에서 실제 제품 변경이 집중되는 단일 source root는 아래와 같다.
 
 - `hs-init-project/`
 
@@ -31,7 +31,7 @@
 
 ## 변경 규칙
 
-- runtime과 non-runtime 경계는 명시적으로 유지한다.
+- source root와 non-runtime 경계는 명시적으로 유지한다.
 - 최상위 구조가 바뀌면 `rule/rules/project-structure.md`에 그 구조를 실제 값으로 반영한다.
 - 확립된 최상위 영역을 이동하거나 이름 변경할 때는 `rule/index.md`와 관련 `rule/rules/*.md` 문서도 함께 갱신한다.
 - local 구조가 복잡해지면 scope를 분명하게 해주는 곳에만 local instruction 파일을 추가한다.
