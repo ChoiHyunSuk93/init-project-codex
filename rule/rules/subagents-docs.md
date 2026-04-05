@@ -32,7 +32,7 @@
 ## 순환 규칙
 
 - 각 계획은 `planner -> generator -> evaluator` 순서로 실행한다.
-- evaluator는 generator가 만든 구현 결과를 해당 plan과 acceptance criteria 기준으로 실제 사용자 수준 테스트를 포함한 strongest feasible 검증으로 평가한다.
+- evaluator는 generator가 만든 구현 결과를 해당 plan과 acceptance criteria 기준으로 대표 사용자 surface 직접 검증을 포함한 strongest feasible 검증으로 평가한다.
 - evaluator가 구현 결과에서 부족한 점이나 blocker를 확인했을 때만 같은 계획을 다시 계획, 구현, 평가하고, `FAIL`이면 외부 입력이 정말 필요한 경우가 아니면 질문 없이 다음 cycle을 시작한다.
 - 여러 계획이 독립이면 병렬로 돌릴 수 있지만, 의존성이 있으면 순차로 처리한다.
 - 각 계획은 모든 하위 평가가 통과할 때까지 planner -> generator -> evaluator 반복으로만 완결된다.

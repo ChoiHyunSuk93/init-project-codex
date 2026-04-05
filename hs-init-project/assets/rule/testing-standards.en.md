@@ -27,6 +27,9 @@ Define how unit tests, end-to-end tests, and verification expectations are estab
 - Do not rely on end-to-end tests alone when a focused unit test is the better fit.
 - Do not add broad end-to-end coverage for low-level logic that should be protected by narrower tests.
 - When no automated test path exists yet, leave a concise manual verification note and update this rule once a real test path is introduced.
+- In a role-separated harness, generator prioritizes unit-level verification while evaluator owns the strongest feasible user-surface/end-to-end validation.
+- When a representative user surface exists, evaluator should directly exercise that surface where possible, such as browser UI, app simulator/runtime, game runtime/scene, CLI entrypoints, or API request/response flows.
+- If the representative user surface could not be exercised directly, the verification record should explain why, what environment is missing, what substitute validation was used, and what gap remains.
 
 ## Verification Recording
 

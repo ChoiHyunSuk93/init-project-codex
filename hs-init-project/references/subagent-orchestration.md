@@ -50,7 +50,7 @@ Use `rule/rules/cycle-document-contract.md` as the authoritative detailed rule f
 
 ### evaluator
 
-- Runs the strongest feasible end-to-end validation of the implemented result against the plan and acceptance criteria, including a real user-level test when that surface exists.
+- Runs the strongest feasible validation of the implemented result against the plan and acceptance criteria by directly exercising the representative user surface when that surface exists.
 - Records observations, issues, and final quality assessment.
 - Uses `subagents_docs/cycles/` for owned outputs.
 - Follows `rule/rules/cycle-document-contract.md` for exact PASS/FAIL recording, provenance, and dirty-worktree comparison requirements.
@@ -93,7 +93,8 @@ Weight `design quality` and `originality` more heavily than `completeness` and `
 - Keep the three roles in separate owned sections even though they share one cycle document.
 - Keep the main agent limited to orchestration; do not let it directly absorb planner, generator, or evaluator ownership by default.
 - If a plan is ambiguous, resolve it in the planning document instead of letting generator improvise.
-- If end-to-end automation is incomplete, evaluator should still record the strongest manual or scripted user-level validation available.
+- If a representative user surface exists, evaluator should prioritize direct validation through that surface, such as browser UI, app simulator/runtime, game runtime/scene, CLI entrypoints, or API request/response flows.
+- If direct user-surface validation is unavailable, evaluator should record why, what environment or access is missing, what substitute validation was used, and why any critical unverified surface cannot be soft-passed.
 - Do not treat plan-only artifacts as a cycle pass/fail evaluation before implementation exists.
 - Do not create or update final `docs/implementation/` briefings from a plan-only or generator-only state.
 - Do not create `docs/implementation/briefings/`; keep `docs/implementation/` category-based.

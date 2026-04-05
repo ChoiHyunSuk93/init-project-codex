@@ -17,7 +17,7 @@
 - 각 plan은 planner -> generator -> evaluator 순서로 진행한다.
 - 메인 에이전트는 orchestration-only 역할로 남아 이 세 역할의 순서와 handoff만 조정하며, 사용자가 명시적으로 허용하지 않는 한 planner/generator/evaluator를 직접 겸하지 않는다.
 - 분석, 질문, 리뷰, 설명 요청은 명시적 구현 지시가 없으면 implementation cycle로 열지 않는다.
-- evaluator는 generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 실제 사용자 수준 테스트를 포함한 strongest feasible 검증으로 평가한다.
+- evaluator는 generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 대표 사용자 surface 직접 검증을 포함한 strongest feasible 검증으로 평가한다.
 - evaluator가 구현 결과에서 부족한 점이나 blocker를 확인했을 때만 같은 plan을 pass될 때까지 다시 순환하고, `FAIL`이면 외부 입력이 정말 필요한 경우가 아니면 질문 없이 다음 cycle을 시작한다.
 - 독립적인 plan은 병렬로 진행할 수 있다. 의존적인 plan은 순서대로 진행한다.
 - 여러 plan이 필요하면 서로 독립한 것끼리만 병렬로 두고, 그렇지 않으면 별도 cycle로 분리한다.

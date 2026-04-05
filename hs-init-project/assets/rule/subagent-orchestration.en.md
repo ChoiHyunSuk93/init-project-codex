@@ -43,7 +43,7 @@ Use `rule/rules/cycle-document-contract.md` as the authoritative detailed rule f
 
 ### evaluator
 
-- Validates the implemented result against the plan and acceptance criteria with the strongest feasible end-to-end check, including a real user-level test when that surface exists, then appends evaluator sections under `subagents_docs/cycles/`.
+- Validates the implemented result against the plan and acceptance criteria with the strongest feasible check by directly exercising the representative user surface when that surface exists, then appends evaluator sections under `subagents_docs/cycles/`.
 - Tests functionality, structure, and workflow compliance.
 - Follows `rule/rules/cycle-document-contract.md` for exact PASS/FAIL recording, provenance, and dirty-worktree comparison requirements.
 - Does not edit implementation files or planning outputs.
@@ -85,6 +85,8 @@ Use `rule/rules/cycle-document-contract.md` as the authoritative detailed rule f
 - Do not place planning, implementation, or evaluation records in `docs/implementation/`.
 - If subagents are slow, the coordinator must wait or re-plan instead of directly implementing.
 - After a subagent result is integrated and no longer needed, the coordinator closes that thread immediately.
+- If a representative user surface exists, evaluator should prioritize direct checks through that surface, such as browser UI, app simulator/runtime, game runtime/scene, CLI commands, or API request/response flows.
+- If direct user-surface validation is unavailable, evaluator must record why, what environment or access is missing, what substitute validation was used, and why any critical unverified surface cannot be soft-passed.
 - Do not let the main agent directly absorb planner, generator, or evaluator ownership by default.
 - If plan scope is unclear, force clarification in planner output before generator changes code.
 - Do not treat a plan-only artifact as a cycle pass/fail evaluation before implementation exists.

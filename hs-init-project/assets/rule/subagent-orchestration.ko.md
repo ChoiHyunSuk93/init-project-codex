@@ -43,7 +43,7 @@ exact cycle 문서 경로, header 상태 전이, append-only section, provenance
 
 ### evaluator
 
-- generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 실제 사용자 수준 테스트를 포함한 strongest feasible end-to-end 검증으로 점검하고 `subagents_docs/cycles/` 안의 evaluator 섹션에 판정한다.
+- generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 대표 사용자 surface를 가능한 한 직접 실행하는 strongest feasible 검증으로 점검하고 `subagents_docs/cycles/` 안의 evaluator 섹션에 판정한다.
 - 기능, 구조, 실행 규칙 준수도를 함께 점검한다.
 - exact PASS/FAIL 기록, provenance, dirty-worktree 비교 기준은 `rule/rules/cycle-document-contract.md`를 따른다.
 - 구현 파일이나 계획 산출물을 수정하지 않는다.
@@ -85,6 +85,8 @@ exact cycle 문서 경로, header 상태 전이, append-only section, provenance
 - `docs/implementation/`에 planning/implementation/evaluation 기록을 넣지 않는다.
 - subagent 응답이 느리더라도 coordinator는 직접 구현하지 않고 기다리거나 재계획한다.
 - subagent 산출물을 반영하고 더 이상 필요 없는 thread는 coordinator가 즉시 닫는다.
+- 대표 사용자 surface가 있으면 evaluator는 브라우저 화면, 앱 시뮬레이터/런타임, 게임 런타임/scene, CLI command, API request/response 같은 실제 진입점을 직접 검증하는 방식을 우선한다.
+- 직접 surface 검증이 불가능하면 evaluator는 이유, 누락된 환경이나 접근 권한, 대체 검증 방식의 한계를 남기고 핵심 surface가 비검증 상태인 변경을 soft-pass하지 않는다.
 - 메인 에이전트가 기본값으로 planner/generator/evaluator 소유권을 직접 흡수하지 않는다.
 - 계획 범위가 불명확하면 generator가 임의 추측으로 진행하지 말고 planner 재계획을 요구한다.
 - 구현이 나오기 전 plan 단독 상태를 cycle pass/fail 평가로 간주하지 않는다.

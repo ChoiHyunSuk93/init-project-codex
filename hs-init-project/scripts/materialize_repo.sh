@@ -1536,6 +1536,8 @@ $test_tooling_block
 ## Implementation Record Verification
 
 - Record unit tests, end-to-end tests, manual checks, and remaining gaps separately in implementation records.
+- In a role-separated harness, evaluator owns the strongest feasible user-surface/end-to-end validation, including direct checks through browser UI, app simulator/runtime, game runtime/scene, CLI entrypoints, or API request/response flows when those are the representative surfaces.
+- If the representative user surface could not be exercised directly, explain why, what environment is missing, what substitute validation was used, and what gap remains.
 - Explain why tests were not added or run when that happens.
 EOF
     return 0
@@ -1561,6 +1563,9 @@ EOF
 - 동작이 바뀌면 가능한 범위에서 가장 작은 관련 테스트 계층을 추가하거나 수정한다.
 - 단위 테스트가 더 적합한 변경을 E2E 테스트만으로 대체하지 않는다.
 - 자동화 테스트 경로가 아직 없다면 수동 검증 메모를 남긴다.
+- 역할 분리 하네스를 따를 때 generator는 단위 수준 검증을 우선하고, evaluator는 대표 사용자 surface 직접 검증을 포함한 strongest feasible user-surface/E2E 검증을 맡는다.
+- 대표 사용자 surface가 있으면 evaluator는 브라우저, 시뮬레이터, 런타임, CLI, API 호출처럼 해당 프로젝트 타입의 실제 진입점을 가능한 한 직접 검증한다.
+- 대표 사용자 surface를 직접 실행하지 못했다면 이유, 누락된 환경, 대체 검증 한계와 남은 공백을 검증 기록에 남긴다.
 
 ## 향후 구체화
 
@@ -1768,7 +1773,7 @@ build_subagents_docs_rule() {
 ## 순환 규칙
 
 - 각 계획은 `planner -> generator -> evaluator` 순서로 실행한다.
-- evaluator는 generator가 만든 구현 결과를 해당 plan과 acceptance criteria 기준으로 실제 사용자 수준 테스트를 포함한 strongest feasible 검증으로 평가한다.
+- evaluator는 generator가 만든 구현 결과를 해당 plan과 acceptance criteria 기준으로 대표 사용자 surface 직접 검증을 포함한 strongest feasible 검증으로 평가한다.
 - evaluator가 구현 결과에서 부족한 점이나 blocker를 확인했을 때만 같은 계획을 다시 계획, 구현, 평가하고, `FAIL`이면 외부 입력이 정말 필요한 경우가 아니면 질문 없이 다음 cycle을 시작한다.
 - 여러 계획이 독립이면 병렬로 돌릴 수 있지만, 의존성이 있으면 순차로 처리한다.
 - subagent 응답이 느리더라도 coordinator는 직접 구현하지 않고 기다리거나 재계획한다.
@@ -1812,7 +1817,9 @@ Define `subagents_docs/` as the working-document area used by planner, generator
 ## Cycle Rules
 
 - Each plan runs in `planner -> generator -> evaluator` order.
-- Evaluator reviews the implemented result against that plan and its acceptance criteria with the strongest feasible real user-level validation.
+- Evaluator reviews the implemented result against that plan and its acceptance criteria with the strongest feasible validation by directly exercising the representative user surface when one exists.
+- If a representative user surface exists, evaluator should prioritize direct checks through browser UI, app simulator/runtime, game runtime/scene, CLI entrypoints, or API request/response flows.
+- If direct user-surface validation is unavailable, evaluator must record why, what environment is missing, what substitute validation was used, and why any critical unverified surface cannot be soft-passed.
 - If evaluator finds failures or blockers in the implemented result, the same plan repeats planning, implementation, and evaluation, and `FAIL` restarts automatically unless the blocker truly needs external input.
 - Independent plans may run in parallel, while dependent plans must run sequentially.
 - If subagents are slow, the coordinator must wait or re-plan instead of directly implementing.

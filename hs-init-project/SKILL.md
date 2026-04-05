@@ -115,6 +115,8 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - Re-run the same plan through planner -> generator -> evaluator until evaluator passes the implemented result.
    - When evaluator records `FAIL`, restart the cycle without asking the user again unless the blocker is truly missing external input.
    - Re-planning happens only after evaluator findings identify failures or blockers in the implemented result.
+   - Write evaluator rules and prompts around direct validation of the representative user surface for the change: browser UI for web, simulator/runtime for apps, runtime/scene for games, or actual CLI/API entrypoints when those are the primary surfaces.
+   - If direct user-surface validation is unavailable, require the evaluator to record why, what environment or access is missing, what substitute validation was used, and why an unverified critical surface cannot be soft-passed.
    - Do not create or update final `docs/implementation/` briefings from a plan-only or generator-only state.
    - Keep starter local skills aligned through clear `SKILL.md` descriptions, matching metadata, and `allow_implicit_invocation` support.
    - Split multiple plans into separate plan cycles; run them in parallel only when they are independent and in order when they are dependent.

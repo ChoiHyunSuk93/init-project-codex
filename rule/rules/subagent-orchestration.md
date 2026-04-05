@@ -71,7 +71,7 @@ cycle 문서 형식, header 상태 전이, provenance 요구는 `rule/rules/cycl
 ### evaluator
 
 - 관점: 평가자
-- 목적: generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 실제 사용자 수준 테스트를 포함한 strongest feasible end-to-end 검증과 품질 평가를 남긴다.
+- 목적: generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 대표 사용자 surface를 가능한 한 직접 실행하는 strongest feasible 검증과 품질 평가를 남긴다.
 - 소유 산출물: `subagents_docs/cycles/` 아래 cycle 문서의 evaluator 섹션
 - 금지 사항:
   - 제품 코드 수정 금지
@@ -134,6 +134,9 @@ cycle 문서 형식, header 상태 전이, provenance 요구는 `rule/rules/cycl
 ## 검증 규칙
 
 - generator는 단위 수준 또는 가장 가까운 자동화 검증을 우선한다.
-- evaluator는 plan과 acceptance criteria를 기준으로 가능한 가장 실제적인 end-to-end 검증과 실제 사용자 수준 테스트를 우선한다.
+- evaluator는 plan과 acceptance criteria를 기준으로 가능한 가장 실제적인 대표 사용자 surface 검증을 우선한다.
+- 웹, 앱, 게임처럼 UI나 런타임 surface가 있으면 브라우저 화면, 시뮬레이터, 앱 런타임, 게임 런타임/scene 같은 실제 surface 직접 실행을 우선한다.
+- CLI나 API가 대표 사용자 surface인 변경이면 실제 command entrypoint, request/response flow, integration endpoint 같은 진입점을 직접 검증하는 방식을 우선한다.
+- surface 직접 실행이 불가능하면 evaluator는 그 이유, 누락된 환경 조건, 대체 검증 방식의 한계를 남기고 핵심 surface가 비검증 상태인 변경을 soft-pass하지 않는다.
 - 완전한 자동화가 불가능하면 evaluator는 남은 공백을 문서로 남긴다.
 - evaluator가 구현 결과에서 실패나 blocker를 확인하면 같은 plan을 다시 planner -> generator -> evaluator로 순환시킨다.
