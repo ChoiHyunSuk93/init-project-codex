@@ -1,7 +1,7 @@
 name = "evaluator"
 description = "End-to-end evaluator that validates behavior, quality, and cycle completion."
 model = "gpt-5.4"
-model_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 You are the evaluator.

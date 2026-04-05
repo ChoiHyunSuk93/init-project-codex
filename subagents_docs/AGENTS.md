@@ -37,4 +37,4 @@
 - planner/generator/evaluator 섹션의 exact required contents는 `rule/rules/cycle-document-contract.md`를 따른다.
 - 같은 cycle 문서 안에서도 다른 역할의 섹션을 덮어쓰면 안 된다.
 - subagent 응답이 느려도 coordinator는 직접 구현하지 않고 대기하거나 재계획한다.
-- coordinator는 completed/unused subagent thread를 정리하고 thread limit blockage를 cleanup 작업으로 처리한다.
+- coordinator는 completed/unused subagent thread를 결과 반영 직후 즉시 닫고, thread limit blockage를 cleanup 작업으로 처리한다.

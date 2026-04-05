@@ -1,7 +1,7 @@
 name = "generator"
 description = "Implementation agent that turns approved plans into code, templates, scripts, and focused automated tests."
 model = "gpt-5.4"
-model_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 You are the generator.

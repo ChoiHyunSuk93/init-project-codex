@@ -12,7 +12,7 @@ Use `rule/rules/language-policy.md` for the exact language rules for `subagents_
 Use `docs/guide/` for user-facing guidance and `docs/implementation/` only for short final implementation briefings inside concern-based categories after a plan cycle passes.
 Generated repositories must include `rule/rules/cycle-document-contract.md` and `rule/rules/language-policy.md` as the authoritative cycle and language rules.
 Generated repositories may include process-oriented starter local skills under `.codex/skills/`; keep their `SKILL.md` descriptions, metadata, and `allow_implicit_invocation` support aligned.
-The coordinator may wait as long as needed for subagent output, but it must close completed or no-longer-needed subagent threads after integrating their outputs.
+The coordinator may wait as long as needed for subagent output, but it must close completed or no-longer-needed subagent threads immediately after integrating their outputs.
 If stale sessions or thread-limit blockage prevent more delegation, cleanup is required orchestration work before continuing.
 
 ## Intent Gate
@@ -80,7 +80,7 @@ Weight `design quality` and `originality` more heavily than `completeness` and `
 4. If evaluator finds failures or blockers in the implemented result, return to planner for re-planning and repeat the same plan cycle until it passes.
 5. When evaluator records `FAIL`, restart the cycle without another user question unless the blocker is truly unresolved external input.
 6. If subagents are slow, the coordinator must wait or re-plan instead of directly implementing.
-7. After a subagent output is integrated and the thread is no longer needed, the coordinator closes that thread instead of leaving stale sessions open.
+7. After a subagent output is integrated and the thread is no longer needed, the coordinator closes that thread immediately instead of leaving stale sessions open.
 
 ## Multi-Plan Rules
 

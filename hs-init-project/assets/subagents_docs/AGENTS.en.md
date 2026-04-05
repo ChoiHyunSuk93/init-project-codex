@@ -22,7 +22,7 @@ This directory stores working documents used by the planner, generator, and eval
 - Independent plans may run in parallel. Dependent plans must run in order.
 - Multiple plans should be numbered and handled as separate cycles when they are not independent.
 - If subagents are slow, the coordinator must wait or re-plan instead of directly implementing.
-- After integrating a completed or no-longer-needed subagent result, the coordinator closes that thread.
+- After integrating a completed or no-longer-needed subagent result, the coordinator closes that thread immediately.
 
 ## Document Contract
 

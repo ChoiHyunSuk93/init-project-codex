@@ -10,7 +10,7 @@
 메인 에이전트(coordinator)는 이 하네스에서 오케스트레이션만 담당한다.
 coordinator는 planner/generator/evaluator 역할을 직접 대행하지 않으며, 사용자가 역할 분리를 명시적으로 완화하지 않는 한 handoff 정리, 대기, 재계획만 수행한다.
 coordinator는 subagents가 느리다고 해서 직접 구현에 개입할 수 없다. 반드시 기다리거나 재계획만 수행한다.
-coordinator는 오래 기다릴 수 있지만, 완료되었거나 더 이상 필요 없는 subagent thread는 결과를 반영한 뒤 반드시 정리한다.
+coordinator는 오래 기다릴 수 있지만, 완료되었거나 더 이상 필요 없는 subagent thread는 결과를 반영한 직후 반드시 닫는다.
 stale session이나 thread limit 때문에 후속 subagent 실행이 막히면, coordinator는 직접 구현 대신 thread cleanup을 우선 수행한다.
 cycle 문서 형식, header 상태 전이, provenance 요구는 `rule/rules/cycle-document-contract.md`를 기준으로 삼는다.
 문서 본문 언어와 path 표기 규칙은 `rule/rules/language-policy.md`를 기준으로 삼는다.
@@ -119,7 +119,7 @@ cycle 문서 형식, header 상태 전이, provenance 요구는 `rule/rules/cycl
 - evaluator는 dirty worktree에서 이번 cycle 변경과 unrelated diff를 구분한 비교 기준을 함께 남기고, PASS/FAIL은 cycle-owned 변경 기준으로만 판단한다.
 - 상위 조정자는 세 역할의 결과를 모을 수 있지만, 각 역할이 소유한 판단을 다른 역할의 이름으로 덮어쓰지 않는다.
 - 상위 조정자는 오케스트레이션 전담이며, 사용자 명시적 완화 없이는 planner/generator/evaluator 중 어느 역할도 직접 수행하지 않는다.
-- 상위 조정자는 각 역할의 산출물을 반영한 뒤 완료되었거나 더 이상 필요 없는 subagent thread를 정리한다.
+- 상위 조정자는 각 역할의 산출물을 반영한 뒤 완료되었거나 더 이상 필요 없는 subagent thread를 즉시 닫는다.
 - planner 문서가 모호하면 generator가 추측으로 보정하지 말고 planner 재작성을 요청한다.
 - 같은 cycle 문서는 같은 번호 또는 slug를 유지하고, 섹션 이름으로 버전을 추적한다.
 - `docs/implementation/`의 최종 브리핑은 evaluator가 `PASS`로 판정한 cycle만 요약하며, planner/generator/evaluator working docs를 대체하지 않는다.

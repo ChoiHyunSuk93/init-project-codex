@@ -73,6 +73,7 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - Keep control filenames, directory names, code, commands, config keys, slugs, and predictable rule-path conventions aligned with the generated language rule.
 7. Create the rule, subagent, and documentation structure.
    - Create `.codex/config.toml` and `.codex/agents/planner.toml`, `.codex/agents/generator.toml`, `.codex/agents/evaluator.toml` as required baseline files.
+   - Set `model_reasoning_effort = "xhigh"` for generated planner, generator, and evaluator agents.
    - Create process-oriented starter local skills under `.codex/skills/change-analysis/`, `.codex/skills/code-implementation/`, `.codex/skills/test-debug/`, `.codex/skills/docs-sync/`, and `.codex/skills/quality-review/`, each with a thin `SKILL.md` and `agents/openai.yaml`.
    - Write those starter skills with clear task-matching descriptions, aligned metadata, and `policy.allow_implicit_invocation: true`.
    - Keep starter skill bodies thin and rule-referencing. Do not copy stable repository rules into the skill body.
@@ -109,7 +110,7 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - Follow [references/subagent-orchestration.md](references/subagent-orchestration.md) for the harness model and role boundaries.
    - Materialize `rule/rules/cycle-document-contract.md` and keep generated cycle docs, prompts, and harness-related docs aligned with that authoritative rule.
    - The main agent stays orchestration-only: it coordinates planner/generator/evaluator handoffs and does not directly become one of those roles unless the user explicitly waives the split.
-   - The main agent may wait as long as needed for subagent output, but it must close completed or no-longer-needed subagent threads after their outputs are integrated.
+   - The main agent may wait as long as needed for subagent output, but it must close completed or no-longer-needed subagent threads immediately after their outputs are integrated.
    - If stale sessions or thread-limit blockage prevent further delegation, treat thread cleanup as required orchestration work before continuing.
    - Re-run the same plan through planner -> generator -> evaluator until evaluator passes the implemented result.
    - When evaluator records `FAIL`, restart the cycle without asking the user again unless the blocker is truly missing external input.
@@ -220,7 +221,7 @@ Read [references/structure-initialization.md](references/structure-initializatio
 - Do not duplicate rules across root and local instruction files.
 - Do not start planner/generator/evaluator implementation flow for analysis-only, question-only, review-only, or explanation-only requests.
 - Keep starter local skills aligned through clear descriptions, matching metadata, and `allow_implicit_invocation` support.
-- Do not leave completed or no-longer-needed subagent threads open after their outputs have been integrated.
+- Do not leave completed or no-longer-needed subagent threads open after their outputs have been integrated; close them immediately.
 - Do not use free-form prose or table-first layouts for the rule index when the standard section-and-fields format is sufficient.
 - Do not skip the initial language check: use the already fixed language when present, otherwise ask once in plain text.
 - Do not claim branch protection or ruleset enforcement without verifying the remote result.

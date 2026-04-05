@@ -22,7 +22,7 @@
 - 독립적인 plan은 병렬로 진행할 수 있다. 의존적인 plan은 순서대로 진행한다.
 - 여러 plan이 필요하면 서로 독립한 것끼리만 병렬로 두고, 그렇지 않으면 별도 cycle로 분리한다.
 - subagent 응답이 느리더라도 coordinator는 직접 구현하지 않고 기다리거나 재계획한다.
-- completed/unused subagent thread는 coordinator가 정리한다.
+- completed/unused subagent thread는 coordinator가 결과 반영 직후 즉시 닫는다.
 
 ## 문서 계약
 

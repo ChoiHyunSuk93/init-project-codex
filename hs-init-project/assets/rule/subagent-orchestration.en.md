@@ -9,7 +9,7 @@ Use `rule/rules/language-policy.md` for the exact language rules for those worki
 `docs/guide/` and `docs/implementation/` are user-facing only.
 `docs/implementation/` stores only final, passed-cycle implementation briefings inside concern-based categories.
 The main agent is orchestration-only and does not directly become planner, generator, or evaluator unless the user explicitly waives the split.
-The coordinator may wait as long as needed for subagent output, but it must close completed or no-longer-needed threads after integrating their outputs.
+The coordinator may wait as long as needed for subagent output, but it must close completed or no-longer-needed threads immediately after integrating their outputs.
 If stale sessions or thread limits block more delegation, cleanup is required before continuing.
 
 ## Intent Gate
@@ -84,7 +84,7 @@ Use `rule/rules/cycle-document-contract.md` as the authoritative detailed rule f
 - Keep role outputs in their own sections even though they share one cycle file.
 - Do not place planning, implementation, or evaluation records in `docs/implementation/`.
 - If subagents are slow, the coordinator must wait or re-plan instead of directly implementing.
-- After a subagent result is integrated and no longer needed, the coordinator closes that thread.
+- After a subagent result is integrated and no longer needed, the coordinator closes that thread immediately.
 - Do not let the main agent directly absorb planner, generator, or evaluator ownership by default.
 - If plan scope is unclear, force clarification in planner output before generator changes code.
 - Do not treat a plan-only artifact as a cycle pass/fail evaluation before implementation exists.

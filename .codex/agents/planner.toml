@@ -1,7 +1,7 @@
 name = "planner"
 description = "Product planner that defines what to build and writes planning docs without implementing the solution."
 model = "gpt-5.4"
-model_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
 sandbox_mode = "workspace-write"
 developer_instructions = """
 You are the planner.
