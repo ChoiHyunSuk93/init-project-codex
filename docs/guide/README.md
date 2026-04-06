@@ -16,11 +16,11 @@
 - 실제 사용자가 수행하거나 요청해야 하는 안정적인 워크플로가 생기면 이 디렉토리 아래의 적절한 문서를 생성하거나 수정한다.
 - 문서 수가 늘어나면 이 `README.md`를 인덱스로 유지하고, 세부 내용은 개별 문서로 분리한다.
 - 저장소 구조 요약, 구현 상세, 프로젝트 규약 복사본은 이 디렉토리에 두지 않는다.
-- 독자가 따라야 할 안내만 두고, 실행 규칙은 `rule/index.md`와 `rule/rules/` 아래의 문서에 둔다.
+- 독자가 따라야 할 안내만 두고, 실행 규칙은 [`rule/index.md`](../../rule/index.md)와 `rule/rules/` 아래의 문서에 둔다.
 - planner, generator, evaluator가 읽고 쓰는 작업 문서는 `subagents_docs/`에 둔다.
 
 ## 권한 범위
 
 - 이 디렉토리는 Codex 실행 규칙의 기준 권한이 아니다.
-- 기준 실행 규칙은 root `AGENTS.md`, `rule/index.md`, 그리고 `rule/rules/` 아래의 문서에 있다.
+- 기준 실행 규칙은 root [`AGENTS.md`](../../AGENTS.md), [`rule/index.md`](../../rule/index.md), 그리고 `rule/rules/` 아래의 문서에 있다.
 - `docs/guide/AGENTS.md`는 이 디렉토리에 local 실행 규칙이 실제로 필요할 때만 추가한다.

@@ -13,20 +13,23 @@ The skill is meant for two cases:
 
 It focuses on a small, explicit baseline:
 
-- root `AGENTS.md`
-- root `rule/` with `rule/index.md` and indexed rule documents under `rule/rules/*.md`
-- `subagents_docs/` for planner / generator / evaluator working docs
-- `docs/guide/README.md`
-- `docs/implementation/AGENTS.md` plus user-facing final briefings
+- root [`AGENTS.md`](AGENTS.md)
+- root `rule/` with [`rule/index.md`](rule/index.md) and indexed rule documents under `rule/rules/*.md`
+- [`subagents_docs/AGENTS.md`](subagents_docs/AGENTS.md) plus `subagents_docs/` working docs for planner / generator / evaluator
+- [`docs/guide/README.md`](docs/guide/README.md)
+- [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md) plus user-facing final briefings
 - language-aware document generation
 
 ## Repository Layout
 
-- `hs-init-project/SKILL.md`: skill behavior and workflow
-- `hs-init-project/agents/openai.yaml`: skill metadata
-- `hs-init-project/references/`: detailed supporting rules for the skill
-- `hs-init-project/assets/`: internal templates used by the skill
-- `hs-init-project/scripts/`: deterministic helper scripts used by the skill
+- [`hs-init-project/SKILL.md`](hs-init-project/SKILL.md): skill behavior and workflow
+- [`hs-init-project/agents/openai.yaml`](hs-init-project/agents/openai.yaml): skill metadata
+- [`hs-init-project/references/`](hs-init-project/references/): detailed supporting rules for the skill
+- [`hs-init-project/assets/`](hs-init-project/assets/): internal templates used by the skill
+- [`hs-init-project/scripts/`](hs-init-project/scripts/): deterministic helper scripts used by the skill
+
+When this README points to a real entrypoint or control document, keep that reference as a Markdown link.
+Leave placeholders, wildcards, and not-yet-created paths as plain path literals.
 
 ## Installation
 
@@ -201,15 +204,15 @@ docs/
       [short final cycle briefings]
 ```
 
-- `AGENTS.md`: thin repository-wide Codex guidance
-- root `README.md`: durable human-facing repository summary
+- [`AGENTS.md`](AGENTS.md): thin repository-wide Codex guidance
+- root [`README.md`](README.md): durable human-facing repository summary
 - `.codex/config.toml`: project-scoped agent runtime settings that are generated alongside `.codex/agents/*.toml`
 - `.codex/agents/`: project-scoped planner / generator / evaluator definitions
 - `.codex/skills/`: starter local skills for common development workflows such as change analysis, implementation, test/debug, docs sync, and quality review
-- `rule/`: authoritative execution rules for Codex, with `rule/index.md` as the index and `rule/rules/*.md` as the detailed rule set
-- `subagents_docs/`: planner, generator, and evaluator working documents, with new plan cycles tracked as one append-only document per plan under `subagents_docs/cycles/`
-- `docs/guide/`: human-facing navigation and guide documents
-- `docs/implementation/`: user-facing short final briefings inside concern-based categories after a plan cycle passes
+- `rule/`: authoritative execution rules for Codex, with [`rule/index.md`](rule/index.md) as the index and `rule/rules/*.md` as the detailed rule set
+- `subagents_docs/`: planner, generator, and evaluator working documents, with [`subagents_docs/AGENTS.md`](subagents_docs/AGENTS.md) as the control file and new plan cycles tracked as one append-only document per plan under `subagents_docs/cycles/`
+- `docs/guide/`: human-facing navigation and guide documents, with [`docs/guide/README.md`](docs/guide/README.md) as the default entry point
+- `docs/implementation/`: user-facing short final briefings inside concern-based categories after a plan cycle passes, with [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md) as the placement rule
 - In existing-project mode, additional guide documents are created only when observed user-facing workflows provide durable reader-facing material.
 
 Generated repositories run each plan in `planner -> generator -> evaluator` order as part of the default baseline. The main agent stays orchestration-only: it coordinates those roles, collects handoffs, and does not directly become planner, generator, or evaluator unless the user explicitly waives the split. New work is tracked as one append-only cycle document per plan, with `Status`, `Current Plan Version`, and `Next Handoff` at the top and role-specific `Planner vN` / `Generator vN` / `Evaluator vN` sections below. The evaluator checks the implemented result against the plan and acceptance criteria, and only evaluator-reported failures or blockers send that plan back for re-planning. Independent plans may run in parallel; dependent plans should run sequentially. `subagents_docs/` working documents follow the selected language, and generated repositories include `.codex/config.toml`, `.codex/agents/*.toml`, and process-oriented starter local skills under `.codex/skills/`. In existing-project mode, inspection results are used to make starter skills and selected README/rule/guide outputs more specific to the observed runtime, test, and docs signals. If subagents are slow the coordinator waits or re-plans instead of directly implementing.

@@ -5,7 +5,7 @@
 Enforce planner / generator / evaluator role separation as an additive workflow.
 
 `subagents_docs/` is the working-document area for these roles.
-Use `rule/rules/language-policy.md` for the exact language rules for those working documents.
+Use [`rule/rules/language-policy.md`](language-policy.md) for the exact language rules for those working documents.
 `docs/guide/` and `docs/implementation/` are user-facing only.
 `docs/implementation/` stores only final, passed-cycle implementation briefings inside concern-based categories.
 The main agent is orchestration-only and does not directly become planner, generator, or evaluator unless the user explicitly waives the split.
@@ -20,7 +20,7 @@ If stale sessions or thread limits block more delegation, cleanup is required be
 
 ## Cycle Document Model
 
-Use `rule/rules/cycle-document-contract.md` as the authoritative detailed rule for exact cycle file paths, header transitions, append-only section rules, provenance, and dirty-worktree evaluation.
+Use [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md) as the authoritative detailed rule for exact cycle file paths, header transitions, append-only section rules, provenance, and dirty-worktree evaluation.
 
 - New cycles use one append-only working document per plan under `subagents_docs/cycles/<NN>-<slug>.md`.
 - Keep role outputs in role-owned sections inside that same file.
@@ -30,13 +30,13 @@ Use `rule/rules/cycle-document-contract.md` as the authoritative detailed rule f
 ### planner
 
 - Defines what should be built and appends planner sections under `subagents_docs/cycles/`.
-- Follows `rule/rules/cycle-document-contract.md` for exact section contents and provenance.
+- Follows [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md) for exact section contents and provenance.
 - Does not edit implementation files, scripts, templates, or evaluation outputs.
 
 ### generator
 
 - Implements the approved plan and records implementation details in generator sections under `subagents_docs/cycles/`.
-- Follows `rule/rules/cycle-document-contract.md` for exact section contents and verification-basis requirements.
+- Follows [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md) for exact section contents and verification-basis requirements.
 - May add unit-level checks when helpful.
 - Does not publish final `docs/implementation/` briefings before evaluator pass.
 - Does not revise planning intent or evaluation findings.
@@ -45,13 +45,13 @@ Use `rule/rules/cycle-document-contract.md` as the authoritative detailed rule f
 
 - Validates the implemented result against the plan and acceptance criteria with the strongest feasible check by directly exercising the representative user surface when that surface exists, then appends evaluator sections under `subagents_docs/cycles/`.
 - Tests functionality, structure, and workflow compliance.
-- Follows `rule/rules/cycle-document-contract.md` for exact PASS/FAIL recording, provenance, and dirty-worktree comparison requirements.
+- Follows [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md) for exact PASS/FAIL recording, provenance, and dirty-worktree comparison requirements.
 - Does not edit implementation files or planning outputs.
 
 ## Artifact Contract
 
 - Use one cycle document per plan and keep the file name aligned with the plan number or slug.
-- Use `rule/rules/cycle-document-contract.md` for exact section requirements and coordinator-owned header behavior.
+- Use [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md) for exact section requirements and coordinator-owned header behavior.
 - `docs/implementation/` remains a human-facing summary layer and never replaces working records.
 
 ## Orchestrated Cycle

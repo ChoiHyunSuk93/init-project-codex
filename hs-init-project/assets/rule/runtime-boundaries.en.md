@@ -28,4 +28,4 @@ Example placeholder:
 - If several likely source-root candidates exist, confirm which single directory should be treated as the source root.
 - Align to meaningful existing structure when possible instead of inventing a conflicting model.
 - Replace placeholder entries with observed directories once runtime and non-runtime boundaries become clear.
-- When the boundary changes, update `rule/rules/runtime-boundaries.md` and any related `rule/rules/*.md` documents in the same change.
+- When the boundary changes, update [`rule/rules/runtime-boundaries.md`](runtime-boundaries.md) and any related `rule/rules/*.md` documents in the same change.

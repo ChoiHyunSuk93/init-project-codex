@@ -15,15 +15,23 @@ Use this order to resolve scope, not to justify duplication.
 
 ## Thin Root Principle
 
-- Keep the root `AGENTS.md` short.
+- Keep the root [`AGENTS.md`](../../AGENTS.md) short.
 - Put stable, detailed behavior into `rule/rules/*.md`.
 - Use local `AGENTS.md` files only for local scope clarification.
+
+## Reference Link Principle
+
+- Use Markdown links whenever a reference points to a real entrypoint or control document that the reader can open directly.
+- Typical targets include root/local [`AGENTS.md`](../../AGENTS.md), [`README.md`](../../README.md), [`rule/index.md`](../index.md), [`docs/guide/README.md`](../../docs/guide/README.md), [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md), [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md), and starter local skill `SKILL.md` files.
+- The link destination must open correctly using a relative path from the current document.
+- Apply this rule consistently across current-repository docs, generated-repository docs, and the template or script source-of-truth that produces them.
+- Do not turn placeholders, examples, not-yet-created paths, or plain path-literal explanations into links.
 
 ## Non-Duplication
 
 - Do not restate the same rule in multiple places without a reason.
-- If a detailed rule changes, follow `rule/rules/rule-maintenance.md` to update the source rule document and any necessary index references instead of copying the edit into many files.
-- Put repository-wide implementation quality expectations into `rule/rules/development-standards.md` or a narrower local rule instead of scattering them across multiple instruction files.
+- If a detailed rule changes, follow [`rule/rules/rule-maintenance.md`](rule-maintenance.md) to update the source rule document and any necessary index references instead of copying the edit into many files.
+- Put repository-wide implementation quality expectations into [`rule/rules/development-standards.md`](development-standards.md) or a narrower local rule instead of scattering them across multiple instruction files.
 
 ## Intent Gate
 

@@ -81,6 +81,7 @@ The rule system must:
 
 - avoid duplication
 - use explicit references
+- use Markdown links for real entrypoint/control-document references while leaving placeholders and not-yet-created paths as plain literals
 - make the rule index the discovery point for detailed rules
 - keep detailed rule documents under `rule/rules/*.md`
 - require additions, deletions, and updates to be reflected in the index

@@ -5,7 +5,7 @@ description: Use for testing and debugging work such as reproducing bugs, narrow
 
 # Test Debug
 
-Read `rule/index.md`, `rule/rules/testing-standards.md`, `rule/rules/instruction-model.md`, and `rule/rules/language-policy.md` before writing.
+Read [`rule/index.md`](../../../rule/index.md), [`rule/rules/testing-standards.md`](../../../rule/rules/testing-standards.md), [`rule/rules/instruction-model.md`](../../../rule/rules/instruction-model.md), and [`rule/rules/language-policy.md`](../../../rule/rules/language-policy.md) before writing.
 
 Use this skill for testing and debugging work.
 
@@ -13,4 +13,3 @@ Use this skill for testing and debugging work.
 - Choose the smallest relevant automated test layer for the change.
 - If tests are absent or unclear, record the manual verification gap explicitly.
 - Keep test structure and verification notes anchored to the relevant rule documents.
-

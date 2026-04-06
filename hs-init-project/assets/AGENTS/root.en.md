@@ -1,20 +1,20 @@
 # Repository Instructions
 
 This file defines repository-wide Codex guidance.
-Keep this file thin and use it to route work to `rule/index.md` and the detailed documents under `rule/rules/`.
+Keep this file thin and use it to route work to [`rule/index.md`](rule/index.md) and the detailed documents under `rule/rules/`.
 
 ## Role Of This File
 
 - Define project-wide instruction boundaries.
-- Point to `rule/index.md` and the authoritative rule documents in `rule/rules/`.
+- Point to [`rule/index.md`](rule/index.md) and the authoritative rule documents in `rule/rules/`.
 - Do not duplicate detailed rules that belong in rule documents or local instruction files.
 
 ## Rule Model
 
-- Treat `rule/index.md` as the discovery point for authoritative rule documents.
+- Treat [`rule/index.md`](rule/index.md) as the discovery point for authoritative rule documents.
 - Read the relevant `rule/rules/*.md` documents before changing project structure or writing new long-lived docs.
-- Use `rule/rules/rule-maintenance.md` when adding, deleting, renaming, or moving rule documents.
-- Update `rule/index.md` whenever rule documents are added, removed, renamed, or moved.
+- Use [`rule/rules/rule-maintenance.md`](rule/rules/rule-maintenance.md) when adding, deleting, renaming, or moving rule documents.
+- Update [`rule/index.md`](rule/index.md) whenever rule documents are added, removed, renamed, or moved.
 
 ## Scope Model
 
@@ -31,16 +31,16 @@ Keep this file thin and use it to route work to `rule/index.md` and the detailed
 
 ## Documentation Automation
 
-- Keep the root `README.md` current as the primary human-facing summary of the repository.
-- In fresh repositories, start `README.md` from a minimal template and replace placeholders as the real project purpose becomes known.
-- In existing repositories, update `README.md` from observed project structure and durable project facts instead of inventing missing details.
+- Keep the root [`README.md`](README.md) current as the primary human-facing summary of the repository.
+- In fresh repositories, start [`README.md`](README.md) from a minimal template and replace placeholders as the real project purpose becomes known.
+- In existing repositories, update [`README.md`](README.md) from observed project structure and durable project facts instead of inventing missing details.
 - When work creates or changes a stable user-facing workflow, such as running, deploying, testing, operations, or request intake, create or update the relevant guide document under `docs/guide/`.
 - Do not create guide documents from repository structure summaries, project rules, test directory inventories, or implementation notes alone.
 - For every plan cycle that evaluator passes, create or update the corresponding final briefing inside the most relevant concern-based category under `docs/implementation/`.
 - Keep working plans, generator change notes, and evaluator reports under `subagents_docs/` instead of `docs/implementation/`.
-- For behavior changes, add or update the most relevant test layer when practical and keep `rule/rules/testing-standards.md` aligned with real test conventions as they emerge.
-- When a rule gains new explicit requirements or an existing rule changes, follow `rule/rules/rule-maintenance.md` so the relevant rule document and `rule/index.md` are updated in the same change.
-- When project-specific implementation standards become clearer, update `rule/rules/development-standards.md` so it reflects observed conventions instead of generic defaults.
+- For behavior changes, add or update the most relevant test layer when practical and keep [`rule/rules/testing-standards.md`](rule/rules/testing-standards.md) aligned with real test conventions as they emerge.
+- When a rule gains new explicit requirements or an existing rule changes, follow [`rule/rules/rule-maintenance.md`](rule/rules/rule-maintenance.md) so the relevant rule document and [`rule/index.md`](rule/index.md) are updated in the same change.
+- When project-specific implementation standards become clearer, update [`rule/rules/development-standards.md`](rule/rules/development-standards.md) so it reflects observed conventions instead of generic defaults.
 - If starter rules still contain placeholders, replace them with observed values once the real structure or boundaries become known.
 
 ## Skill Work
@@ -53,19 +53,19 @@ Keep this file thin and use it to route work to `rule/index.md` and the detailed
 
 ## Subagent Harness
 
-- This repository uses a planner / generator / evaluator workflow by default. Read `rule/rules/subagent-orchestration.md` first.
+- This repository uses a planner / generator / evaluator workflow by default. Read [`rule/rules/subagent-orchestration.md`](rule/rules/subagent-orchestration.md) first.
 - The main agent is orchestration-only in that workflow: it coordinates handoffs and does not directly become planner, generator, or evaluator unless the user explicitly waives the split.
 - Do not start the implementation cycle for analysis-only, question-only, review-only, or explanation-only requests.
 - The coordinator may wait as long as needed for subagent output, but it must close completed or no-longer-needed threads after integrating their outputs.
 - If stale sessions or thread limits block new delegation, perform thread cleanup before continuing.
-- Use `rule/rules/cycle-document-contract.md` for exact cycle file paths, header transitions, append-only section rules, provenance, and dirty-worktree evaluation requirements.
-- Use `rule/rules/language-policy.md` for document-language and stable filename/path rules.
-- Keep `.codex/agents/*.toml` and `subagents_docs/AGENTS.md` aligned with those authoritative rules.
+- Use [`rule/rules/cycle-document-contract.md`](rule/rules/cycle-document-contract.md) for exact cycle file paths, header transitions, append-only section rules, provenance, and dirty-worktree evaluation requirements.
+- Use [`rule/rules/language-policy.md`](rule/rules/language-policy.md) for document-language and stable filename/path rules.
+- Keep `.codex/agents/*.toml` and [`subagents_docs/AGENTS.md`](subagents_docs/AGENTS.md) aligned with those authoritative rules.
 - Keep `subagents_docs/` for working records and keep `docs/implementation/` as the user-facing summary layer for passed cycles only.
 
 ## Language Policy
 
-- Follow `rule/rules/language-policy.md` for exact language and path rules.
+- Follow [`rule/rules/language-policy.md`](rule/rules/language-policy.md) for exact language and path rules.
 - Keep `.codex/` and its agent files in English.
 
 ## Non-Duplication

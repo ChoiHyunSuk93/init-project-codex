@@ -8,7 +8,7 @@ Define the authoritative contract for cycle file paths, header transitions, appe
 
 - `subagents_docs/cycles/`
 - `.codex/agents/*.toml`
-- `subagents_docs/AGENTS.md`
+- [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md)
 - cycle-aware prompts and harness references
 
 ## Cycle File Path

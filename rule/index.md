@@ -7,7 +7,7 @@
 
 ## 인덱스 읽는 방법
 
-- `Path`: 규칙 문서의 기준 경로
+- `Path`: 규칙 문서의 기준 경로. 실제 문서가 있으면 Markdown 링크로 둔다.
 - `Scope`: 규칙이 적용되는 수준
 - `Applies to`: 규칙이 적용되는 디렉토리 또는 파일
 - `Authority`: 규칙의 효력 범위가 global인지 local인지
@@ -16,63 +16,63 @@
 ## 전역 규칙
 
 ### project-structure
-- Path: `rule/rules/project-structure.md`
+- Path: [`rule/rules/project-structure.md`](rules/project-structure.md)
 - Scope: repository-wide
 - Applies to: all directories
 - Authority: global
 - Summary: 최상위 구조, 디렉토리 역할, root와 local instruction 경계를 정의한다.
 
 ### instruction-model
-- Path: `rule/rules/instruction-model.md`
+- Path: [`rule/rules/instruction-model.md`](rules/instruction-model.md)
 - Scope: repository-wide
 - Applies to: `AGENTS.md`, local `AGENTS.md`, `rule/`
 - Authority: global
 - Summary: 얇은 root orchestration, local scope 규칙, 중복 금지 원칙을 정의한다.
 
 ### rule-maintenance
-- Path: `rule/rules/rule-maintenance.md`
+- Path: [`rule/rules/rule-maintenance.md`](rules/rule-maintenance.md)
 - Scope: repository-wide
 - Applies to: `rule/index.md`, `rule/rules/`
 - Authority: global
 - Summary: rule 문서를 어떻게 추가, 인덱싱, 갱신, 이동하고 authoritative 상태로 유지하는지 정의한다.
 
 ### documentation-boundaries
-- Path: `rule/rules/documentation-boundaries.md`
+- Path: [`rule/rules/documentation-boundaries.md`](rules/documentation-boundaries.md)
 - Scope: documentation
 - Applies to: `docs/guide/`, `docs/implementation/`, `subagents_docs/`, `rule/`
 - Authority: global
 - Summary: 사용자-facing 문서, subagent 작업 문서, category-based 구현 브리핑, authoritative rule 문서의 차이를 정의한다.
 
 ### cycle-document-contract
-- Path: `rule/rules/cycle-document-contract.md`
+- Path: [`rule/rules/cycle-document-contract.md`](rules/cycle-document-contract.md)
 - Scope: repository-wide workflow
 - Applies to: `subagents_docs/cycles/`, `.codex/agents/`, cycle-aware docs
 - Authority: global
 - Summary: cycle 문서 경로, header 상태 전이, append-only section, provenance, dirty worktree 평가 기준을 정의한다.
 
 ### language-policy
-- Path: `rule/rules/language-policy.md`
+- Path: [`rule/rules/language-policy.md`](rules/language-policy.md)
 - Scope: repository-wide documentation
 - Applies to: `AGENTS.md`, `rule/`, `docs/guide/`, `docs/implementation/`, `subagents_docs/`, generated structures
 - Authority: global
 - Summary: current repo와 generated structure의 문서 본문 언어, 제어 파일 이름, 경로 표기 불변 조건을 정의한다.
 
 ### readme-maintenance
-- Path: `rule/rules/readme-maintenance.md`
+- Path: [`rule/rules/readme-maintenance.md`](rules/readme-maintenance.md)
 - Scope: documentation
 - Applies to: `README.md`
 - Authority: global
 - Summary: root README를 어떻게 만들고 분석하며 저장소 대표 요약 문서로 유지하는지 정의한다.
 
 ### subagent-orchestration
-- Path: `rule/rules/subagent-orchestration.md`
+- Path: [`rule/rules/subagent-orchestration.md`](rules/subagent-orchestration.md)
 - Scope: repository-wide workflow
 - Applies to: `.codex/agents/`, `subagents_docs/`, root coordination
 - Authority: global
 - Summary: planner, generator, evaluator의 역할 경계, orchestration 순서, cycle 반복 규칙을 정의한다.
 
 ### subagents-docs
-- Path: `rule/rules/subagents-docs.md`
+- Path: [`rule/rules/subagents-docs.md`](rules/subagents-docs.md)
 - Scope: repository-wide workflow
 - Applies to: `subagents_docs/`
 - Authority: global
@@ -81,14 +81,14 @@
 ## 품질 규칙
 
 ### development-standards
-- Path: `rule/rules/development-standards.md`
+- Path: [`rule/rules/development-standards.md`](rules/development-standards.md)
 - Scope: repository-wide
 - Applies to: code, tests, schemas, public interfaces, and related docs
 - Authority: global
 - Summary: 기본 구현 품질, 관례 준수, 검증 기대치를 정의한다.
 
 ### testing-standards
-- Path: `rule/rules/testing-standards.md`
+- Path: [`rule/rules/testing-standards.md`](rules/testing-standards.md)
 - Scope: repository-wide
 - Applies to: unit tests, end-to-end tests, verification notes, and related test docs
 - Authority: global
@@ -97,14 +97,14 @@
 ## 구조 규칙
 
 ### runtime-boundaries
-- Path: `rule/rules/runtime-boundaries.md`
+- Path: [`rule/rules/runtime-boundaries.md`](rules/runtime-boundaries.md)
 - Scope: structural
 - Applies to: runtime and non-runtime directories
 - Authority: global
 - Summary: 단일 source root와 non-runtime 영역을 어떻게 구분하고 모호한 경계를 어떻게 해소하는지 정의한다.
 
 ### implementation-records
-- Path: `rule/rules/implementation-records.md`
+- Path: [`rule/rules/implementation-records.md`](rules/implementation-records.md)
 - Scope: implementation history
 - Applies to: `docs/implementation/`
 - Authority: global

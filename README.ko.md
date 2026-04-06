@@ -13,20 +13,23 @@
 
 기본적으로 아래의 작은 기준 구조를 만듭니다.
 
-- root `AGENTS.md`
-- `rule/index.md`와 `rule/rules/*.md` 규칙 문서를 포함한 root `rule/`
-- planner / generator / evaluator 작업 문서를 위한 `subagents_docs/`
-- `docs/guide/README.md`
-- `docs/implementation/AGENTS.md`와 사용자-facing 최종 브리핑
+- root [`AGENTS.md`](AGENTS.md)
+- [`rule/index.md`](rule/index.md)와 `rule/rules/*.md` 규칙 문서를 포함한 root `rule/`
+- planner / generator / evaluator 작업 문서를 위한 [`subagents_docs/AGENTS.md`](subagents_docs/AGENTS.md)와 `subagents_docs/`
+- [`docs/guide/README.md`](docs/guide/README.md)
+- [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md)와 사용자-facing 최종 브리핑
 - 언어 인식 문서 생성
 
 ## 저장소 구조
 
-- `hs-init-project/SKILL.md`: 스킬 동작과 워크플로
-- `hs-init-project/agents/openai.yaml`: 스킬 메타데이터
-- `hs-init-project/references/`: 스킬을 보조하는 상세 규칙 문서
-- `hs-init-project/assets/`: 스킬 내부 템플릿
-- `hs-init-project/scripts/`: 결정론적 helper 스크립트
+- [`hs-init-project/SKILL.md`](hs-init-project/SKILL.md): 스킬 동작과 워크플로
+- [`hs-init-project/agents/openai.yaml`](hs-init-project/agents/openai.yaml): 스킬 메타데이터
+- [`hs-init-project/references/`](hs-init-project/references/): 스킬을 보조하는 상세 규칙 문서
+- [`hs-init-project/assets/`](hs-init-project/assets/): 스킬 내부 템플릿
+- [`hs-init-project/scripts/`](hs-init-project/scripts/): 결정론적 helper 스크립트
+
+이 README가 실제 진입점 문서나 제어문서를 가리킬 때는 Markdown 링크를 사용한다.
+placeholder, wildcard, 아직 생성되지 않은 경로는 path literal로 남긴다.
 
 ## 설치
 
@@ -201,15 +204,15 @@ docs/
       [짧은 최종 사이클 브리핑]
 ```
 
-- `AGENTS.md`: 저장소 전역의 얇은 Codex 지침
-- root `README.md`: 사람이 읽는 대표 요약 문서
+- [`AGENTS.md`](AGENTS.md): 저장소 전역의 얇은 Codex 지침
+- root [`README.md`](README.md): 사람이 읽는 대표 요약 문서
 - `.codex/config.toml`: `.codex/agents/*.toml`과 함께 생성되는 프로젝트 스코프 agent 런타임 설정
 - `.codex/agents/`: 프로젝트 스코프 planner / generator / evaluator 정의
 - `.codex/skills/`: 변경 분석, 구현, 테스트/디버깅, 문서 동기화, 품질 검토 같은 일반적인 개발 절차를 위한 starter local skill 세트
-- `rule/`: `rule/index.md`를 인덱스로 두고 `rule/rules/*.md`에 상세 규칙을 두는 Codex 실행 기준 문서
-- `subagents_docs/`: planner, generator, evaluator가 읽고 쓰는 작업 문서이며, 신규 plan cycle은 `subagents_docs/cycles/` 아래의 append-only 단일 문서로 관리
-- `docs/guide/`: 사람이 읽는 안내와 탐색 문서
-- `docs/implementation/`: plan cycle이 통과된 뒤 관심사 카테고리 안에 남기는 사용자-facing 짧은 최종 브리핑 문서
+- `rule/`: [`rule/index.md`](rule/index.md)를 인덱스로 두고 `rule/rules/*.md`에 상세 규칙을 두는 Codex 실행 기준 문서
+- `subagents_docs/`: planner, generator, evaluator가 읽고 쓰는 작업 문서이며, [`subagents_docs/AGENTS.md`](subagents_docs/AGENTS.md)를 제어 파일로 두고 신규 plan cycle은 `subagents_docs/cycles/` 아래의 append-only 단일 문서로 관리
+- `docs/guide/`: 사람이 읽는 안내와 탐색 문서이며 기본 진입점은 [`docs/guide/README.md`](docs/guide/README.md)다
+- `docs/implementation/`: plan cycle이 통과된 뒤 관심사 카테고리 안에 남기는 사용자-facing 짧은 최종 브리핑 문서이며 배치 기준은 [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md)다
 - 기존 프로젝트 모드에서는 실제 사용자 워크플로가 확인될 때만 추가 guide 문서를 생성합니다.
 
 생성된 저장소는 기본 구조 자체로 각 plan을 `planner -> generator -> evaluator` 순서로 실행합니다. 메인 에이전트는 orchestration-only 역할로 남아 이 세 역할의 순서를 조정하고 handoff를 모으기만 하며, 사용자가 역할 분리를 명시적으로 풀지 않는 한 planner/generator/evaluator를 직접 겸하지 않습니다. 신규 작업은 plan마다 `subagents_docs/cycles/` 아래의 append-only 단일 문서로 관리하고, 문서 상단에는 `Status`, `Current Plan Version`, `Next Handoff`를 두며, 본문에는 `Planner vN` / `Generator vN` / `Evaluator vN` 섹션을 순서대로 쌓습니다. evaluator는 generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 평가하고, 그 구현 결과에서 실패나 blocker를 확인했을 때만 planner가 재계획합니다. 서로 독립인 계획은 병렬로, 의존성이 있는 계획은 순차로 진행합니다. `subagents_docs/` 작업 문서는 선택된 언어를 따르며, 생성된 저장소에는 `.codex/config.toml`, `.codex/agents/*.toml`, 그리고 `.codex/skills/` 아래의 개발 절차 중심 starter local skill 세트가 함께 포함됩니다. 기존 프로젝트 모드에서는 inspect 결과를 바탕으로 starter skill과 일부 README/rule/guide 산출물이 관찰된 runtime, test, docs 신호를 반영해 더 구체적으로 생성됩니다. subagent 응답이 느려도 coordinator는 직접 구현하지 않고 기다리거나 재계획합니다.

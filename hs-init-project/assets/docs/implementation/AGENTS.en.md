@@ -30,19 +30,19 @@ This directory stores human-facing final briefings.
 
 - If a change affects a real user-facing workflow, create or update the relevant guide document under `docs/guide/`.
 - Do not move implementation notes, repository maps, or copied rule text into `docs/guide/`.
-- When a rule gains explicit new requirements or an existing rule changes, follow `rule/rules/rule-maintenance.md` and keep the relevant rule document plus `rule/index.md` aligned in the same change.
-- Keep implementation records aligned with `rule/rules/testing-standards.md` when tests or verification conventions become more concrete.
+- When a rule gains explicit new requirements or an existing rule changes, follow [`rule/rules/rule-maintenance.md`](../../rule/rules/rule-maintenance.md) and keep the relevant rule document plus [`rule/index.md`](../../rule/index.md) aligned in the same change.
+- Keep implementation records aligned with [`rule/rules/testing-standards.md`](../../rule/rules/testing-standards.md) when tests or verification conventions become more concrete.
 - Keep planner documents, generator change records, and evaluator reports in separate owned outputs under `subagents_docs/`.
-- Use `rule/rules/cycle-document-contract.md` for the exact working-record contract that keeps cycle outputs out of `docs/implementation/`.
+- Use [`rule/rules/cycle-document-contract.md`](../../rule/rules/cycle-document-contract.md) for the exact working-record contract that keeps cycle outputs out of `docs/implementation/`.
 
 ## Authority
 
 - This directory is for human review and work history.
-- The primary execution authority remains the root `AGENTS.md`, `rule/index.md`, and the documents under `rule/rules/`.
+- The primary execution authority remains the root [`AGENTS.md`](../../AGENTS.md), [`rule/index.md`](../../rule/index.md), and the documents under `rule/rules/`.
 
 ## Language Policy
 
-- Follow `rule/rules/language-policy.md` for the exact language and filename/path rules for human-facing records.
+- Follow [`rule/rules/language-policy.md`](../../rule/rules/language-policy.md) for the exact language and filename/path rules for human-facing records.
 - `subagents_docs/` working records follow that same rule within their own working-doc boundary.
 - Keep this control filename as `AGENTS.md`.
 - Keep code, commands, config keys, slugs, and path literals in English.

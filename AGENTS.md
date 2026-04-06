@@ -1,12 +1,12 @@
 # 저장소 안내
 
 이 저장소는 `hs-init-project` Codex skill을 개발한다.
-이 파일은 얇게 유지하고, 상세 규칙 탐색의 시작점은 `rule/index.md`로 둔다.
+이 파일은 얇게 유지하고, 상세 규칙 탐색의 시작점은 [`rule/index.md`](rule/index.md)로 둔다.
 
 ## 범위
 
 - root 수준 안내는 이 파일에 둔다.
-- 상세한 기준 규칙은 `rule/index.md`와 `rule/rules/*.md`에 둔다.
+- 상세한 기준 규칙은 [`rule/index.md`](rule/index.md)와 `rule/rules/*.md`에 둔다.
 - 사용자-facing 워크플로 문서는 `docs/guide/`에 둔다.
 - evaluator 통과 뒤의 사용자-facing 최종 구현 브리핑은 `docs/implementation/`의 관심사 카테고리 아래에 둔다.
 - subagent 작업 문서는 `subagents_docs/`에서 읽고 쓴다.
@@ -14,8 +14,8 @@
 
 ## Skill 범위
 
-- `hs-init-project/SKILL.md`는 skill의 기본 진입점이다.
-- `hs-init-project/agents/openai.yaml`은 `hs-init-project/SKILL.md`와 정렬된 상태를 유지해야 한다.
+- [`hs-init-project/SKILL.md`](hs-init-project/SKILL.md)는 skill의 기본 진입점이다.
+- [`hs-init-project/agents/openai.yaml`](hs-init-project/agents/openai.yaml)은 [`hs-init-project/SKILL.md`](hs-init-project/SKILL.md)와 정렬된 상태를 유지해야 한다.
 - 상세 보조 동작은 `hs-init-project/references/`에 둔다.
 - 재사용 가능한 생성 템플릿은 `hs-init-project/assets/`에 둔다.
 - 결정론적 helper 스크립트는 `hs-init-project/scripts/`에 둔다.
@@ -29,9 +29,9 @@
 - 기본 순서는 `planner -> generator -> evaluator`다.
 - evaluator는 구현 결과를 plan과 acceptance criteria 기준으로 평가한다.
 - 재계획은 evaluator가 해당 구현 결과의 실패나 blocker를 확인했을 때만 시작한다.
-- subagent를 띄우거나 조정하기 전에 `rule/rules/subagent-orchestration.md`를 먼저 읽는다.
-- exact cycle 문서 경로, header 상태 전이, append-only section, provenance, dirty-worktree 평가는 `rule/rules/cycle-document-contract.md`를 따른다.
-- 문서 언어와 안정적인 filename/path 규칙은 `rule/rules/language-policy.md`를 따른다.
+- subagent를 띄우거나 조정하기 전에 [`rule/rules/subagent-orchestration.md`](rule/rules/subagent-orchestration.md)를 먼저 읽는다.
+- exact cycle 문서 경로, header 상태 전이, append-only section, provenance, dirty-worktree 평가는 [`rule/rules/cycle-document-contract.md`](rule/rules/cycle-document-contract.md)를 따른다.
+- 문서 언어와 안정적인 filename/path 규칙은 [`rule/rules/language-policy.md`](rule/rules/language-policy.md)를 따른다.
 - 사용자가 명시적으로 완화하지 않는 한 planner, generator, evaluator 책임을 하나의 역할로 합치지 않는다.
 - 기본적으로 메인 에이전트가 planner, generator, evaluator를 직접 겸하지 않는다.
 - subagent 작업 문서를 `docs/implementation/` 아래에 두지 말고 `subagents_docs/`를 사용한다.

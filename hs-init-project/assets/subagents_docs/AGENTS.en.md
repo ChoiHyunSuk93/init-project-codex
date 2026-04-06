@@ -8,9 +8,9 @@ This directory stores working documents used by the planner, generator, and eval
 - Keep these documents separate from user-facing `docs/guide/` and `docs/implementation/`.
 - Do not place working plans, change notes, or evaluation reports under `docs/implementation/`.
 - Write these working documents in the selected language for the active run.
-- Use `rule/rules/subagent-orchestration.md` for role boundaries and cycle order.
-- Use `rule/rules/cycle-document-contract.md` for exact cycle-file, header, provenance, and dirty-worktree rules.
-- Use `rule/rules/language-policy.md` for document-language and stable filename/path rules.
+- Use [`rule/rules/subagent-orchestration.md`](../rule/rules/subagent-orchestration.md) for role boundaries and cycle order.
+- Use [`rule/rules/cycle-document-contract.md`](../rule/rules/cycle-document-contract.md) for exact cycle-file, header, provenance, and dirty-worktree rules.
+- Use [`rule/rules/language-policy.md`](../rule/rules/language-policy.md) for document-language and stable filename/path rules.
 
 ## Cycle Rule
 
@@ -28,7 +28,7 @@ This directory stores working documents used by the planner, generator, and eval
 
 - Keep one append-only cycle document per plan under `subagents_docs/cycles/`.
 - Let the coordinator manage the top status block and let each role append only its own section.
-- Record plan, implementation, and evaluation provenance exactly as required by `rule/rules/cycle-document-contract.md`.
+- Record plan, implementation, and evaluation provenance exactly as required by [`rule/rules/cycle-document-contract.md`](../rule/rules/cycle-document-contract.md).
 - Do not treat `docs/implementation/` as a substitute for plan, change, or evaluation records.
 
 ## Ownership
@@ -36,5 +36,5 @@ This directory stores working documents used by the planner, generator, and eval
 - Planner owns planner sections only.
 - Generator owns generator sections only.
 - Evaluator owns evaluator sections only.
-- Follow `rule/rules/cycle-document-contract.md` for the exact required contents of planner, generator, and evaluator sections.
+- Follow [`rule/rules/cycle-document-contract.md`](../rule/rules/cycle-document-contract.md) for the exact required contents of planner, generator, and evaluator sections.
 - Even inside one cycle file, roles must not rewrite another role's sections.

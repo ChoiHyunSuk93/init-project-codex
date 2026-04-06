@@ -5,7 +5,7 @@
 planner / generator / evaluator 역할 분리를 애드혹하지 않는 방식으로 유지한다.
 
 `subagents_docs/`는 실제 작업 문서 영역이다.
-이 작업 문서의 exact 언어 규칙은 `rule/rules/language-policy.md`를 따른다.
+이 작업 문서의 exact 언어 규칙은 [`rule/rules/language-policy.md`](language-policy.md)를 따른다.
 `docs/guide/`와 `docs/implementation/`은 사용자-facing 문서이다.
 `docs/implementation/`에는 관심사 기반 카테고리 안에 plan이 통과된 최종 브리핑만 둔다.
 메인 에이전트는 오케스트레이션만 담당하며, 사용자가 역할 분리를 명시적으로 완화하지 않는 한 planner/generator/evaluator를 직접 겸하지 않는다.
@@ -20,7 +20,7 @@ stale session이나 thread limit으로 delegation이 막히면 cleanup을 먼저
 
 ## cycle 문서 모델
 
-exact cycle 문서 경로, header 상태 전이, append-only section, provenance, dirty-worktree 평가는 `rule/rules/cycle-document-contract.md`를 authoritative 기준으로 사용한다.
+exact cycle 문서 경로, header 상태 전이, append-only section, provenance, dirty-worktree 평가는 [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md)를 authoritative 기준으로 사용한다.
 
 - 신규 cycle은 `subagents_docs/cycles/<NN>-<slug>.md` 아래 plan별 단일 working document를 사용한다.
 - 역할 산출물은 같은 문서 안의 역할별 섹션으로 누적한다.
@@ -30,13 +30,13 @@ exact cycle 문서 경로, header 상태 전이, append-only section, provenance
 ### planner
 
 - 무엇을 만들지 정의하고 `subagents_docs/cycles/` 안의 planner 섹션을 append한다.
-- exact section contents와 provenance는 `rule/rules/cycle-document-contract.md`를 따른다.
+- exact section contents와 provenance는 [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md)를 따른다.
 - 제품 구현 파일, 스크립트, 템플릿, 평가 산출물을 수정하지 않는다.
 
 ### generator
 
 - 승인된 계획을 구현하고 `subagents_docs/cycles/` 안의 generator 섹션에 구현 기록을 남긴다.
-- exact section contents와 verification-basis 요구는 `rule/rules/cycle-document-contract.md`를 따른다.
+- exact section contents와 verification-basis 요구는 [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md)를 따른다.
 - 필요 시 단위 수준 점검을 함께 정리한다.
 - evaluator가 pass를 내리기 전에는 `docs/implementation/` 최종 브리핑을 발행하지 않는다.
 - 계획 의도 변경이나 평가 결과를 임의로 덮어쓰지 않는다.
@@ -45,13 +45,13 @@ exact cycle 문서 경로, header 상태 전이, append-only section, provenance
 
 - generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 대표 사용자 surface를 가능한 한 직접 실행하는 strongest feasible 검증으로 점검하고 `subagents_docs/cycles/` 안의 evaluator 섹션에 판정한다.
 - 기능, 구조, 실행 규칙 준수도를 함께 점검한다.
-- exact PASS/FAIL 기록, provenance, dirty-worktree 비교 기준은 `rule/rules/cycle-document-contract.md`를 따른다.
+- exact PASS/FAIL 기록, provenance, dirty-worktree 비교 기준은 [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md)를 따른다.
 - 구현 파일이나 계획 산출물을 수정하지 않는다.
 
 ## 산출물 계약
 
 - 같은 cycle은 한 문서로 유지하고, 파일 이름은 plan 번호 또는 slug와 맞춘다.
-- exact section 요구와 coordinator-owned header 동작은 `rule/rules/cycle-document-contract.md`를 따른다.
+- exact section 요구와 coordinator-owned header 동작은 [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md)를 따른다.
 - `docs/implementation/`은 사람을 위한 요약 계층이며 working record를 대체하지 않는다.
 
 ## 오케스트레이션 사이클

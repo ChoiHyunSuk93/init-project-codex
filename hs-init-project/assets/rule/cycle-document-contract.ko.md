@@ -8,7 +8,7 @@ cycle 문서 경로, header 상태 전이, append-only section, provenance, dirt
 
 - `subagents_docs/cycles/`
 - `.codex/agents/*.toml`
-- `subagents_docs/AGENTS.md`
+- [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md)
 - cycle-aware prompts and harness references
 
 ## cycle 파일 경로

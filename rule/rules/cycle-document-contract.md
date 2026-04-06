@@ -8,7 +8,7 @@
 
 - `subagents_docs/cycles/`
 - `.codex/agents/*.toml`
-- `subagents_docs/AGENTS.md`
+- [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md)
 - cycle-aware prompt와 harness reference
 - cycle 문서를 참조하거나 생성하는 rule/doc/prompt
 
@@ -86,4 +86,4 @@
 ## 문서 경계
 
 - cycle working record는 `subagents_docs/cycles/`에만 둔다.
-- `docs/implementation/`은 evaluator `PASS` 이후의 최종 브리핑 계층이며 working record를 대체하지 않는다.
+- [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md) 아래의 `docs/implementation/`은 evaluator `PASS` 이후의 최종 브리핑 계층이며 working record를 대체하지 않는다.

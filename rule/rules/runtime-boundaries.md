@@ -23,4 +23,4 @@
 - 프로젝트 루트 아래에 여러 runtime 디렉토리를 직접 두는 기본 규칙은 허용하지 않는다. 구현체는 단일 source root 아래에 둔다.
 - source root 후보가 여러 개로 보이면 어떤 하나를 source root로 볼지 먼저 확인한다.
 - 가능하면 충돌하는 새 모델을 만들기보다, 이미 의미 있게 형성된 기존 구조에 맞춘다.
-- 경계가 바뀌면 `rule/rules/runtime-boundaries.md`와 필요한 관련 `rule/rules/*.md` 문서를 함께 갱신한다.
+- 경계가 바뀌면 [`rule/rules/runtime-boundaries.md`](runtime-boundaries.md)와 필요한 관련 `rule/rules/*.md` 문서를 함께 갱신한다.
