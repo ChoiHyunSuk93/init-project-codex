@@ -1,58 +1,84 @@
 # Subagent Orchestration
 
-Every repository initialized by this skill uses the planner / generator / evaluator harness.
+Every repository initialized by this skill supports an adaptive harness instead of one mandatory fixed pipeline.
 Use this reference as the baseline harness model for generated repositories.
 
 ## Core Rule
 
 Keep the harness additive. It sits on top of the existing `README.md`, `AGENTS.md`, `rule/`, `docs/guide/`, and `docs/implementation/` model instead of replacing it.
-The main agent is orchestration-only in this harness: it coordinates planner/generator/evaluator handoffs and does not directly become one of those roles unless the user explicitly waives the split.
-Generated repositories must store planner, generator, and evaluator working documents in `subagents_docs/`, not in `docs/guide/` or `docs/implementation/`.
+The main agent owns task classification, plan approval, implementation integration, and handoff decisions.
+The main agent may autonomously invoke subagents when needed.
+Document analysis should prefer parallel `explorer` calls when the questions are independent.
+Generated repositories must store cycle-backed working documents in `subagents_docs/`, not in `docs/guide/` or `docs/implementation/`.
 Use `rule/rules/language-policy.md` for the exact language rules for `subagents_docs/` working documents.
 Use `docs/guide/` for user-facing guidance and `docs/implementation/` only for short final implementation briefings inside concern-based categories after a plan cycle passes.
 Generated repositories must include `rule/rules/cycle-document-contract.md` and `rule/rules/language-policy.md` as the authoritative cycle and language rules.
 Generated repositories may include process-oriented starter local skills under `.codex/skills/`; keep their `SKILL.md` descriptions, metadata, and `allow_implicit_invocation` support aligned.
 The coordinator may wait as long as needed for subagent output, but it must close completed or no-longer-needed subagent threads immediately after integrating their outputs.
-If stale sessions or thread-limit blockage prevent more delegation, cleanup is required orchestration work before continuing.
+If stale sessions or thread-limit blockage prevent more delegation, cleanup is required coordination work before continuing.
 
 ## Intent Gate
 
-Do not start the planner / generator / evaluator implementation cycle unless the user explicitly requested implementation, change, creation, update, fix, or materialization.
-If the user request is analysis-only, question-only, review-only, explanation-only, or otherwise non-implementation, stay in analysis and do not edit files or spawn generator.
+Do not start implementation unless the user explicitly requested implementation, change, creation, update, fix, or materialization.
+If the user request is analysis-only, question-only, review-only, explanation-only, or otherwise non-implementation, stay in analysis and do not edit files.
 If implementation intent is ambiguous, clarify or stop at analysis instead of guessing.
+
+## Execution Modes
+
+### small
+
+- Default path: `main/generator -> evaluator`
+- Use when the scope is small and the request is already clear.
+- A cycle document is optional when no shared working record is needed.
+
+### medium
+
+- Default path: `main(plan+implementation) -> evaluator`
+- Use when a short plan is useful but a full delegated planning loop would be overhead.
+- Keep the short plan and implementation in the same cycle document when a cycle is opened.
+
+### large-clear
+
+- Default path: `main-led decomposition + delegated implementation + evaluator`
+- Use when the work is large but the shape is already clear enough for bounded implementation slices.
+- The main agent owns top-level planning and integration.
+
+### large-ambiguous
+
+- Default path: `parallel explorer analysis + planner assist if needed + main-approved plan + delegated implementation + evaluator`
+- Use when the work is large and ambiguity is still material.
+- The main agent approves the final plan after explorer or planner assistance, then integrates delegated implementation slices.
 
 ## Cycle Document Model
 
 Use `rule/rules/cycle-document-contract.md` as the authoritative detailed rule for this section.
 
-- Track each plan as one append-only cycle document under `subagents_docs/cycles/<NN>-<slug>.md`.
+- Track each cycle-backed plan as one append-only document under `subagents_docs/cycles/<NN>-<slug>.md`.
 - This is one document per plan, not one global shared log.
-- Keep the top status block coordinator-owned and keep the body append-only by role section.
+- Keep the top status block coordinator-owned and keep the body append-only by phase section.
+- Small direct changes may skip the cycle document when no shared working record is needed.
 
-## Role Boundaries
+## Phase Boundaries
 
 ### planner
 
-- Defines what should be built.
-- Appends planner sections only.
-- Uses `subagents_docs/cycles/` for owned outputs.
+- Optional planning assist for large ambiguous work.
+- Uses `subagents_docs/cycles/` for owned outputs when a cycle is open.
 - Follows `rule/rules/cycle-document-contract.md` for exact section contents and provenance.
 - Does not edit implementation, templates, scripts, or evaluation output.
 
 ### generator
 
-- Implements the approved plan.
-- Appends generator sections only.
-- Uses `subagents_docs/cycles/` for owned outputs.
+- Implementation assist for bounded delegated work or direct small changes.
+- Uses `subagents_docs/cycles/` for owned outputs when a cycle is open.
 - Follows `rule/rules/cycle-document-contract.md` for exact section contents and verification-basis requirements.
 - Does not publish final `docs/implementation/` briefings before evaluator pass.
-- Does not rewrite planner intent, evaluator findings, or the coordinator-owned header.
 
 ### evaluator
 
 - Runs the strongest feasible validation of the implemented result against the plan and acceptance criteria by directly exercising the representative user surface when that surface exists.
 - Records observations, issues, and final quality assessment.
-- Uses `subagents_docs/cycles/` for owned outputs.
+- Uses `subagents_docs/cycles/` for owned outputs when a cycle is open.
 - Follows `rule/rules/cycle-document-contract.md` for exact PASS/FAIL recording, provenance, and dirty-worktree comparison requirements.
 - Does not modify product files.
 
@@ -61,7 +87,7 @@ Use `rule/rules/cycle-document-contract.md` as the authoritative detailed rule f
 Use `rule/rules/cycle-document-contract.md` for exact header transitions, provenance, and dirty-worktree comparison rules.
 
 - Keep one cycle document per plan and keep the same numeric prefix or slug across the file name and the plan identity.
-- `docs/implementation/` remains a human-facing summary layer and must not replace planner, generator, or evaluator working records.
+- `docs/implementation/` remains a human-facing summary layer and must not replace working records.
 
 ## Evaluation Criteria
 
@@ -74,13 +100,12 @@ Weight `design quality` and `originality` more heavily than `completeness` and `
 
 ## Workflow
 
-1. planner creates the cycle document when needed, then appends the current planner section.
-2. generator reads the latest planner section and implements the change.
-3. evaluator verifies the implemented result end to end against that planner section and the acceptance criteria, then appends the evaluation outcome.
-4. If evaluator finds failures or blockers in the implemented result, return to planner for re-planning and repeat the same plan cycle until it passes.
-5. When evaluator records `FAIL`, restart the cycle without another user question unless the blocker is truly unresolved external input.
-6. If subagents are slow, the coordinator must wait or re-plan instead of directly implementing.
-7. After a subagent output is integrated and the thread is no longer needed, the coordinator closes that thread immediately instead of leaving stale sessions open.
+1. The main agent classifies the work as `small`, `medium`, `large-clear`, or `large-ambiguous`.
+2. If analysis is needed first, split it into parallel explorer calls when practical.
+3. If a cycle document is opened, append `Planner vN` and `Generator vN` sections according to the selected mode, then hand off to evaluator.
+4. If evaluator finds failures or blockers in the implemented result, return to the appropriate planning depth for that mode and repeat until it passes.
+5. When evaluator records `FAIL`, restart without another user question unless the blocker is truly unresolved external input.
+6. After a subagent output is integrated and the thread is no longer needed, the coordinator closes that thread immediately instead of leaving stale sessions open.
 
 ## Multi-Plan Rules
 
@@ -90,9 +115,9 @@ Weight `design quality` and `originality` more heavily than `completeness` and `
 
 ## Practical Guardrails
 
-- Keep the three roles in separate owned sections even though they share one cycle document.
-- Keep the main agent limited to orchestration; do not let it directly absorb planner, generator, or evaluator ownership by default.
-- If a plan is ambiguous, resolve it in the planning document instead of letting generator improvise.
+- Keep cycle-backed planning, implementation, and evaluation sections append-only.
+- Keep evaluator separate even when planning or implementation stay local to the main agent.
+- If a plan is ambiguous, resolve it through parallel explorer work or planner assistance before delegated implementation begins.
 - If a representative user surface exists, evaluator should prioritize direct validation through that surface, such as browser UI, app simulator/runtime, game runtime/scene, CLI entrypoints, or API request/response flows.
 - If direct user-surface validation is unavailable, evaluator should record why, what environment or access is missing, what substitute validation was used, and why any critical unverified surface cannot be soft-passed.
 - Do not treat plan-only artifacts as a cycle pass/fail evaluation before implementation exists.

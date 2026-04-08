@@ -2,106 +2,93 @@
 
 ## 목적
 
-이 저장소에서 planner, generator, evaluator를 분리된 역할로 운영하는 기준을 정의한다.
-역할 분리는 문서화와 검증 품질을 높이기 위한 기본 실행 모델이며, 사용자가 명시적으로 완화하지 않는 한 유지한다.
+이 저장소에서 메인 에이전트가 변경 크기와 모호성에 따라 하네스를 고르고, 필요한 subagent만 선택적으로 호출하는 기준을 정의한다.
 
-`subagents_docs/`는 planner/generator/evaluator가 실제로 읽고 쓰는 작업 문서 영역이다.
+`subagents_docs/`는 cycle-backed work의 working document 영역이다.
 `docs/guide/`와 `docs/implementation/`은 사용자-facing 문서이며, 결과 브리핑을 제외한 에이전트 작업 문서를 넣지 않는다.
-메인 에이전트(coordinator)는 이 하네스에서 오케스트레이션만 담당한다.
-coordinator는 planner/generator/evaluator 역할을 직접 대행하지 않으며, 사용자가 역할 분리를 명시적으로 완화하지 않는 한 handoff 정리, 대기, 재계획만 수행한다.
-coordinator는 subagents가 느리다고 해서 직접 구현에 개입할 수 없다. 반드시 기다리거나 재계획만 수행한다.
-coordinator는 오래 기다릴 수 있지만, 완료되었거나 더 이상 필요 없는 subagent thread는 결과를 반영한 직후 반드시 닫는다.
-stale session이나 thread limit 때문에 후속 subagent 실행이 막히면, coordinator는 직접 구현 대신 thread cleanup을 우선 수행한다.
+메인 에이전트(coordinator)는 분류, 계획 승인, 구현 통합, handoff 조정의 책임을 가진다.
+coordinator는 필요할 때 planner, generator, evaluator, explorer 같은 subagent를 자율적으로 호출할 수 있다.
+문서 분석이나 비교 독해가 필요한 경우에는 독립적인 질문 단위로 병렬 `explorer` 호출을 우선 고려한다.
+evaluator는 어떤 경로를 선택하더라도 가능한 한 분리된 검증 역할로 유지한다.
+coordinator는 완료되었거나 더 이상 필요 없는 subagent thread는 결과를 반영한 직후 반드시 닫는다.
+stale session이나 thread limit 때문에 후속 subagent 실행이 막히면, coordinator는 thread cleanup을 우선 수행한다.
 cycle 문서 형식, header 상태 전이, provenance 요구는 [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md)를 기준으로 삼는다.
 문서 본문 언어와 path 표기 규칙은 [`rule/rules/language-policy.md`](language-policy.md)를 기준으로 삼는다.
 
 ## Intent Gate
 
-- planner/generator/evaluator 사이클은 사용자가 명시적으로 구현, 변경, 생성, 수정, materialize를 요청했을 때만 시작한다.
+- 구현 경로는 사용자가 명시적으로 구현, 변경, 생성, 수정, materialize를 요청했을 때만 시작한다.
 - 분석, 질문, 리뷰, 설명 요청은 구현 사이클로 넘기지 않고 analysis-only 상태로 유지한다.
-- 구현 의도가 명확하지 않으면 coordinator는 clarification 또는 분석으로 멈추고 generator를 띄우지 않는다.
+- 구현 의도가 명확하지 않으면 coordinator는 clarification 또는 병렬 explorer 분석으로 멈추고 구현 subagent를 띄우지 않는다.
+
+## 실행 모드
+
+### small
+
+- 변경 범위가 좁고 요구가 명확하면 `main/generator -> evaluator`로 처리한다.
+- coordinator가 직접 구현하거나, 범위가 더 좁아지면 generator에 바로 구현을 맡길 수 있다.
+- shared handoff가 필요 없으면 cycle 문서를 생략할 수 있다.
+- evaluator는 가능한 한 분리된 검증 역할로 유지한다.
+
+### medium
+
+- 범위가 여러 파일이나 영역에 걸치지만 요구가 비교적 명확하면 `main(plan+implementation) -> evaluator`로 처리한다.
+- coordinator가 짧은 plan을 정리하고 그대로 구현까지 수행한다.
+- 중간 변경은 cycle 문서를 열고 `Planner vN`과 `Generator vN`를 같은 문서에 남긴 뒤 evaluator로 넘긴다.
+
+### large-clear
+
+- 큰 변경이지만 범위와 방향이 비교적 명확하면 `main-led decomposition + delegated implementation + evaluator`로 처리한다.
+- coordinator가 상위 plan과 task split을 정하고, bounded implementation slice를 하나 이상의 implementation subagent에 분할 위임한다.
+- coordinator가 결과를 통합하고 `Generator vN` 기준 산출물로 정리한 뒤 evaluator로 넘긴다.
+
+### large-ambiguous
+
+- 큰 변경이면서 모호하면 `parallel explorer analysis + planner assist if needed + main-approved plan + delegated implementation + evaluator`로 처리한다.
+- coordinator가 병렬 explorer 분석으로 모호성을 줄이고, 필요하면 planner에게 plan 초안이나 대안을 받는다.
+- 최종 계획 승인과 통합 책임은 coordinator가 가진다.
+- 구현은 large-clear와 마찬가지로 bounded slice 단위로 위임하고, evaluator는 분리 유지한다.
 
 ## 역할 정의
 
+### coordinator
+
+- 관점: 통합 책임자
+- 목적: 작업을 분류하고, 적절한 하네스를 고르고, 필요한 subagent를 선택적으로 호출하며, 최종 plan 승인과 구현 통합을 담당한다.
+- 필수 동작:
+  - small / medium / large-clear / large-ambiguous 분류
+  - 병렬 explorer 분석 판단
+  - cycle 문서 필요 여부 판단
+  - delegated implementation slice 정의와 결과 통합
+  - evaluator handoff 유지
+
 ### planner
 
-- 관점: 기획자
-- 목적: 무엇을 만들지 정의하고 범위와 acceptance criteria를 정리한다.
-- 소유 산출물: `subagents_docs/cycles/` 아래 cycle 문서의 planner 섹션
-- 금지 사항:
-  - `hs-init-project/` 아래의 제품 파일 수정 금지
-  - unit test, e2e test, 스크립트, template 구현 금지
-  - generator/evaluator 섹션 수정 금지
-  - coordinator 상태 블록 덮어쓰기 금지
-- 필수 내용:
-  - 목표
-  - 범위
-  - 비범위
-  - 사용자 관점 결과
-  - acceptance criteria
-  - 제약
-  - 위험 요소
-  - 의존관계
-  - open questions
-  - 이전 evaluator 섹션 reference 또는 신규 cycle 명시
-  - 다음 handoff 대상 또는 차단 조건
+- 관점: planning assist
+- 목적: large-ambiguous 같은 경우에 coordinator가 승인할 plan 초안이나 대안을 제공한다.
+- planner는 기본 강제 단계가 아니다.
+- cycle 문서를 쓰는 경우 planner 산출물은 `Planner vN` 섹션으로 남긴다.
 
 ### generator
 
-- 관점: 개발자
-- 목적: planner 문서를 바탕으로 구현하고 단위 수준 검증을 맞춘다.
-- 소유 산출물:
-  - `hs-init-project/` 아래의 제품 파일
-  - 구현과 직접 연결된 root 문서
-  - `subagents_docs/cycles/` 아래 cycle 문서의 generator 섹션
-- 금지 사항:
-  - planner 문서의 제품 의도를 임의로 재정의하지 않는다.
-  - planner/evaluator 섹션이나 coordinator 상태 블록을 수정하지 않는다.
-- 필수 내용:
-  - planner section reference
-  - 실제 반영한 범위
-  - 변경 파일 목록
-  - 검증에 사용한 workspace/baseline scope
-  - 필요한 단위 테스트 또는 집중된 자동화 검증
-  - 미해결 위험과 제약의 명시
-  - 다음 handoff 대상
-- 추가 규칙:
-  - evaluator가 pass를 내리기 전에는 `docs/implementation/`의 최종 브리핑을 working record 대용으로 만들거나 갱신하지 않는다.
+- 관점: implementation assist
+- 목적: bounded implementation slice 또는 coordinator가 넘긴 명확한 구현 범위를 수행한다.
+- cycle 문서를 쓰는 경우 generator 산출물은 `Generator vN` 섹션으로 남긴다.
+- generator는 plan이 모호하면 추측으로 확장하지 말고 coordinator에 되돌린다.
+
+### explorer
+
+- 관점: read-only analyst
+- 목적: 문서, 규칙, 구조, 영향 범위를 병렬로 읽어 ambiguity를 줄인다.
+- explorer는 제품 파일이나 cycle header를 수정하지 않는다.
+- 독립적인 질문이 둘 이상이면 explorer 병렬 호출을 우선 고려한다.
 
 ### evaluator
 
 - 관점: 평가자
-- 목적: generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 대표 사용자 surface를 가능한 한 직접 실행하는 strongest feasible 검증과 품질 평가를 남긴다.
-- 소유 산출물: `subagents_docs/cycles/` 아래 cycle 문서의 evaluator 섹션
-- 금지 사항:
-  - 제품 코드 수정 금지
-  - planner/generator 섹션 수정 금지
-  - coordinator 상태 블록 덮어쓰기 금지
-- 필수 내용:
-  - `PASS` 또는 `FAIL` 결과
-  - planner section reference
-  - generator section reference
-  - plan과 acceptance criteria 대비 판정
-  - 실제 검증 절차
-  - dirty worktree 비교 기준
-  - 관찰 결과와 재현 정보
-  - 문제 목록
-  - 점수 또는 등급
-  - design quality, originality, completeness, functionality 평가
-  - 다음 handoff 대상 또는 종료 판정
-- 가중치:
-  - design quality와 originality를 completeness와 functionality보다 더 무겁게 본다.
-
-## 실행 순서
-
-1. planner가 cycle 문서를 만들거나 기존 cycle 문서에 최신 planner 섹션을 append한다.
-2. generator는 같은 cycle 문서의 최신 planner 섹션을 읽고 구현/기록을 `hs-init-project/`와 cycle 문서의 generator 섹션에 남긴다.
-3. evaluator는 같은 cycle 문서에서 planner/generator 섹션을 참조하며 구현 결과를 점검한다.
-4. evaluator가 구현 결과에서 실패나 blocker를 확인했을 때만 동일 plan에서 planner가 재계획을 남기고, generator와 evaluator를 다시 순환한다.
-5. evaluator가 `FAIL`을 기록하면 coordinator는 외부 입력이 정말 필요한 blocker가 아닌 한 사용자 질문 없이 다음 planner cycle을 즉시 시작한다.
-6. 모든 plan이 `pass` 판정될 때까지 단계 1~5를 반복한다.
-
-제품 구조 변경, skill 동작 변경, 문서 생성 흐름 변경처럼 의미 있는 작업은 이 세 단계를 모두 거친다.
+- 목적: 구현 결과를 plan과 acceptance criteria에 대조해 대표 사용자 surface를 가능한 한 직접 실행하는 strongest feasible 검증과 품질 평가를 남긴다.
+- evaluator는 제품 코드 수정 없이 검증과 판정에 집중한다.
+- design quality와 originality를 completeness와 functionality보다 더 무겁게 본다.
 
 ## 다중 계획 실행
 
@@ -111,16 +98,16 @@ cycle 문서 형식, header 상태 전이, provenance 요구는 [`rule/rules/cyc
 
 ## handoff 규칙
 
-- generator는 planner 산출물이 없으면 구현을 시작하지 않는다.
-- generator는 자신이 구현 기준으로 삼은 planner 섹션 이름을 generator 섹션에 명시한다.
+- coordinator는 cycle-backed work에서 자신이 승인한 planning basis를 명시해야 한다.
+- small direct change는 shared handoff가 없으면 cycle 문서를 생략할 수 있다.
+- medium 이상 또는 multi-agent handoff가 있는 구현은 cycle 문서를 사용한다.
+- generator는 자신이 구현 기준으로 삼은 planner 섹션 또는 coordinator task reference를 generator 섹션에 명시한다.
 - generator는 검증에 사용한 workspace/baseline scope를 generator 섹션에 남긴다.
 - evaluator는 generator 결과와 검증 대상이 고정되기 전에는 최종 평가를 확정하지 않으며, 구현이 나오기 전 plan 단독 상태를 cycle 판정으로 평가하지 않는다.
 - evaluator는 자신이 평가한 planner 섹션과 generator 섹션 이름을 evaluator 섹션에 함께 남기고, 섹션 시작부에서 `PASS` 또는 `FAIL`을 명시한다.
 - evaluator는 dirty worktree에서 이번 cycle 변경과 unrelated diff를 구분한 비교 기준을 함께 남기고, PASS/FAIL은 cycle-owned 변경 기준으로만 판단한다.
-- 상위 조정자는 세 역할의 결과를 모을 수 있지만, 각 역할이 소유한 판단을 다른 역할의 이름으로 덮어쓰지 않는다.
-- 상위 조정자는 오케스트레이션 전담이며, 사용자 명시적 완화 없이는 planner/generator/evaluator 중 어느 역할도 직접 수행하지 않는다.
-- 상위 조정자는 각 역할의 산출물을 반영한 뒤 완료되었거나 더 이상 필요 없는 subagent thread를 즉시 닫는다.
-- planner 문서가 모호하면 generator가 추측으로 보정하지 말고 planner 재작성을 요청한다.
+- coordinator는 각 역할의 산출물을 반영한 뒤 완료되었거나 더 이상 필요 없는 subagent thread를 즉시 닫는다.
+- planner 문서나 coordinator plan이 모호하면 generator가 추측으로 보정하지 말고 planning revision을 요청한다.
 - 같은 cycle 문서는 같은 번호 또는 slug를 유지하고, 섹션 이름으로 버전을 추적한다.
 - [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md) 아래의 최종 브리핑은 evaluator가 `PASS`로 판정한 cycle만 요약하며, planner/generator/evaluator working docs를 대체하지 않는다.
 - coordinator는 handoff가 바뀔 때 cycle 문서 상단의 `Status`, `Current Plan Version`, `Next Handoff`를 함께 갱신한다.
@@ -128,7 +115,7 @@ cycle 문서 형식, header 상태 전이, provenance 요구는 [`rule/rules/cyc
 ## 문서화 규칙
 
 - 신규 cycle working document는 `subagents_docs/cycles/` 아래에 둔다.
-- 각 역할은 같은 cycle 문서 안에서도 자신이 소유한 섹션만 직접 수정한다.
+- 같은 cycle 문서 안에서는 해당 phase를 실제로 담당한 coordinator 또는 delegated role만 자기 섹션을 수정한다.
 - 사용자-facing 문서는 `docs/guide/`와 `docs/implementation/`으로 한정한다.
 
 ## 검증 규칙
@@ -139,4 +126,4 @@ cycle 문서 형식, header 상태 전이, provenance 요구는 [`rule/rules/cyc
 - CLI나 API가 대표 사용자 surface인 변경이면 실제 command entrypoint, request/response flow, integration endpoint 같은 진입점을 직접 검증하는 방식을 우선한다.
 - surface 직접 실행이 불가능하면 evaluator는 그 이유, 누락된 환경 조건, 대체 검증 방식의 한계를 남기고 핵심 surface가 비검증 상태인 변경을 soft-pass하지 않는다.
 - 완전한 자동화가 불가능하면 evaluator는 남은 공백을 문서로 남긴다.
-- evaluator가 구현 결과에서 실패나 blocker를 확인하면 같은 plan을 다시 planner -> generator -> evaluator로 순환시킨다.
+- evaluator가 구현 결과에서 실패나 blocker를 확인하면 coordinator는 작업 규모와 모호성을 다시 판단해 같은 경로를 반복하거나 상위 경로로 승격한다.

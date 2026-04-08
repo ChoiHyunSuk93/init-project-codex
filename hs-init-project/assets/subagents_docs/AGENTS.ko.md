@@ -14,8 +14,11 @@
 
 ## 사이클 규칙
 
-- 각 plan은 planner -> generator -> evaluator 순서로 진행한다.
-- 메인 에이전트는 orchestration-only 역할로 남아 이 세 역할의 순서와 handoff만 조정하며, 사용자가 명시적으로 허용하지 않는 한 planner/generator/evaluator를 직접 겸하지 않는다.
+- 작은 직접 변경은 cycle 문서를 생략할 수 있다.
+- 중간 변경은 `main(plan+implementation) -> evaluator`로 진행한다.
+- 큰 변경이지만 비교적 명확하면 `main-led decomposition + delegated implementation + evaluator`로 진행한다.
+- 큰 변경이면서 모호하면 병렬 `explorer` 분석, 필요 시 planner assist, main-approved plan, delegated implementation, evaluator 순으로 진행한다.
+- 메인 에이전트는 필요할 때 subagent를 자율적으로 호출할 수 있고, 독립적인 분석 질문은 병렬 `explorer` 호출을 우선 고려한다.
 - 분석, 질문, 리뷰, 설명 요청은 명시적 구현 지시가 없으면 implementation cycle로 열지 않는다.
 - evaluator는 generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 대표 사용자 surface 직접 검증을 포함한 strongest feasible 검증으로 평가한다.
 - evaluator가 구현 결과에서 부족한 점이나 blocker를 확인했을 때만 같은 plan을 pass될 때까지 다시 순환하고, `FAIL`이면 외부 입력이 정말 필요한 경우가 아니면 질문 없이 다음 cycle을 시작한다.
@@ -27,14 +30,14 @@
 ## 문서 계약
 
 - 각 plan은 `subagents_docs/cycles/` 아래 append-only cycle 문서 하나로 관리한다.
-- 상단 상태 블록은 coordinator가 관리하고, 각 역할은 자기 섹션만 append한다.
+- 상단 상태 블록은 coordinator가 관리하고, 실제 planning/implementation/evaluation을 맡은 주체만 자기 섹션을 append한다.
 - planner/generator/evaluator section의 exact 필수 항목은 [`rule/rules/cycle-document-contract.md`](../rule/rules/cycle-document-contract.md)를 따른다.
 - `docs/implementation/`을 plan, change, evaluation working record의 대체물로 사용하지 않는다.
 
 ## 소유권
 
-- Planner는 planner 섹션만 소유한다.
-- Generator는 generator 섹션만 소유한다.
+- Coordinator 또는 delegated planner는 planner 섹션을 소유한다.
+- Coordinator 또는 delegated generator는 generator 섹션을 소유한다.
 - Evaluator는 evaluator 섹션만 소유한다.
 - planner/generator/evaluator 섹션의 exact required contents는 [`rule/rules/cycle-document-contract.md`](../rule/rules/cycle-document-contract.md)를 따른다.
 - 같은 문서 안에서도 다른 역할 섹션을 덮어쓰지 않는다.

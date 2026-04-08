@@ -188,8 +188,8 @@ rule/
     testing-standards.md         # 테스트 계층 선택과 검증 기대치
     runtime-boundaries.md        # runtime과 non-runtime 경계 규칙
     implementation-records.md    # 구현 기록 배치와 이름 규칙
-    subagent-orchestration.md    # planner/generator/evaluator 경계와 반복 규칙
-    subagents-docs.md            # subagents_docs 작업 문서 소유권 규칙
+    subagent-orchestration.md    # adaptive harness 선택, delegation, evaluator 반복 규칙
+    subagents-docs.md            # cycle 문서 진입 조건과 작업 문서 소유권 규칙
 subagents_docs/
   AGENTS.md
   cycles/
@@ -215,7 +215,7 @@ docs/
 - `docs/implementation/`: plan cycle이 통과된 뒤 관심사 카테고리 안에 남기는 사용자-facing 짧은 최종 브리핑 문서이며 배치 기준은 [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md)다
 - 기존 프로젝트 모드에서는 실제 사용자 워크플로가 확인될 때만 추가 guide 문서를 생성합니다.
 
-생성된 저장소는 기본 구조 자체로 각 plan을 `planner -> generator -> evaluator` 순서로 실행합니다. 메인 에이전트는 orchestration-only 역할로 남아 이 세 역할의 순서를 조정하고 handoff를 모으기만 하며, 사용자가 역할 분리를 명시적으로 풀지 않는 한 planner/generator/evaluator를 직접 겸하지 않습니다. 신규 작업은 plan마다 `subagents_docs/cycles/` 아래의 append-only 단일 문서로 관리하고, 문서 상단에는 `Status`, `Current Plan Version`, `Next Handoff`를 두며, 본문에는 `Planner vN` / `Generator vN` / `Evaluator vN` 섹션을 순서대로 쌓습니다. evaluator는 generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 평가하고, 그 구현 결과에서 실패나 blocker를 확인했을 때만 planner가 재계획합니다. 서로 독립인 계획은 병렬로, 의존성이 있는 계획은 순차로 진행합니다. `subagents_docs/` 작업 문서는 선택된 언어를 따르며, 생성된 저장소에는 `.codex/config.toml`, `.codex/agents/*.toml`, 그리고 `.codex/skills/` 아래의 개발 절차 중심 starter local skill 세트가 함께 포함됩니다. 기존 프로젝트 모드에서는 inspect 결과를 바탕으로 starter skill과 일부 README/rule/guide 산출물이 관찰된 runtime, test, docs 신호를 반영해 더 구체적으로 생성됩니다. subagent 응답이 느려도 coordinator는 직접 구현하지 않고 기다리거나 재계획합니다.
+생성된 저장소는 고정 3단계 파이프라인 대신 adaptive harness를 사용합니다. 작은 변경은 `main/generator -> evaluator`, 중간 변경은 `main(plan+implementation) -> evaluator`, 크지만 비교적 명확한 변경은 `main-led decomposition + delegated implementation + evaluator`, 크고 모호한 변경은 병렬 `explorer` 분석과 필요 시 planner assist를 거친 `main-approved plan + delegated implementation + evaluator`를 기본으로 합니다. shared working record가 필요할 때는 plan마다 `subagents_docs/cycles/` 아래의 append-only 단일 문서를 두고, 문서 상단에는 `Status`, `Current Plan Version`, `Next Handoff`를 두며, 본문에는 `Planner vN` / `Generator vN` / `Evaluator vN` 섹션을 쌓습니다. 생성되는 `.codex/agents/*.toml`의 reasoning 기본값은 `high`이며 작업 특성에 따라 조정할 수 있습니다. `subagents_docs/` 작업 문서는 선택된 언어를 따르며, 생성된 저장소에는 `.codex/config.toml`, `.codex/agents/*.toml`, 그리고 `.codex/skills/` 아래의 개발 절차 중심 starter local skill 세트가 함께 포함됩니다. 기존 프로젝트 모드에서는 inspect 결과를 바탕으로 starter skill과 일부 README/rule/guide 산출물이 관찰된 runtime, test, docs 신호를 반영해 더 구체적으로 생성됩니다.
 
 ## 사용법
 

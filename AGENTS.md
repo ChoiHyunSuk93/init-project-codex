@@ -23,20 +23,25 @@
 
 ## 서브에이전트 하네스
 
-- 이 저장소는 `planner`, `generator`, `evaluator`를 분리한 워크플로를 기본으로 사용한다.
-- 메인 에이전트는 orchestration-only 역할만 맡는다. 실제 계획, 구현, 평가는 각 subagent에 위임하고, 메인 에이전트는 handoff 수집, 순서 유지, 재계획 조정만 담당한다.
+- 이 저장소는 변경 크기와 모호성에 따라 하네스를 고르는 adaptive subagent workflow를 기본으로 사용한다.
+- 메인 에이전트는 작업 분류, 계획 승인, 구현 통합, handoff 조정의 책임을 가진다.
+- 메인 에이전트는 필요할 때 subagent를 자율적으로 호출할 수 있고, 문서 분석이나 비교 독해가 필요하면 병렬 `explorer` 호출을 우선 고려한다.
 - 사용자가 명시적으로 구현/변경/materialize를 요청하지 않았으면 분석, 질문, 리뷰, 설명 요청을 구현으로 오인하지 말고 분석 단계에서 멈춘다.
-- 기본 순서는 `planner -> generator -> evaluator`다.
+- 작은 변경은 `main/generator -> evaluator`로 처리한다.
+- 중간 변경은 `main(plan+implementation) -> evaluator`로 처리한다.
+- 큰 변경이지만 비교적 명확하면 `main-led decomposition + delegated implementation + evaluator`로 처리한다.
+- 큰 변경이면서 모호하면 `parallel explorer analysis + planner assist if needed + main-approved plan + delegated implementation + evaluator`로 처리한다.
 - evaluator는 구현 결과를 plan과 acceptance criteria 기준으로 평가한다.
-- 재계획은 evaluator가 해당 구현 결과의 실패나 blocker를 확인했을 때만 시작한다.
+- 재계획이나 경로 승격은 evaluator가 실패나 blocker를 확인했거나, 메인 에이전트가 작업 규모/모호성이 커졌다고 판단했을 때 시작한다.
 - subagent를 띄우거나 조정하기 전에 [`rule/rules/subagent-orchestration.md`](rule/rules/subagent-orchestration.md)를 먼저 읽는다.
 - exact cycle 문서 경로, header 상태 전이, append-only section, provenance, dirty-worktree 평가는 [`rule/rules/cycle-document-contract.md`](rule/rules/cycle-document-contract.md)를 따른다.
 - 문서 언어와 안정적인 filename/path 규칙은 [`rule/rules/language-policy.md`](rule/rules/language-policy.md)를 따른다.
-- 사용자가 명시적으로 완화하지 않는 한 planner, generator, evaluator 책임을 하나의 역할로 합치지 않는다.
-- 기본적으로 메인 에이전트가 planner, generator, evaluator를 직접 겸하지 않는다.
+- cycle working document가 필요한 경우 `Planner vN` / `Generator vN` / `Evaluator vN` append-only 형태를 유지한다.
+- 작은 직접 변경은 shared handoff가 없으면 cycle 문서를 생략할 수 있고, 중간 이상 변경이나 명시적 work-sharing이 있으면 cycle 문서를 사용한다.
 - subagent 작업 문서를 `docs/implementation/` 아래에 두지 말고 `subagents_docs/`를 사용한다.
-- subagent 응답이 느려도 메인 에이전트가 직접 구현으로 뛰어들지 말고 오래 기다릴 수 있다. 다만 완료되었거나 더 이상 필요 없는 subagent thread는 작업 종료 시 정리한다.
-- stale session이나 thread limit 때문에 새 subagent를 띄우지 못하면, 메인 에이전트는 직접 구현 대신 thread cleanup을 먼저 수행한다.
+- `.codex/agents/*.toml`의 reasoning 기본값은 `high`로 두고, 작업 난이도와 리스크에 따라 조정할 수 있게 유지한다.
+- subagent 응답이 느리더라도 메인 에이전트는 우선 기존 handoff와 통합 책임을 유지하고, 완료되었거나 더 이상 필요 없는 subagent thread는 작업 종료 전에 정리한다.
+- stale session이나 thread limit 때문에 새 subagent를 띄우지 못하면, 메인 에이전트는 thread cleanup을 먼저 수행한다.
 
 ## 저장소 규칙
 

@@ -14,27 +14,29 @@
 
 ## cycle 규칙
 
-- 각 plan은 `planner -> generator -> evaluator` 순서로 진행한다.
-- 메인 에이전트는 orchestration-only 역할만 맡고 planner, generator, evaluator를 직접 대행하지 않는다. 실제 작업은 각 subagent 산출물에 위임한다.
+- small direct change는 cycle 문서를 생략할 수 있다.
+- medium change는 `main(plan+implementation) -> evaluator`로 진행한다.
+- large-clear change는 `main-led decomposition + delegated implementation + evaluator`로 진행한다.
+- large-ambiguous change는 병렬 `explorer` 분석, 필요 시 planner assist, main-approved plan, delegated implementation, evaluator 순으로 진행한다.
+- 메인 에이전트는 필요할 때 subagent를 자율적으로 호출할 수 있고, 문서 분석에서는 독립적인 질문을 병렬 `explorer` 호출로 나누는 것을 우선 고려한다.
 - 분석, 질문, 리뷰, 설명 요청은 명시적 구현 지시가 없으면 implementation cycle로 열지 않는다.
 - evaluator는 구현 결과를 대표 사용자 surface 직접 검증을 포함한 strongest feasible 검증으로 평가한다.
-- 평가가 실패하면 같은 plan은 외부 입력이 정말 필요한 blocker가 아닌 한 질문 없이 pass될 때까지 다시 순환한다.
+- 평가가 실패하면 같은 plan은 외부 입력이 정말 필요한 blocker가 아닌 한 적절한 planning depth로 돌아가 pass될 때까지 다시 순환한다.
 - 독립적인 plan은 병렬로 진행할 수 있고, 의존적인 plan은 순서를 지킨다.
 - 각 plan은 필요한 pass 조건이 모두 충족될 때만 완료된다.
 
 ## 문서 계약
 
 - 각 plan은 `subagents_docs/cycles/` 아래 append-only cycle 문서 하나로 관리한다.
-- 상단 상태 블록은 coordinator가 관리하고, 각 역할은 자기 섹션만 append한다.
+- 상단 상태 블록은 coordinator가 관리하고, planning/implementation/evaluation phase를 실제로 맡은 주체만 자기 섹션을 append한다.
 - planner/generator/evaluator section의 exact 필수 항목은 [`rule/rules/cycle-document-contract.md`](../rule/rules/cycle-document-contract.md)를 따른다.
 - `docs/implementation/`을 cycle working record 대체물로 사용하지 않는다.
 
 ## 소유권
 
-- planner는 planner 섹션만 소유한다.
-- generator는 generator 섹션만 소유한다.
+- coordinator 또는 delegated planner는 planner 섹션을 소유한다.
+- coordinator 또는 delegated generator는 generator 섹션을 소유한다.
 - evaluator는 evaluator 섹션만 소유한다.
 - planner/generator/evaluator 섹션의 exact required contents는 [`rule/rules/cycle-document-contract.md`](../rule/rules/cycle-document-contract.md)를 따른다.
 - 같은 cycle 문서 안에서도 다른 역할의 섹션을 덮어쓰면 안 된다.
-- subagent 응답이 느려도 coordinator는 직접 구현하지 않고 대기하거나 재계획한다.
 - coordinator는 completed/unused subagent thread를 결과 반영 직후 즉시 닫고, thread limit blockage를 cleanup 작업으로 처리한다.

@@ -48,7 +48,7 @@
 - Scope: repository-wide workflow
 - Applies to: `subagents_docs/cycles/`, `.codex/agents/`, cycle-aware docs
 - Authority: global
-- Summary: cycle 파일 경로, header 상태 전이, append-only section, provenance, dirty-worktree 평가 기준을 정의한다.
+- Summary: shared working document를 열었을 때 적용되는 cycle 문서 계약을 정의한다.
 
 ### language-policy
 - Path: [`rule/rules/language-policy.md`](rules/language-policy.md)
@@ -69,14 +69,14 @@
 - Scope: repository-wide workflow
 - Applies to: `.codex/agents/`, `subagents_docs/`, root coordination
 - Authority: global
-- Summary: planner, generator, evaluator의 역할 경계, orchestration 순서, cycle 반복 규칙을 정의한다.
+- Summary: adaptive harness 선택, 메인 에이전트 통합 책임, delegation, evaluator 분리 규칙을 정의한다.
 
 ### subagents-docs
 - Path: [`rule/rules/subagents-docs.md`](rules/subagents-docs.md)
 - Scope: repository-wide workflow
 - Applies to: `subagents_docs/`
 - Authority: global
-- Summary: `subagents_docs/` working area와 역할별 소유권 경계를 정의한다.
+- Summary: `subagents_docs/`를 cycle-backed working area로 정의하고 phase별 소유권 경계를 정한다.
 
 ## 품질 규칙
 

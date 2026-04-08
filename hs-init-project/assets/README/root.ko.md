@@ -1,7 +1,7 @@
 # PROJECT_NAME
 
 짧은 설명 placeholder. 이 문장을 프로젝트 한 줄 소개로 교체한다.
-이 저장소는 기본 Codex 구조와 함께 필수 `planner` / `generator` / `evaluator` 역할 분리 하네스를 사용한다.
+이 저장소는 기본 Codex 구조와 함께 adaptive `planner` / `generator` / `evaluator` 지원 하네스를 사용한다.
 
 ## 목적
 
@@ -27,7 +27,7 @@
 이 README에서 실제 진입점 문서나 제어문서를 가리킬 때는 Markdown 링크를 사용한다.
 placeholder, wildcard, 아직 생성되지 않은 경로는 path literal로 남긴다.
 
-각 plan은 `planner -> generator -> evaluator` 순서로 실행한다. 메인 에이전트는 orchestration-only 역할로 남아 이 세 역할의 순서와 handoff만 조정하며, 사용자가 역할 분리를 명시적으로 풀지 않는 한 planner/generator/evaluator를 직접 겸하지 않는다. evaluator는 generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 대표 사용자 surface를 가능한 한 직접 실행하는 가장 강한 검증을 수행한다. 웹이면 브라우저 화면, 앱이면 시뮬레이터나 런타임, 게임이면 runtime/scene, CLI/API면 실제 진입점을 우선 확인하고, 핵심 surface를 직접 검증하지 못하면 그 이유와 남은 공백을 기록한 채 soft-pass하지 않는다. `FAIL`이면 외부 입력이 정말 필요한 blocker가 아닌 한 질문 없이 다음 cycle을 다시 시작한다. 생성된 저장소에는 `.codex/config.toml`, `.codex/agents/*.toml`, 그리고 `.codex/skills/` 아래의 개발 절차 중심 starter local skill 세트가 함께 포함된다. 기존 프로젝트 모드에서는 inspect 결과를 바탕으로 starter skill과 일부 README/rule/guide 산출물이 관찰된 구조 신호를 반영해 더 구체적으로 생성된다.
+생성된 저장소는 고정 파이프라인 대신 adaptive harness를 사용한다. 작은 변경은 `main/generator -> evaluator`, 중간 변경은 `main(plan+implementation) -> evaluator`, 크지만 비교적 명확한 변경은 `main-led decomposition + delegated implementation + evaluator`, 크고 모호한 변경은 병렬 `explorer` 분석과 필요 시 planner assist를 거친 `main-approved plan + delegated implementation + evaluator`를 기본으로 한다. shared working record가 필요할 때는 `subagents_docs/cycles/` 아래에 plan별 append-only cycle 문서를 둔다. 생성되는 `.codex/agents/*.toml`의 reasoning 기본값은 `high`이며 task별 조정이 가능하다. evaluator는 generator가 만든 구현 결과를 plan과 acceptance criteria에 대조해 대표 사용자 surface를 가능한 한 직접 실행하는 가장 강한 검증을 수행한다. 웹이면 브라우저 화면, 앱이면 시뮬레이터나 런타임, 게임이면 runtime/scene, CLI/API면 실제 진입점을 우선 확인하고, 핵심 surface를 직접 검증하지 못하면 그 이유와 남은 공백을 기록한 채 soft-pass하지 않는다. `FAIL`이면 외부 입력이 정말 필요한 blocker가 아닌 한 질문 없이 다음 cycle을 다시 시작한다. 생성된 저장소에는 `.codex/config.toml`, `.codex/agents/*.toml`, 그리고 `.codex/skills/` 아래의 개발 절차 중심 starter local skill 세트가 함께 포함된다. 기존 프로젝트 모드에서는 inspect 결과를 바탕으로 starter skill과 일부 README/rule/guide 산출물이 관찰된 구조 신호를 반영해 더 구체적으로 생성된다.
 
 ## 사용 방법
 

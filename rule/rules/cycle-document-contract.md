@@ -3,6 +3,7 @@
 ## 목적
 
 `subagents_docs/cycles/` 아래의 cycle 문서 형식, header 상태 전이, append-only section 규칙, provenance 요구를 authoritative하게 정의한다.
+작은 직접 변경처럼 shared working document가 필요 없는 경우에는 cycle 문서를 생략할 수 있고, 이 계약은 cycle 문서를 실제로 열었을 때 적용된다.
 
 ## 적용 범위
 
@@ -14,7 +15,7 @@
 
 ## 파일 경로 규약
 
-- 각 plan은 `subagents_docs/cycles/<NN>-<slug>.md` 한 문서로 관리한다.
+- cycle 문서를 쓰는 각 plan은 `subagents_docs/cycles/<NN>-<slug>.md` 한 문서로 관리한다.
 - 이 문서는 plan별 단일 working document이며, 전역 공용 로그가 아니다.
 - 같은 cycle은 같은 번호 또는 slug를 유지한다.
 
@@ -26,15 +27,15 @@
   - `Next Handoff`
 - 허용되는 `Status` 값은 `in_progress`, `PASS`, `FAIL`만 사용한다.
 - coordinator가 header를 authoritative하게 갱신한다.
-- cycle 문서가 아직 없을 때만 planner가 초기 스캐폴드를 만들 수 있다.
+- cycle 문서가 아직 없을 때만 coordinator 또는 delegated planner가 초기 스캐폴드를 만들 수 있다.
 
 ## coordinator 상태 전이
 
-- planner가 새 cycle을 만들거나 `Planner vN`을 append한 직후
+- planning basis가 되는 `Planner vN`을 append한 직후
   - `Status: in_progress`
   - `Current Plan Version: Planner vN`
-  - `Next Handoff: generator`
-- generator가 `Generator vN`을 append한 직후
+  - `Next Handoff`: 실제 다음 구현 주체를 반영해 `main` 또는 `generator`
+- 구현 기준이 되는 `Generator vN`을 append한 직후
   - `Status: in_progress`
   - `Current Plan Version: Generator vN`
   - `Next Handoff: evaluator`
@@ -45,14 +46,14 @@
 - evaluator가 `FAIL`을 기록한 직후
   - `Status: FAIL`
   - `Current Plan Version: Evaluator vN`
-  - `Next Handoff: planner`
+  - `Next Handoff`: 다음 planning owner를 반영해 `main` 또는 `planner`
 
 ## section 모델
 
 - 본문은 append-only로 유지한다.
 - section 이름은 `Planner vN`, `Generator vN`, `Evaluator vN` 형식을 사용한다.
-- 각 역할은 자기 section만 수정한다.
-- 다른 역할 section이나 coordinator header를 덮어쓰지 않는다.
+- 각 section은 해당 phase를 실제로 담당한 coordinator 또는 delegated role만 수정한다.
+- 다른 phase section이나 coordinator header를 덮어쓰지 않는다.
 - 역할 간 참조는 같은 문서 안의 정확한 section 이름으로 남긴다.
 
 ## provenance 요구
@@ -60,11 +61,13 @@
 ### planner
 
 - 신규 cycle인지, 또는 어떤 `Evaluator vN` 결과를 받아 재계획하는지 명시한다.
+- plan을 coordinator가 직접 작성했는지, planner assist나 explorer 분석을 받아 정리했는지 남긴다.
 - 목표, 범위, 비범위, 사용자 관점 결과, acceptance criteria, 제약, 위험 요소, 의존관계, open questions, 다음 handoff를 포함한다.
 
 ### generator
 
 - 구현 기준 planner section을 명시한다.
+- 구현을 coordinator가 직접 했는지, generator 또는 다른 delegated implementation slice를 통합했는지 남긴다.
 - 실제 반영 범위와 변경 파일을 남긴다.
 - 검증 시 사용한 workspace/baseline scope를 명시한다.
 - 검증, 남은 위험/제약, 다음 handoff를 남긴다.

@@ -53,13 +53,15 @@
 
 ## 서브에이전트 하네스
 
-- 이 저장소는 기본적으로 planner / generator / evaluator 흐름을 사용하므로 먼저 [`rule/rules/subagent-orchestration.md`](rule/rules/subagent-orchestration.md)를 읽는다.
-- 메인 에이전트는 이 흐름에서 orchestration-only 역할만 맡고, 사용자가 역할 분리를 명시적으로 완화하지 않는 한 planner/generator/evaluator를 직접 겸하지 않는다.
+- 이 저장소는 고정 planner / generator / evaluator 파이프라인 대신 adaptive harness를 사용하므로 먼저 [`rule/rules/subagent-orchestration.md`](rule/rules/subagent-orchestration.md)를 읽는다.
+- 메인 에이전트는 작업 크기와 모호성에 따라 경로를 고르고, 계획 승인과 구현 통합 책임을 가지며, 필요하면 subagent를 자율적으로 호출할 수 있다.
+- 문서 분석은 독립적인 질문 단위라면 병렬 `explorer` 호출을 우선 고려한다.
 - 분석, 질문, 리뷰, 설명 요청은 명시적 구현/변경/materialize 지시가 없으면 구현 사이클로 시작하지 않는다.
 - coordinator는 subagent 결과를 오래 기다릴 수 있지만, 반영이 끝난 completed/unused thread는 정리해야 한다.
 - stale session이나 thread limit 때문에 새 delegation이 막히면 직접 구현 대신 cleanup을 먼저 수행한다.
 - exact cycle 문서 경로, header 상태 전이, append-only section, provenance, dirty-worktree 평가 기준은 [`rule/rules/cycle-document-contract.md`](rule/rules/cycle-document-contract.md)를 따른다.
 - 문서 언어와 안정적인 filename/path 규칙은 [`rule/rules/language-policy.md`](rule/rules/language-policy.md)를 따른다.
+- 생성되는 `.codex/agents/*.toml`의 reasoning 기본값은 `high`로 두고 task별 조정 가능하게 유지한다.
 - `.codex/agents/*.toml`과 [`subagents_docs/AGENTS.md`](subagents_docs/AGENTS.md)는 이 authoritative rule들과 함께 맞춘다.
 - `subagents_docs/`는 작업 기록에만 사용하고, `docs/implementation/`은 pass된 cycle의 사용자-facing 요약 계층으로만 유지한다.
 

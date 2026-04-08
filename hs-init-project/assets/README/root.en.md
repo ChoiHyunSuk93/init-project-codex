@@ -1,7 +1,7 @@
 # PROJECT_NAME
 
 Short description placeholder. Replace this sentence with a one-line summary of the project.
-This repository uses the base Codex structure together with a required role-separated `planner` / `generator` / `evaluator` harness.
+This repository uses the base Codex structure together with adaptive `planner` / `generator` / `evaluator` support.
 
 ## Purpose
 
@@ -27,7 +27,7 @@ Update this README as the real project purpose, structure, and usage become conc
 Use Markdown links in this README when pointing to real entrypoint or control documents.
 Leave placeholders, wildcards, and not-yet-created paths as plain literals.
 
-Each plan runs in `planner -> generator -> evaluator` order. The main agent stays orchestration-only: it coordinates those roles and does not directly become planner, generator, or evaluator unless the user explicitly waives the split. The evaluator checks the implemented result against the plan and acceptance criteria with the strongest feasible validation by directly exercising the representative user surface when one exists. For web work that means browser UI, for apps a simulator or runtime, for games a runtime or scene, and for CLI/API work the real entrypoint or request/response flow. If a critical surface cannot be exercised directly, the evaluator records why and the remaining gap instead of soft-passing. `FAIL` restarts the cycle unless the blocker truly requires new external input. Generated repositories include `.codex/config.toml`, `.codex/agents/*.toml`, and process-oriented starter local skills under `.codex/skills/`. In existing-project mode, inspection results make starter skills and selected README/rule/guide outputs more specific to the observed repository.
+Generated repositories use an adaptive harness rather than one fixed pipeline. Small changes can go through `main/generator -> evaluator`. Medium changes use `main(plan+implementation) -> evaluator`. Large but clear changes use main-led decomposition with delegated implementation slices and a separate evaluator. Large ambiguous changes start with parallel `explorer` analysis, may use planner assistance, then continue through a main-approved plan, delegated implementation, and separate evaluation. When a shared working record is needed, keep one append-only cycle document per plan under `subagents_docs/cycles/`. Generated `.codex/agents/*.toml` should default to `model_reasoning_effort = "high"` and allow task-specific adjustment. The evaluator checks the implemented result against the plan and acceptance criteria with the strongest feasible validation by directly exercising the representative user surface when one exists. For web work that means browser UI, for apps a simulator or runtime, for games a runtime or scene, and for CLI/API work the real entrypoint or request/response flow. If a critical surface cannot be exercised directly, the evaluator records why and the remaining gap instead of soft-passing. `FAIL` restarts the cycle unless the blocker truly requires new external input. Generated repositories include `.codex/config.toml`, `.codex/agents/*.toml`, and process-oriented starter local skills under `.codex/skills/`. In existing-project mode, inspection results make starter skills and selected README/rule/guide outputs more specific to the observed repository.
 
 ## Usage
 

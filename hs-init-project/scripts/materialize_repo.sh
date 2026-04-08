@@ -767,6 +767,8 @@ $observed_dir_block
 $docs_block
 
 - 영향 범위, acceptance criteria, non-goal, 위험 요소를 위 관찰 영역 기준으로 정리한다.
+- 작업을 \`small\`, \`medium\`, \`large-clear\`, \`large-ambiguous\`로 분류한 뒤 하네스 경로를 고른다.
+- 독립적인 문서 분석 질문은 병렬 \`explorer\` 호출을 우선 고려한다.
 - 기존 docs/rule 신호가 있으면 generic placeholder보다 우선 참조한다.
 - 구현 자체를 대신하지 않고, 관련 근거는 cycle 문서와 rule 문서에 참조형으로 남긴다.
 EOF
@@ -816,6 +818,8 @@ $observed_dir_block
 $docs_block
 
 - Define impact scope, acceptance criteria, non-goals, and risks from the observed areas first.
+- Classify the work as \`small\`, \`medium\`, \`large-clear\`, or \`large-ambiguous\` before choosing the harness path.
+- Prefer parallel \`explorer\` calls for independent document-analysis questions.
 - Prefer observed docs and rule signals over generic placeholders when they already exist.
 - Do not use this as an implementation shortcut; keep rationale referenced through cycle and rule documents.
 EOF
@@ -1753,7 +1757,7 @@ build_subagents_docs_rule() {
 
 ## 목적
 
-`subagents_docs/`를 planner, generator, evaluator가 실제로 읽고 쓰는 작업 문서 영역으로 정의한다.
+`subagents_docs/`를 cycle-backed implementation work에서 메인 에이전트와 subagent가 공유하는 작업 문서 영역으로 정의한다.
 
 ## 범위
 
@@ -1761,7 +1765,8 @@ build_subagents_docs_rule() {
 - `docs/guide/`와 `docs/implementation/`는 사람이 읽는 문서 영역이다.
 - subagent 작업 기록은 `subagents_docs/`에만 둔다.
 - `subagents_docs/` 작업 문서는 선택된 언어 설정을 따른다.
-- 메인 에이전트는 orchestration-only 역할로 남아 planner/generator/evaluator를 직접 대행하지 않는다. 사용자가 역할 분리를 명시적으로 완화한 경우만 예외다.
+- 메인 에이전트는 작업 분류, 계획 승인, 구현 통합, handoff 결정을 담당한다.
+- 메인 에이전트는 필요할 때 subagent를 자율적으로 호출할 수 있고, 독립적인 분석 질문은 병렬 `explorer` 호출을 우선 고려한다.
 
 ## 디렉토리 역할
 
@@ -1774,11 +1779,14 @@ build_subagents_docs_rule() {
 
 ## 순환 규칙
 
-- 각 계획은 `planner -> generator -> evaluator` 순서로 실행한다.
+- 작은 직접 변경은 cycle 문서를 생략할 수 있다.
+- 중간 변경은 `main(plan+implementation) -> evaluator`로 진행한다.
+- 큰 변경이지만 비교적 명확하면 `main-led decomposition + delegated implementation + evaluator`로 진행한다.
+- 큰 변경이면서 모호하면 병렬 `explorer` 분석, 필요 시 planner assist, main-approved plan, delegated implementation, evaluator 순으로 진행한다.
 - evaluator는 generator가 만든 구현 결과를 해당 plan과 acceptance criteria 기준으로 대표 사용자 surface 직접 검증을 포함한 strongest feasible 검증으로 평가한다.
 - evaluator가 구현 결과에서 부족한 점이나 blocker를 확인했을 때만 같은 계획을 다시 계획, 구현, 평가하고, `FAIL`이면 외부 입력이 정말 필요한 경우가 아니면 질문 없이 다음 cycle을 시작한다.
 - 여러 계획이 독립이면 병렬로 돌릴 수 있지만, 의존성이 있으면 순차로 처리한다.
-- subagent 응답이 느리더라도 coordinator는 직접 구현하지 않고 기다리거나 재계획한다.
+- 문서 분석 단계에서는 독립적인 질문을 explorer 병렬 호출로 나누고, implementation cycle 진입 전까지는 evaluation handoff를 열지 않는다.
 
 ## 문서 경계
 
@@ -1797,7 +1805,7 @@ EOF
 
 ## Purpose
 
-Define `subagents_docs/` as the working-document area used by planner, generator, and evaluator.
+Define `subagents_docs/` as the working-document area used by the main agent and subagents for cycle-backed implementation work.
 
 ## Scope
 
@@ -1805,7 +1813,8 @@ Define `subagents_docs/` as the working-document area used by planner, generator
 - `docs/guide/` and `docs/implementation/` are human-facing documentation areas.
 - Subagent working records stay only under `subagents_docs/`.
 - `subagents_docs/` working documents follow the selected language.
-- The main agent stays orchestration-only and does not directly become planner, generator, or evaluator unless the user explicitly waives the split.
+- The main agent owns task classification, plan approval, implementation integration, and handoff decisions.
+- The main agent may autonomously invoke subagents when needed and should prefer parallel `explorer` calls for independent analysis questions.
 
 ## Directory Roles
 
@@ -1818,13 +1827,16 @@ Define `subagents_docs/` as the working-document area used by planner, generator
 
 ## Cycle Rules
 
-- Each plan runs in `planner -> generator -> evaluator` order.
+- Small direct changes may skip the cycle document.
+- Medium changes use `main(plan+implementation) -> evaluator`.
+- Large-clear changes use `main-led decomposition + delegated implementation + evaluator`.
+- Large-ambiguous changes use `parallel explorer analysis + planner assist if needed + main-approved plan + delegated implementation + evaluator`.
 - Evaluator reviews the implemented result against that plan and its acceptance criteria with the strongest feasible validation by directly exercising the representative user surface when one exists.
 - If a representative user surface exists, evaluator should prioritize direct checks through browser UI, app simulator/runtime, game runtime/scene, CLI entrypoints, or API request/response flows.
 - If direct user-surface validation is unavailable, evaluator must record why, what environment is missing, what substitute validation was used, and why any critical unverified surface cannot be soft-passed.
 - If evaluator finds failures or blockers in the implemented result, the same plan repeats planning, implementation, and evaluation, and `FAIL` restarts automatically unless the blocker truly needs external input.
 - Independent plans may run in parallel, while dependent plans must run sequentially.
-- If subagents are slow, the coordinator must wait or re-plan instead of directly implementing.
+- Document-analysis work should use parallel explorers when the questions are independent.
 
 ## Document Boundary
 

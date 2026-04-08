@@ -3,6 +3,7 @@
 ## Purpose
 
 Define the authoritative contract for cycle file paths, header transitions, append-only sections, provenance, and dirty-worktree evaluation.
+Small direct changes may skip the cycle document entirely; this contract applies when a cycle document is opened.
 
 ## Scope
 
@@ -13,7 +14,7 @@ Define the authoritative contract for cycle file paths, header transitions, appe
 
 ## Cycle File Path
 
-- Use one cycle file per plan at `subagents_docs/cycles/<NN>-<slug>.md`.
+- Use one cycle file per cycle-backed plan at `subagents_docs/cycles/<NN>-<slug>.md`.
 - Keep one file identity per plan cycle rather than splitting plan, change, and evaluation into separate working files.
 
 ## Header Contract
@@ -21,14 +22,14 @@ Define the authoritative contract for cycle file paths, header transitions, appe
 - Keep `Status`, `Current Plan Version`, and `Next Handoff` at the top of every cycle file.
 - Allowed `Status` values are only `in_progress`, `PASS`, and `FAIL`.
 - The coordinator owns header updates.
-- Planner may create the initial scaffold only when the file does not exist yet.
+- The coordinator or delegated planner may create the initial scaffold only when the file does not exist yet.
 
 ## Coordinator Transitions
 
-- After planner creates or appends `Planner vN`:
+- After a planning basis appends `Planner vN`:
   - `Status: in_progress`
   - `Current Plan Version: Planner vN`
-  - `Next Handoff: generator`
+  - `Next Handoff`: the actual next implementation owner, usually `main` or `generator`
 - After generator appends `Generator vN`:
   - `Status: in_progress`
   - `Current Plan Version: Generator vN`
@@ -46,7 +47,7 @@ Define the authoritative contract for cycle file paths, header transitions, appe
 
 - Keep the body append-only.
 - Use role-version section names such as `Planner v1`, `Generator v1`, `Evaluator v1`, `Planner v2`.
-- Each role edits only its own sections.
+- The coordinator or delegated role that owned the phase edits only that section.
 - Reference related work by exact section name inside the same file.
 
 ## Provenance Requirements
@@ -54,11 +55,13 @@ Define the authoritative contract for cycle file paths, header transitions, appe
 ### Planner
 
 - State whether the section starts a new cycle or responds to a specific `Evaluator vN`.
+- State whether the plan was written directly by the coordinator or from planner/explorer-assisted analysis.
 - Include goals, scope, non-goals, user-visible outcome, acceptance criteria, constraints, risks, dependencies, open questions, and next handoff.
 
 ### Generator
 
 - Record the implemented planner section reference.
+- Record whether the implementation was done by the coordinator directly or by delegated implementation slices.
 - Record implemented scope, changed files, verification, and the workspace or baseline scope used for verification.
 - Record remaining gaps or risks and next handoff.
 

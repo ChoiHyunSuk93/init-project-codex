@@ -48,7 +48,7 @@ Rules that are not listed here are not authoritative until they are indexed.
 - Scope: repository-wide workflow
 - Applies to: `subagents_docs/cycles/`, `.codex/agents/`, cycle-aware docs
 - Authority: global
-- Summary: Defines cycle file paths, header transitions, append-only sections, provenance, and dirty-worktree evaluation rules.
+- Summary: Defines the cycle-file contract that applies when a shared working document is opened.
 
 ### language-policy
 - Path: [`rule/rules/language-policy.md`](rules/language-policy.md)
@@ -69,14 +69,14 @@ Rules that are not listed here are not authoritative until they are indexed.
 - Scope: repository-wide workflow
 - Applies to: `.codex/agents/`, `subagents_docs/`, root coordination
 - Authority: global
-- Summary: Defines planner, generator, and evaluator boundaries, orchestration order, and cycle repetition.
+- Summary: Defines adaptive harness selection, main-agent integration responsibility, delegation, and evaluator separation.
 
 ### subagents-docs
 - Path: [`rule/rules/subagents-docs.md`](rules/subagents-docs.md)
 - Scope: repository-wide workflow
 - Applies to: `subagents_docs/`
 - Authority: global
-- Summary: Defines `subagents_docs/` as the working area and sets ownership boundaries for role outputs.
+- Summary: Defines `subagents_docs/` as the cycle-backed working area and sets phase ownership boundaries.
 
 ## Quality Rules
 

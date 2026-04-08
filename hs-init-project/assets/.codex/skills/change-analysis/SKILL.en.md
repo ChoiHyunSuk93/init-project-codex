@@ -10,6 +10,8 @@ Read [`rule/index.md`](../../../rule/index.md), [`rule/rules/instruction-model.m
 Use this skill for change analysis and planning support.
 
 - Separate analysis requests from implementation requests.
+- Classify the work as `small`, `medium`, `large-clear`, or `large-ambiguous` before choosing the harness path.
+- Prefer parallel `explorer` calls for independent document-analysis questions.
 - Capture impact scope, acceptance criteria, non-goals, and risks.
 - Use it when planner work or analysis needs concise, reference-based structure.
 - Do not treat it as an implementation shortcut and do not copy repository rules into the skill body.

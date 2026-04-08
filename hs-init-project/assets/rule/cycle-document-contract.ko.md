@@ -3,6 +3,7 @@
 ## 목적
 
 cycle 문서 경로, header 상태 전이, append-only section, provenance, dirty-worktree 평가 기준을 authoritative하게 정의한다.
+작은 직접 변경은 cycle 문서를 생략할 수 있고, 이 계약은 cycle 문서를 실제로 열었을 때 적용된다.
 
 ## 범위
 
@@ -13,7 +14,7 @@ cycle 문서 경로, header 상태 전이, append-only section, provenance, dirt
 
 ## cycle 파일 경로
 
-- 각 plan은 `subagents_docs/cycles/<NN>-<slug>.md` 한 문서로 관리한다.
+- cycle-backed plan은 `subagents_docs/cycles/<NN>-<slug>.md` 한 문서로 관리한다.
 - plan, change, evaluation을 별도 working file로 분리하지 않는다.
 
 ## header 계약
@@ -21,14 +22,14 @@ cycle 문서 경로, header 상태 전이, append-only section, provenance, dirt
 - 모든 cycle 문서 상단에는 `Status`, `Current Plan Version`, `Next Handoff`를 둔다.
 - 허용되는 `Status` 값은 `in_progress`, `PASS`, `FAIL`만 사용한다.
 - header 갱신 권한은 coordinator가 가진다.
-- 문서가 아직 없을 때만 planner가 초기 스캐폴드를 만들 수 있다.
+- 문서가 아직 없을 때만 coordinator 또는 delegated planner가 초기 스캐폴드를 만들 수 있다.
 
 ## coordinator 상태 전이
 
-- planner가 `Planner vN`을 만들거나 append한 직후
+- planning basis가 되는 `Planner vN`을 만들거나 append한 직후
   - `Status: in_progress`
   - `Current Plan Version: Planner vN`
-  - `Next Handoff: generator`
+  - `Next Handoff`: 실제 다음 구현 주체에 맞춰 보통 `main` 또는 `generator`
 - generator가 `Generator vN`을 append한 직후
   - `Status: in_progress`
   - `Current Plan Version: Generator vN`
@@ -46,7 +47,7 @@ cycle 문서 경로, header 상태 전이, append-only section, provenance, dirt
 
 - 본문은 append-only로 유지한다.
 - section 이름은 `Planner v1`, `Generator v1`, `Evaluator v1`, `Planner v2`처럼 역할+버전 형식을 사용한다.
-- 각 역할은 자기 section만 수정한다.
+- 해당 phase를 맡은 coordinator 또는 delegated role만 자기 section을 수정한다.
 - 관련 산출물은 같은 문서 안의 정확한 section 이름으로 참조한다.
 
 ## provenance 요구
@@ -54,11 +55,13 @@ cycle 문서 경로, header 상태 전이, append-only section, provenance, dirt
 ### planner
 
 - 신규 cycle인지, 특정 `Evaluator vN`을 받아 재계획하는지 명시한다.
+- coordinator가 직접 쓴 계획인지, planner/explorer 보조를 받아 정리한 계획인지 남긴다.
 - 목표, 범위, 비범위, 사용자 관점 결과, acceptance criteria, 제약, 위험 요소, 의존관계, open questions, 다음 handoff를 포함한다.
 
 ### generator
 
 - 구현 기준 planner section reference를 남긴다.
+- 구현을 coordinator가 직접 했는지, delegated implementation slice를 통합했는지 남긴다.
 - 실제 반영 범위, 변경 파일, 검증, 검증에 사용한 workspace 또는 baseline scope를 남긴다.
 - 남은 위험/제약, 다음 handoff를 남긴다.
 

@@ -188,8 +188,8 @@ rule/
     testing-standards.md         # test-layer selection and verification expectations
     runtime-boundaries.md        # runtime versus non-runtime boundary rules
     implementation-records.md    # implementation record placement and naming rules
-    subagent-orchestration.md    # planner/generator/evaluator boundaries and loop rules
-    subagents-docs.md            # working-doc ownership under subagents_docs/
+    subagent-orchestration.md    # adaptive harness selection, delegation, and evaluator loop rules
+    subagents-docs.md            # cycle-doc entry conditions and working-doc ownership
 subagents_docs/
   AGENTS.md
   cycles/
@@ -215,7 +215,7 @@ docs/
 - `docs/implementation/`: user-facing short final briefings inside concern-based categories after a plan cycle passes, with [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md) as the placement rule
 - In existing-project mode, additional guide documents are created only when observed user-facing workflows provide durable reader-facing material.
 
-Generated repositories run each plan in `planner -> generator -> evaluator` order as part of the default baseline. The main agent stays orchestration-only: it coordinates those roles, collects handoffs, and does not directly become planner, generator, or evaluator unless the user explicitly waives the split. New work is tracked as one append-only cycle document per plan, with `Status`, `Current Plan Version`, and `Next Handoff` at the top and role-specific `Planner vN` / `Generator vN` / `Evaluator vN` sections below. The evaluator checks the implemented result against the plan and acceptance criteria, and only evaluator-reported failures or blockers send that plan back for re-planning. Independent plans may run in parallel; dependent plans should run sequentially. `subagents_docs/` working documents follow the selected language, and generated repositories include `.codex/config.toml`, `.codex/agents/*.toml`, and process-oriented starter local skills under `.codex/skills/`. In existing-project mode, inspection results are used to make starter skills and selected README/rule/guide outputs more specific to the observed runtime, test, and docs signals. If subagents are slow the coordinator waits or re-plans instead of directly implementing.
+Generated repositories use an adaptive harness rather than one fixed pipeline. Small changes can go through `main/generator -> evaluator`. Medium changes use `main(plan+implementation) -> evaluator`. Large but clear changes use main-led decomposition with delegated implementation slices and a separate evaluator. Large ambiguous changes start with parallel `explorer` analysis, may use planner assistance, then continue through a main-approved plan, delegated implementation, and separate evaluation. When a shared working record is needed, keep one append-only cycle document per plan under `subagents_docs/cycles/` with `Planner vN` / `Generator vN` / `Evaluator vN` sections and the header defined by [`rule/rules/cycle-document-contract.md`](rule/rules/cycle-document-contract.md). Generated `.codex/agents/*.toml` should default to `model_reasoning_effort = "high"` and allow task-specific adjustment. `subagents_docs/` working documents follow the selected language, and generated repositories include `.codex/config.toml`, `.codex/agents/*.toml`, and process-oriented starter local skills under `.codex/skills/`. In existing-project mode, inspection results are used to make starter skills and selected README/rule/guide outputs more specific to the observed runtime, test, and docs signals.
 
 ## Usage
 

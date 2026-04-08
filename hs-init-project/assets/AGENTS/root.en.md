@@ -53,13 +53,15 @@ Keep this file thin and use it to route work to [`rule/index.md`](rule/index.md)
 
 ## Subagent Harness
 
-- This repository uses a planner / generator / evaluator workflow by default. Read [`rule/rules/subagent-orchestration.md`](rule/rules/subagent-orchestration.md) first.
-- The main agent is orchestration-only in that workflow: it coordinates handoffs and does not directly become planner, generator, or evaluator unless the user explicitly waives the split.
+- This repository uses an adaptive harness rather than one fixed planner / generator / evaluator pipeline. Read [`rule/rules/subagent-orchestration.md`](rule/rules/subagent-orchestration.md) first.
+- The main agent chooses the path by task size and ambiguity, keeps plan approval and integration responsibility, and may autonomously invoke subagents when needed.
+- For document analysis, prefer parallel `explorer` calls when the questions are independent.
 - Do not start the implementation cycle for analysis-only, question-only, review-only, or explanation-only requests.
 - The coordinator may wait as long as needed for subagent output, but it must close completed or no-longer-needed threads after integrating their outputs.
 - If stale sessions or thread limits block new delegation, perform thread cleanup before continuing.
 - Use [`rule/rules/cycle-document-contract.md`](rule/rules/cycle-document-contract.md) for exact cycle file paths, header transitions, append-only section rules, provenance, and dirty-worktree evaluation requirements.
 - Use [`rule/rules/language-policy.md`](rule/rules/language-policy.md) for document-language and stable filename/path rules.
+- Generated `.codex/agents/*.toml` should default to `model_reasoning_effort = "high"` and allow task-specific adjustment.
 - Keep `.codex/agents/*.toml` and [`subagents_docs/AGENTS.md`](subagents_docs/AGENTS.md) aligned with those authoritative rules.
 - Keep `subagents_docs/` for working records and keep `docs/implementation/` as the user-facing summary layer for passed cycles only.
 

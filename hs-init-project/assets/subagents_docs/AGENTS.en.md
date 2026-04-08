@@ -14,8 +14,11 @@ This directory stores working documents used by the planner, generator, and eval
 
 ## Cycle Rule
 
-- Each plan follows planner -> generator -> evaluator.
-- The main agent stays orchestration-only and does not directly become planner, generator, or evaluator unless the user explicitly waives the split.
+- Small direct changes may skip the cycle document.
+- Medium changes use `main(plan+implementation) -> evaluator`.
+- Large-clear changes use `main-led decomposition + delegated implementation + evaluator`.
+- Large-ambiguous changes use parallel `explorer` analysis, planner assistance when needed, a main-approved plan, delegated implementation, and a separate evaluator.
+- The main agent may autonomously invoke subagents when needed and should prefer parallel `explorer` calls for independent analysis questions.
 - Do not open an implementation cycle for analysis-only, question-only, review-only, or explanation-only requests.
 - Evaluator reviews the implemented result against the plan and acceptance criteria with the strongest feasible representative user-surface validation.
 - If evaluator finds failures or blockers in the implemented result, the same plan cycles again until it passes, and `FAIL` restarts automatically unless the blocker truly needs external input.
@@ -27,14 +30,14 @@ This directory stores working documents used by the planner, generator, and eval
 ## Document Contract
 
 - Keep one append-only cycle document per plan under `subagents_docs/cycles/`.
-- Let the coordinator manage the top status block and let each role append only its own section.
+- Let the coordinator manage the top status block and let the actual planning, implementation, and evaluation owner append only that section.
 - Record plan, implementation, and evaluation provenance exactly as required by [`rule/rules/cycle-document-contract.md`](../rule/rules/cycle-document-contract.md).
 - Do not treat `docs/implementation/` as a substitute for plan, change, or evaluation records.
 
 ## Ownership
 
-- Planner owns planner sections only.
-- Generator owns generator sections only.
+- Coordinator or delegated planner owns planner sections.
+- Coordinator or delegated generator owns generator sections.
 - Evaluator owns evaluator sections only.
 - Follow [`rule/rules/cycle-document-contract.md`](../rule/rules/cycle-document-contract.md) for the exact required contents of planner, generator, and evaluator sections.
 - Even inside one cycle file, roles must not rewrite another role's sections.

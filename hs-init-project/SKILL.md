@@ -25,10 +25,10 @@ Do not repeat the same question unless the user starts a new attempt.
 ## Overview
 
 Initialize repository structure from the real current state, not from assumptions. Support two modes: full initialization for near-empty repositories, and additive Codex-structure initialization for repositories that already contain source code, directories, or documentation.
-Every initialized repository must include the role-separated `planner` / `generator` / `evaluator` harness and a minimal starter local skill set under `.codex/skills/` as part of the baseline structure without changing the underlying README/rule/docs model.
+Every initialized repository must include adaptive harness support for `planner` / `generator` / `evaluator`, cycle-backed working docs under `subagents_docs/`, and a minimal starter local skill set under `.codex/skills/` as part of the baseline structure without changing the underlying README/rule/docs model.
 
 Read [references/language-output.md](references/language-output.md) before generating any user-facing document.
-Read [references/subagent-orchestration.md](references/subagent-orchestration.md) before generating the required planner / generator / evaluator harness.
+Read [references/subagent-orchestration.md](references/subagent-orchestration.md) before generating the adaptive subagent harness.
 Use `scripts/materialize_repo.sh` as a materialization step after inspection and clarification, not as a substitute for asking questions.
 In existing repositories or uncertain structures, inspect first, ask the missing questions, then rerun the generator with resolved inputs.
 
@@ -49,7 +49,7 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - If the environment is non-interactive and no answer can be collected, ask once and stop instead of repeating the same prompt.
    - Use the selected language for generated documentation, `subagents_docs/` working documents, and all later clarification questions.
 2. Classify the user intent before entering the implementation cycle.
-   - If the user is asking for analysis, questions, review, explanation, comparison, or other non-implementation guidance, do not materialize files and do not enter planner -> generator -> evaluator implementation flow.
+   - If the user is asking for analysis, questions, review, explanation, comparison, or other non-implementation guidance, do not materialize files and do not enter implementation flow.
    - Start the implementation cycle only when the user explicitly requests initialization, creation, change, update, fix, or materialization, or when the task unambiguously requires repository changes.
    - If the implementation intent is ambiguous, ask or answer analytically instead of guessing and editing files.
 3. Inspect the repository before changing anything.
@@ -73,7 +73,7 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - Keep control filenames, directory names, code, commands, config keys, slugs, and predictable rule-path conventions aligned with the generated language rule.
 7. Create the rule, subagent, and documentation structure.
    - Create `.codex/config.toml` and `.codex/agents/planner.toml`, `.codex/agents/generator.toml`, `.codex/agents/evaluator.toml` as required baseline files.
-   - Set `model_reasoning_effort = "xhigh"` for generated planner, generator, and evaluator agents.
+   - Set `model_reasoning_effort = "high"` for generated planner, generator, and evaluator agents, and keep the surrounding guidance compatible with task-specific adjustment.
    - Create process-oriented starter local skills under `.codex/skills/change-analysis/`, `.codex/skills/code-implementation/`, `.codex/skills/test-debug/`, `.codex/skills/docs-sync/`, and `.codex/skills/quality-review/`, each with a thin `SKILL.md` and `agents/openai.yaml`.
    - Write those starter skills with clear task-matching descriptions, aligned metadata, and `policy.allow_implicit_invocation: true`.
    - Keep starter skill bodies thin and rule-referencing. Do not copy stable repository rules into the skill body.
@@ -109,12 +109,16 @@ In existing repositories or uncertain structures, inspect first, ask the missing
 8. Apply the required subagent harness.
    - Follow [references/subagent-orchestration.md](references/subagent-orchestration.md) for the harness model and role boundaries.
    - Materialize `rule/rules/cycle-document-contract.md` and keep generated cycle docs, prompts, and harness-related docs aligned with that authoritative rule.
-   - The main agent stays orchestration-only: it coordinates planner/generator/evaluator handoffs and does not directly become one of those roles unless the user explicitly waives the split.
+   - The main agent owns task classification, plan approval, implementation integration, and handoff decisions.
+   - The main agent may autonomously invoke subagents when needed, and document analysis should prefer parallel explorer calls when the questions are independent.
    - The main agent may wait as long as needed for subagent output, but it must close completed or no-longer-needed subagent threads immediately after their outputs are integrated.
    - If stale sessions or thread-limit blockage prevent further delegation, treat thread cleanup as required orchestration work before continuing.
-   - Re-run the same plan through planner -> generator -> evaluator until evaluator passes the implemented result.
+   - Small changes should default to `main/generator -> evaluator`.
+   - Medium changes should default to `main(plan+implementation) -> evaluator`.
+   - Large but clear changes should default to `main-led decomposition + delegated implementation + evaluator`.
+   - Large ambiguous changes should default to `parallel explorer analysis + planner assist if needed + main-approved plan + delegated implementation + evaluator`.
    - When evaluator records `FAIL`, restart the cycle without asking the user again unless the blocker is truly missing external input.
-   - Re-planning happens only after evaluator findings identify failures or blockers in the implemented result.
+   - Re-planning depth should match the task: short-plan revision for medium work, main-led decomposition revision for large clear work, and planner-assisted revision for large ambiguous work.
    - Write evaluator rules and prompts around direct validation of the representative user surface for the change: browser UI for web, simulator/runtime for apps, runtime/scene for games, or actual CLI/API entrypoints when those are the primary surfaces.
    - If direct user-surface validation is unavailable, require the evaluator to record why, what environment or access is missing, what substitute validation was used, and why an unverified critical surface cannot be soft-passed.
    - Do not create or update final `docs/implementation/` briefings from a plan-only or generator-only state.
