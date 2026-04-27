@@ -5,7 +5,7 @@ description: Use for documentation-sync work that keeps README, guides, rules, a
 
 # Docs Sync
 
-Read [`rule/index.md`](../../../rule/index.md), [`rule/rules/documentation-boundaries.md`](../../../rule/rules/documentation-boundaries.md), [`rule/rules/readme-maintenance.md`](../../../rule/rules/readme-maintenance.md), and [`rule/rules/language-policy.md`](../../../rule/rules/language-policy.md) before writing.
+Read [`rule/index.md`](../../../rule/index.md), [`rule/rules/documentation-boundaries.md`](../../../rule/rules/documentation-boundaries.md), [`rule/rules/readme-maintenance.md`](../../../rule/rules/readme-maintenance.md), [`rule/rules/planning-roadmap.md`](../../../rule/rules/planning-roadmap.md), and [`rule/rules/language-policy.md`](../../../rule/rules/language-policy.md) before writing.
 
 Use this skill for documentation synchronization work.
 

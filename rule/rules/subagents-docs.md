@@ -16,11 +16,13 @@
 
 ## 디렉토리 역할
 
-- `subagents_docs/cycles/`: planner, generator, evaluator가 함께 참조하는 plan별 단일 working document
+- [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md): [`PROJECT_OVERVIEW.md`](../../PROJECT_OVERVIEW.md)를 기준으로 phase와 완료 체크리스트를 관리하는 작업 로드맵
+- `subagents_docs/cycles/`: planner, generator, evaluator가 함께 참조하는 phase별 단일 working document
 
 ## 문서 계약
 
 - exact cycle document contract는 [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md)를 기준으로 한다.
+- overview, roadmap, phase gate는 [`rule/rules/planning-roadmap.md`](planning-roadmap.md)를 기준으로 한다.
 - `subagents_docs/`의 active working record는 `subagents_docs/cycles/` 아래에만 둔다.
 
 ### 역할별 소유권
@@ -34,11 +36,13 @@
 
 - small direct change는 cycle 문서를 생략할 수 있다.
 - medium change와 large change, 또는 multi-agent handoff가 있는 구현은 cycle 문서를 사용한다.
+- 구현 cycle은 `subagents_docs/roadmap.md`의 한 phase 또는 phase section에 연결한다.
+- 의존 관계가 있는 다음 phase는 선행 phase가 `PASS`가 되고 필수 체크리스트가 충족되기 전에는 시작하지 않는다.
 - medium change는 `main(plan+implementation) -> evaluator`가 기본이다.
 - large-clear change는 `main-led decomposition + delegated implementation + evaluator`가 기본이다.
 - large-ambiguous change는 `parallel explorer analysis + planner assist if needed + main-approved plan + delegated implementation + evaluator`가 기본이다.
 - evaluator는 generator가 만든 구현 결과를 해당 plan과 acceptance criteria 기준으로 대표 사용자 surface 직접 검증을 포함한 strongest feasible 검증으로 평가한다.
-- evaluator가 구현 결과에서 부족한 점이나 blocker를 확인했을 때만 같은 계획을 다시 계획, 구현, 평가하고, `FAIL`이면 외부 입력이 정말 필요한 경우가 아니면 coordinator가 적절한 경로로 다음 cycle을 시작한다.
+- evaluator가 구현 결과에서 부족한 점이나 blocker를 확인하면 해당 phase의 checklist와 notes를 갱신하고, `FAIL`이면 외부 입력이 정말 필요한 경우가 아니면 같은 phase에서 다시 계획, 구현, 평가한다.
 - 여러 계획이 독립이면 병렬로 돌릴 수 있지만, 의존성이 있으면 순차로 처리한다.
 - 문서 분석 단계에서는 독립적인 질문을 explorer 병렬 호출로 나누고, implementation cycle 진입 전까지는 evaluation handoff를 열지 않는다.
 

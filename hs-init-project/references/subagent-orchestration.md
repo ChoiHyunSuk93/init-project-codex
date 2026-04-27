@@ -13,6 +13,7 @@ Generated repositories must store cycle-backed working documents in `subagents_d
 Use `rule/rules/language-policy.md` for the exact language rules for `subagents_docs/` working documents.
 Use `docs/guide/` for user-facing guidance and `docs/implementation/` only for short final implementation briefings inside concern-based categories after a plan cycle passes.
 Generated repositories must include `rule/rules/cycle-document-contract.md` and `rule/rules/language-policy.md` as the authoritative cycle and language rules.
+Generated repositories must include `rule/rules/planning-roadmap.md`, root `PROJECT_OVERVIEW.md`, and `subagents_docs/roadmap.md` so implementation cycles start from a project-level requirements baseline and phase checklist.
 Generated repositories may include process-oriented starter local skills under `.codex/skills/`; keep their `SKILL.md` descriptions, metadata, and `allow_implicit_invocation` support aligned.
 The coordinator may wait as long as needed for subagent output, but it must close completed or no-longer-needed subagent threads immediately after integrating their outputs.
 If stale sessions or thread-limit blockage prevent more delegation, cleanup is required coordination work before continuing.
@@ -22,6 +23,18 @@ If stale sessions or thread-limit blockage prevent more delegation, cleanup is r
 Do not start implementation unless the user explicitly requested implementation, change, creation, update, fix, or materialization.
 If the user request is analysis-only, question-only, review-only, explanation-only, or otherwise non-implementation, stay in analysis and do not edit files.
 If implementation intent is ambiguous, clarify or stop at analysis instead of guessing.
+
+## Overview And Roadmap Gate
+
+Before implementation work:
+
+- Create or refresh `PROJECT_OVERVIEW.md` from the initial requirements in fresh repositories.
+- In existing repositories, inspect the source root, major modules, existing docs, test/build signals, and current request before writing or refining `PROJECT_OVERVIEW.md`.
+- Create or refresh `subagents_docs/roadmap.md` from `PROJECT_OVERVIEW.md`.
+- Break the work into implementation phases with required checklists and verification methods.
+- Link each implementation cycle to one roadmap phase or phase section.
+- Do not start a dependent next phase until the previous phase reaches `PASS` and its required checklist is satisfied.
+- When evaluator records `FAIL`, update the same phase checklist and notes, then repeat planning and implementation in that phase.
 
 ## Execution Modes
 

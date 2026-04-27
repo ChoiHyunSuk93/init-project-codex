@@ -8,6 +8,7 @@
 
 - 사람이 읽는 생성 문서는 선택된 언어를 따른다.
 - 생성되는 `AGENTS.md` 본문도 선택된 언어를 따른다.
+- 생성되는 `PROJECT_OVERVIEW.md` 본문도 선택된 언어를 따른다.
 - `subagents_docs/` working document도 선택된 언어를 따른다.
 - `.codex/skills/` 아래 생성되는 starter local skill의 `SKILL.md` 본문도 선택된 언어를 따른다.
 
@@ -24,7 +25,7 @@
 
 ## 공통 불변 조건
 
-- 제어 파일 이름은 [`README.md`](../../README.md), [`AGENTS.md`](../../AGENTS.md), [`rule/index.md`](../index.md)로 유지한다.
+- 제어 파일 이름은 [`README.md`](../../README.md), [`AGENTS.md`](../../AGENTS.md), [`PROJECT_OVERVIEW.md`](../../PROJECT_OVERVIEW.md), [`rule/index.md`](../index.md), [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md)로 유지한다.
 - indexed rule 문서는 `rule/rules/*.md` 아래에 둔다.
 - 디렉토리 이름은 영어로 유지한다.
 - 코드, 명령어, 설정 키, 슬러그, path literal은 영어로 유지한다.

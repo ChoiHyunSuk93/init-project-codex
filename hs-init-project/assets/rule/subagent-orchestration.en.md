@@ -13,12 +13,21 @@ The main agent may autonomously invoke subagents when needed.
 For document analysis, prefer parallel `explorer` calls when the questions are independent.
 The coordinator may wait as long as needed for subagent output, but it must close completed or no-longer-needed threads immediately after integrating their outputs.
 If stale sessions or thread limits block more delegation, cleanup is required before continuing.
+Use [`rule/rules/planning-roadmap.md`](planning-roadmap.md) as the authority for project requirements and phase gates.
 
 ## Intent Gate
 
 - Do not start the implementation cycle for analysis-only, question-only, review-only, or explanation-only requests.
 - Start implementation only when the user explicitly requested implementation, change, creation, update, fix, or materialization.
 - If implementation intent is ambiguous, stop at analysis or ask instead of guessing.
+
+## Overview And Roadmap Gate
+
+- Before starting an implementation cycle, confirm [`PROJECT_OVERVIEW.md`](../../PROJECT_OVERVIEW.md) describes the current requirements or observed project structure.
+- [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md) must derive phases, completion checklists, verification methods, and dependencies from `PROJECT_OVERVIEW.md`.
+- Each implementation cycle links to a specific roadmap phase or phase section.
+- A dependent next phase must not start until the previous phase is `PASS` and its required checklist is satisfied.
+- When evaluator records `FAIL`, do not move to the next phase. Update that phase's checklist and notes, then re-plan within the same phase.
 
 ## Execution Modes
 
@@ -88,8 +97,8 @@ Use [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md) as the
 ## Multi-Plan Execution
 
 - If several approaches are required, split them as `plan1`, `plan2`, `plan3` and manage each separately.
-- Run independent plans in parallel.
-- Run dependent plans sequentially when a prior plan affects later inputs or assumptions.
+- Run independent plans in parallel only when they do not affect each other, and keep each plan linked to a roadmap phase or phase section.
+- Run dependent plans sequentially when a prior plan affects later inputs or assumptions, and only after the previous phase reaches `PASS` with its required checklist satisfied.
 
 ## Guardrails
 

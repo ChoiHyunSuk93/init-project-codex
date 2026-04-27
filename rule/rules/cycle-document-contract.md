@@ -18,6 +18,7 @@
 - cycle 문서를 쓰는 각 plan은 `subagents_docs/cycles/<NN>-<slug>.md` 한 문서로 관리한다.
 - 이 문서는 plan별 단일 working document이며, 전역 공용 로그가 아니다.
 - 같은 cycle은 같은 번호 또는 slug를 유지한다.
+- 각 cycle 문서는 [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md)의 특정 phase 또는 phase section에 연결되어야 한다.
 
 ## header 계약
 
@@ -63,6 +64,7 @@
 - 신규 cycle인지, 또는 어떤 `Evaluator vN` 결과를 받아 재계획하는지 명시한다.
 - plan을 coordinator가 직접 작성했는지, planner assist나 explorer 분석을 받아 정리했는지 남긴다.
 - 목표, 범위, 비범위, 사용자 관점 결과, acceptance criteria, 제약, 위험 요소, 의존관계, open questions, 다음 handoff를 포함한다.
+- 연결된 roadmap phase와 해당 phase의 필수 체크리스트를 포함한다.
 
 ### generator
 
@@ -71,6 +73,7 @@
 - 실제 반영 범위와 변경 파일을 남긴다.
 - 검증 시 사용한 workspace/baseline scope를 명시한다.
 - 검증, 남은 위험/제약, 다음 handoff를 남긴다.
+- 구현 후 변경된 phase checklist 또는 notes가 있으면 [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md) 갱신 필요 여부를 남긴다.
 
 ### evaluator
 
@@ -78,6 +81,8 @@
 - 정확한 검증 명령, 수동 절차, 관찰 결과를 남긴다.
 - dirty worktree에서 어떤 비교 기준을 사용했는지 명시한다.
 - acceptance criteria 판정, findings, 품질 평가, 다음 handoff를 남긴다.
+- 연결된 roadmap phase의 필수 체크리스트 충족 여부와 다음 phase 진입 가능 여부를 판정한다.
+- `FAIL`이면 해당 phase checklist와 notes에 반영해야 할 gap을 남긴다.
 
 ## dirty worktree 평가 규칙
 

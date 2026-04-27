@@ -9,6 +9,7 @@
 5. Documentation structure requirements
 6. Local AGENTS.md guidance
 7. Existing project safety rules
+8. Project overview and roadmap requirements
 
 ## Dual-mode behavior
 
@@ -18,10 +19,13 @@ Support both of these cases:
 2. Existing-project Codex-structure initialization
 
 In fresh projects, create the full base structure.
+Create `PROJECT_OVERVIEW.md` from the initial requirements before deriving implementation phases.
+Create `subagents_docs/roadmap.md` from `PROJECT_OVERVIEW.md` with phase checklists and phase gates.
 
 In existing projects:
 
 - inspect the existing structure first
+- inspect existing source root, major modules, docs, test/build signals, and the current requested work before writing or refining `PROJECT_OVERVIEW.md`
 - preserve unrelated contents
 - avoid arbitrary moves or renames
 - prefer additive initialization over restructuring
@@ -148,6 +152,7 @@ Create these starter rule documents by default unless the repository already has
 - `rule/rules/implementation-records.md`
 - `rule/rules/subagent-orchestration.md`
 - `rule/rules/subagents-docs.md`
+- `rule/rules/planning-roadmap.md`
 
 Use the language-appropriate templates in `assets/rule/` and adapt them to the repository's actual structure.
 Use `rule/rules/rule-maintenance.md` as the canonical starter rule for keeping `rule/index.md` and detailed rule files aligned over time.
@@ -226,6 +231,8 @@ Example candidates may include `src/`, `app/`, `packages/`, or another top-level
 ## Documentation structure requirements
 
 Treat root `README.md` as the primary human-facing repository summary outside `docs/`.
+Treat root `PROJECT_OVERVIEW.md` as the primary project-level requirements specification outside `docs/`.
+Treat `subagents_docs/roadmap.md` as the phase roadmap and checklist state for implementation work.
 
 Create these directories:
 
@@ -241,7 +248,7 @@ Interpret them like this:
 - `implementation`: human-facing work history and outcome tracking
 - `rule`: authoritative Codex execution rules
 - `.codex`: project-scoped planner/generator/evaluator harness configuration plus process-oriented starter local skills
-- `subagents_docs`: planner, generator, and evaluator working documents
+- `subagents_docs`: phase roadmap plus planner, generator, and evaluator working documents
 
 Do not treat `guide` or `implementation` as primary rule authority.
 
@@ -250,7 +257,7 @@ Do not treat `guide` or `implementation` as primary rule authority.
 Use these defaults unless the repository already has a stronger existing convention:
 
 - `.codex/` -> create `config.toml`, `agents/`, and process-oriented starter local skills under `skills/`
-- `subagents_docs/` -> create `AGENTS.md` and `cycles/`
+- `subagents_docs/` -> create `AGENTS.md`, `roadmap.md`, and `cycles/`
 - `docs/guide/` -> create `README.md`
 - `docs/implementation/` -> create `AGENTS.md`
 - `rule/` -> create `index.md` and `rules/`
@@ -274,6 +281,40 @@ In existing repositories:
 - if the repository already has a meaningful `README.md`, refine or extend it instead of replacing it blindly
 
 Keep root `README.md` synchronized with durable repository-facing facts over time.
+
+### `PROJECT_OVERVIEW.md` requirements
+
+Create or update root `PROJECT_OVERVIEW.md` by default.
+
+In fresh repositories:
+
+- derive it from the initial user requirements
+- keep missing facts as explicit placeholders or open questions
+- do not invent application features, stack choices, delivery surfaces, or user flows
+
+In existing repositories:
+
+- inspect source root, major modules, existing docs, test/build automation, and current user request first
+- reflect only observed facts and the current requested work
+- refine a meaningful existing `PROJECT_OVERVIEW.md` instead of replacing it blindly
+
+The document should cover at least project purpose, target users or operators, core flows, requirements, non-goals, constraints/decisions, and open questions.
+
+### Roadmap requirements
+
+Create or update `subagents_docs/roadmap.md` by default.
+
+The roadmap must:
+
+- derive phases from `PROJECT_OVERVIEW.md`
+- split implementation into clear phases that minimize missed requirements
+- give each phase a user-visible goal, scope, non-goals, required checklist, verification method, dependency notes, linked cycle, and status
+- use `pending`, `in_progress`, `blocked`, or `PASS` for phase status
+- block a dependent next phase until the previous phase reaches `PASS` and its required checklist is satisfied
+- update checklist and notes after evaluator `FAIL`
+- record evaluation evidence and linked cycle after evaluator `PASS`
+
+Independent phases may run in parallel only when they do not change each other's inputs or outcomes.
 
 Rationale:
 

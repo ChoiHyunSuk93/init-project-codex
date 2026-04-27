@@ -4,11 +4,13 @@ This directory stores working documents used by the planner, generator, and eval
 
 ## Scope
 
-- `subagents_docs/cycles/` holds the active single working document for each plan.
+- [`subagents_docs/roadmap.md`](roadmap.md) tracks phases and completion checklists derived from [`PROJECT_OVERVIEW.md`](../PROJECT_OVERVIEW.md).
+- `subagents_docs/cycles/` holds the active single working document for each roadmap phase or phase section.
 - Keep these documents separate from user-facing `docs/guide/` and `docs/implementation/`.
 - Do not place working plans, change notes, or evaluation reports under `docs/implementation/`.
 - Write these working documents in the selected language for the active run.
 - Use [`rule/rules/subagent-orchestration.md`](../rule/rules/subagent-orchestration.md) for role boundaries and cycle order.
+- Use [`rule/rules/planning-roadmap.md`](../rule/rules/planning-roadmap.md) for overview, roadmap, and phase gates.
 - Use [`rule/rules/cycle-document-contract.md`](../rule/rules/cycle-document-contract.md) for exact cycle-file, header, provenance, and dirty-worktree rules.
 - Use [`rule/rules/language-policy.md`](../rule/rules/language-policy.md) for document-language and stable filename/path rules.
 
@@ -20,8 +22,10 @@ This directory stores working documents used by the planner, generator, and eval
 - Large-ambiguous changes use parallel `explorer` analysis, planner assistance when needed, a main-approved plan, delegated implementation, and a separate evaluator.
 - The main agent may autonomously invoke subagents when needed and should prefer parallel `explorer` calls for independent analysis questions.
 - Do not open an implementation cycle for analysis-only, question-only, review-only, or explanation-only requests.
+- Each implementation cycle links to one phase or phase section in `subagents_docs/roadmap.md`.
+- A dependent next phase must not start until the previous phase is `PASS` and its required checklist is satisfied.
 - Evaluator reviews the implemented result against the plan and acceptance criteria with the strongest feasible representative user-surface validation.
-- If evaluator finds failures or blockers in the implemented result, the same plan cycles again until it passes, and `FAIL` restarts automatically unless the blocker truly needs external input.
+- If evaluator finds failures or blockers in the implemented result, update that phase's checklist and notes, then cycle the same plan again until it passes unless the blocker truly needs external input.
 - Independent plans may run in parallel. Dependent plans must run in order.
 - Multiple plans should be numbered and handled as separate cycles when they are not independent.
 - If subagents are slow, the coordinator must wait or re-plan instead of directly implementing.

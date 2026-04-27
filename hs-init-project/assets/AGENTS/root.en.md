@@ -32,12 +32,15 @@ Keep this file thin and use it to route work to [`rule/index.md`](rule/index.md)
 ## Documentation Automation
 
 - Keep the root [`README.md`](README.md) current as the primary human-facing summary of the repository.
+- Create and maintain root [`PROJECT_OVERVIEW.md`](PROJECT_OVERVIEW.md) as the requirements and core-flow authority.
+- Derive and maintain the phase roadmap plus completion checklists in [`subagents_docs/roadmap.md`](subagents_docs/roadmap.md) from [`PROJECT_OVERVIEW.md`](PROJECT_OVERVIEW.md).
 - In fresh repositories, start [`README.md`](README.md) from a minimal template and replace placeholders as the real project purpose becomes known.
 - In existing repositories, update [`README.md`](README.md) from observed project structure and durable project facts instead of inventing missing details.
 - When work creates or changes a stable user-facing workflow, such as running, deploying, testing, operations, or request intake, create or update the relevant guide document under `docs/guide/`.
 - Do not create guide documents from repository structure summaries, project rules, test directory inventories, or implementation notes alone.
 - For every plan cycle that evaluator passes, create or update the corresponding final briefing inside the most relevant concern-based category under `docs/implementation/`.
 - Keep working plans, generator change notes, and evaluator reports under `subagents_docs/` instead of `docs/implementation/`.
+- Link each implementation cycle to one phase or phase section in [`subagents_docs/roadmap.md`](subagents_docs/roadmap.md), and start dependent phases only after the previous phase reaches `PASS`.
 - For behavior changes, add or update the most relevant test layer when practical and keep [`rule/rules/testing-standards.md`](rule/rules/testing-standards.md) aligned with real test conventions as they emerge.
 - When a rule gains new explicit requirements or an existing rule changes, follow [`rule/rules/rule-maintenance.md`](rule/rules/rule-maintenance.md) so the relevant rule document and [`rule/index.md`](rule/index.md) are updated in the same change.
 - When project-specific implementation standards become clearer, update [`rule/rules/development-standards.md`](rule/rules/development-standards.md) so it reflects observed conventions instead of generic defaults.
@@ -54,6 +57,7 @@ Keep this file thin and use it to route work to [`rule/index.md`](rule/index.md)
 ## Subagent Harness
 
 - This repository uses an adaptive harness rather than one fixed planner / generator / evaluator pipeline. Read [`rule/rules/subagent-orchestration.md`](rule/rules/subagent-orchestration.md) first.
+- Follow [`rule/rules/planning-roadmap.md`](rule/rules/planning-roadmap.md) for overview, roadmap, and phase gates.
 - The main agent chooses the path by task size and ambiguity, keeps plan approval and integration responsibility, and may autonomously invoke subagents when needed.
 - For document analysis, prefer parallel `explorer` calls when the questions are independent.
 - Do not start the implementation cycle for analysis-only, question-only, review-only, or explanation-only requests.

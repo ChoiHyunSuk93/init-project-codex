@@ -5,7 +5,7 @@ description: 코드나 규칙 변경에 맞춰 README, guide, rule, implementati
 
 # Docs Sync
 
-작성 전에 [`rule/index.md`](../../../rule/index.md), [`rule/rules/documentation-boundaries.md`](../../../rule/rules/documentation-boundaries.md), [`rule/rules/readme-maintenance.md`](../../../rule/rules/readme-maintenance.md), [`rule/rules/language-policy.md`](../../../rule/rules/language-policy.md)를 읽는다.
+작성 전에 [`rule/index.md`](../../../rule/index.md), [`rule/rules/documentation-boundaries.md`](../../../rule/rules/documentation-boundaries.md), [`rule/rules/readme-maintenance.md`](../../../rule/rules/readme-maintenance.md), [`rule/rules/planning-roadmap.md`](../../../rule/rules/planning-roadmap.md), [`rule/rules/language-policy.md`](../../../rule/rules/language-policy.md)를 읽는다.
 
 이 skill은 문서 동기화 작업에 사용한다.
 

@@ -53,9 +53,9 @@ Rules that are not listed here are not authoritative until they are indexed.
 ### language-policy
 - Path: [`rule/rules/language-policy.md`](rules/language-policy.md)
 - Scope: repository-wide documentation
-- Applies to: `AGENTS.md`, `rule/`, `docs/guide/`, `docs/implementation/`, `subagents_docs/`
+- Applies to: `AGENTS.md`, `PROJECT_OVERVIEW.md`, `rule/`, `docs/guide/`, `docs/implementation/`, `subagents_docs/`
 - Authority: global
-- Summary: Defines generated document language rules and stable filename/path conventions.
+- Summary: Defines generated document language rules, overview/roadmap paths, and stable filename/path conventions.
 
 ### readme-maintenance
 - Path: [`rule/rules/readme-maintenance.md`](rules/readme-maintenance.md)
@@ -77,6 +77,13 @@ Rules that are not listed here are not authoritative until they are indexed.
 - Applies to: `subagents_docs/`
 - Authority: global
 - Summary: Defines `subagents_docs/` as the cycle-backed working area and sets phase ownership boundaries.
+
+### planning-roadmap
+- Path: [`rule/rules/planning-roadmap.md`](rules/planning-roadmap.md)
+- Scope: repository-wide workflow
+- Applies to: `PROJECT_OVERVIEW.md`, `subagents_docs/roadmap.md`, `subagents_docs/cycles/`
+- Authority: global
+- Summary: Defines the project overview, phase roadmap, required phase checklists, and the gate for entering the next phase.
 
 ## Quality Rules
 

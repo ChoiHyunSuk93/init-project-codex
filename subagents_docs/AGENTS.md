@@ -4,11 +4,13 @@
 
 ## 범위
 
-- `subagents_docs/cycles/`는 각 plan의 활성 단일 working document를 둔다.
+- [`subagents_docs/roadmap.md`](roadmap.md)는 [`PROJECT_OVERVIEW.md`](../PROJECT_OVERVIEW.md)를 기준으로 phase와 완료 체크리스트를 관리한다.
+- `subagents_docs/cycles/`는 각 roadmap phase 또는 phase section의 활성 단일 working document를 둔다.
 - 이 문서들은 사용자-facing `docs/guide/`, `docs/implementation/`과 분리해서 유지한다.
 - 현재 run에서 선택된 언어로 문서를 작성하되, 기술적인 path literal, identifier, filename은 영어를 유지한다.
 - summary, plan, change, evaluation을 포함한 `subagents_docs/` 문서는 모두 현재 실행 언어를 따른다.
 - 역할 경계와 cycle 순서는 [`rule/rules/subagent-orchestration.md`](../rule/rules/subagent-orchestration.md)를 따른다.
+- overview, roadmap, phase gate는 [`rule/rules/planning-roadmap.md`](../rule/rules/planning-roadmap.md)를 따른다.
 - exact cycle 문서 형식, header, provenance, dirty-worktree 평가는 [`rule/rules/cycle-document-contract.md`](../rule/rules/cycle-document-contract.md)를 따른다.
 - 문서 언어와 안정적인 filename/path 규칙은 [`rule/rules/language-policy.md`](../rule/rules/language-policy.md)를 따른다.
 
@@ -20,8 +22,10 @@
 - large-ambiguous change는 병렬 `explorer` 분석, 필요 시 planner assist, main-approved plan, delegated implementation, evaluator 순으로 진행한다.
 - 메인 에이전트는 필요할 때 subagent를 자율적으로 호출할 수 있고, 문서 분석에서는 독립적인 질문을 병렬 `explorer` 호출로 나누는 것을 우선 고려한다.
 - 분석, 질문, 리뷰, 설명 요청은 명시적 구현 지시가 없으면 implementation cycle로 열지 않는다.
+- 구현 cycle은 `subagents_docs/roadmap.md`의 한 phase 또는 phase section에 연결한다.
+- 의존 관계가 있는 다음 phase는 선행 phase가 `PASS`가 되고 필수 체크리스트가 충족되기 전에는 시작하지 않는다.
 - evaluator는 구현 결과를 대표 사용자 surface 직접 검증을 포함한 strongest feasible 검증으로 평가한다.
-- 평가가 실패하면 같은 plan은 외부 입력이 정말 필요한 blocker가 아닌 한 적절한 planning depth로 돌아가 pass될 때까지 다시 순환한다.
+- 평가가 실패하면 같은 plan은 외부 입력이 정말 필요한 blocker가 아닌 한 해당 phase의 checklist와 notes를 갱신하고 적절한 planning depth로 돌아가 pass될 때까지 다시 순환한다.
 - 독립적인 plan은 병렬로 진행할 수 있고, 의존적인 plan은 순서를 지킨다.
 - 각 plan은 필요한 pass 조건이 모두 충족될 때만 완료된다.
 

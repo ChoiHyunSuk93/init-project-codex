@@ -32,12 +32,15 @@
 ## 문서화 자동화
 
 - root [`README.md`](README.md)를 저장소를 대표하는 사람이 읽는 요약 문서로 계속 갱신한다.
+- root [`PROJECT_OVERVIEW.md`](PROJECT_OVERVIEW.md)를 프로젝트 요구사항과 핵심 흐름의 기준 문서로 생성하고 유지한다.
+- [`PROJECT_OVERVIEW.md`](PROJECT_OVERVIEW.md)를 기준으로 [`subagents_docs/roadmap.md`](subagents_docs/roadmap.md)에 phase 로드맵과 완료 체크리스트를 만들고 유지한다.
 - 신규 저장소에서는 [`README.md`](README.md)를 최소 template에서 시작하고, 실제 프로젝트 목적이 드러나면 placeholder를 교체한다.
 - 기존 저장소에서는 없는 내용을 지어내지 말고, 관찰된 프로젝트 구조와 오래 유지되는 사실을 기준으로 [`README.md`](README.md)를 갱신한다.
 - 실행, 배포, 테스트 실행, 요청 절차처럼 실제 사용자가 따라야 하는 안정적인 워크플로가 생기거나 바뀌면 `docs/guide/` 아래의 관련 가이드 문서를 생성하거나 수정한다.
 - 저장소 구조 요약, 프로젝트 규약, 테스트 디렉토리 나열, 구현 메모만으로 guide 문서를 만들지 않는다.
 - evaluator가 통과시킨 각 plan cycle마다 `docs/implementation/` 아래의 가장 가까운 관심사 카테고리 안에 최종 브리핑을 생성하거나 수정한다.
 - 작업용 계획, generator 변경 노트, evaluator 보고서는 `subagents_docs/`에 둔다.
+- 구현 cycle은 [`subagents_docs/roadmap.md`](subagents_docs/roadmap.md)의 한 phase 또는 phase section에 연결하고, 의존 phase는 선행 phase가 `PASS`가 된 뒤에만 시작한다.
 - 동작이 바뀌는 변경이라면 가능하면 가장 관련 있는 테스트 계층을 추가하거나 수정하고, 실제 테스트 관례가 드러나면 [`rule/rules/testing-standards.md`](rule/rules/testing-standards.md)도 함께 갱신한다.
 - 규칙에 새로운 명시 사항이 추가되거나 기존 규칙이 바뀌면 [`rule/rules/rule-maintenance.md`](rule/rules/rule-maintenance.md)를 따라 관련 규칙 문서와 [`rule/index.md`](rule/index.md)를 같은 변경에서 함께 갱신한다.
 - 프로젝트별 구현 표준이 더 분명해지면 [`rule/rules/development-standards.md`](rule/rules/development-standards.md)를 갱신해 일반 기본값이 아니라 관찰된 관례를 반영한다.
@@ -54,6 +57,7 @@
 ## 서브에이전트 하네스
 
 - 이 저장소는 고정 planner / generator / evaluator 파이프라인 대신 adaptive harness를 사용하므로 먼저 [`rule/rules/subagent-orchestration.md`](rule/rules/subagent-orchestration.md)를 읽는다.
+- overview, roadmap, phase gate는 [`rule/rules/planning-roadmap.md`](rule/rules/planning-roadmap.md)를 따른다.
 - 메인 에이전트는 작업 크기와 모호성에 따라 경로를 고르고, 계획 승인과 구현 통합 책임을 가지며, 필요하면 subagent를 자율적으로 호출할 수 있다.
 - 문서 분석은 독립적인 질문 단위라면 병렬 `explorer` 호출을 우선 고려한다.
 - 분석, 질문, 리뷰, 설명 요청은 명시적 구현/변경/materialize 지시가 없으면 구현 사이클로 시작하지 않는다.

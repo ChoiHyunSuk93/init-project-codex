@@ -26,8 +26,10 @@ Do not repeat the same question unless the user starts a new attempt.
 
 Initialize repository structure from the real current state, not from assumptions. Support two modes: full initialization for near-empty repositories, and additive Codex-structure initialization for repositories that already contain source code, directories, or documentation.
 Every initialized repository must include adaptive harness support for `planner` / `generator` / `evaluator`, cycle-backed working docs under `subagents_docs/`, and a minimal starter local skill set under `.codex/skills/` as part of the baseline structure without changing the underlying README/rule/docs model.
+Every initialized repository must also include root `PROJECT_OVERVIEW.md` as the project-wide requirements specification and `subagents_docs/roadmap.md` as the phase roadmap with required completion checklists and phase gates.
 
 Read [references/language-output.md](references/language-output.md) before generating any user-facing document.
+Read [references/structure-initialization.md](references/structure-initialization.md) for the detailed structural requirements, including `PROJECT_OVERVIEW.md` and roadmap generation.
 Read [references/subagent-orchestration.md](references/subagent-orchestration.md) before generating the adaptive subagent harness.
 Use `scripts/materialize_repo.sh` as a materialization step after inspection and clarification, not as a substitute for asking questions.
 In existing repositories or uncertain structures, inspect first, ask the missing questions, then rerun the generator with resolved inputs.
@@ -79,6 +81,11 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - Keep starter skill bodies thin and rule-referencing. Do not copy stable repository rules into the skill body.
    - In existing-project mode, use inspect results to make starter local skill bodies more specific from the observed source root, test/tooling signals, and docs structure without inventing unobserved details.
    - Create or update the root `README.md` as the primary human-facing repository summary.
+   - Create or update root `PROJECT_OVERVIEW.md` before implementation planning.
+   - In fresh mode, derive `PROJECT_OVERVIEW.md` from the initial user requirements and leave explicit placeholders or open questions for missing facts.
+   - In existing-project mode, inspect source root, major modules, existing docs, tests/build tooling, and the current request before writing or refining `PROJECT_OVERVIEW.md` from observed facts.
+   - Create or update `subagents_docs/roadmap.md` from `PROJECT_OVERVIEW.md`.
+   - The roadmap must split implementation work into phases, define required completion checklists, define verification methods, record dependencies, and block dependent next phases until the previous phase reaches `PASS`.
    - In fresh mode, start `README.md` from a minimal template and keep placeholders explicit.
    - In existing-project mode, inspect the current project and write or refine `README.md` from observed purpose, major directories, existing docs, and current entry points without inventing missing details.
    - In existing-project mode, create focused `docs/guide/` documents only when inspection or existing docs reveal stable user-facing workflows that readers actually need.
@@ -98,6 +105,7 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - In fresh mode, make `rule/rules/testing-standards.md` provisional and refine it as real test paths, commands, and frameworks become concrete.
    - In existing-project mode, derive `rule/rules/testing-standards.md` from observed test directories, naming patterns, commands, and tooling instead of leaving it generic.
    - Include `rule/rules/subagent-orchestration.md` and `rule/rules/subagents-docs.md` in the starter rule set unless the repository already has stronger equivalents.
+   - Include `rule/rules/planning-roadmap.md` in the starter rule set unless the repository already has a stronger equivalent.
    - Create `subagents_docs/AGENTS.md` plus the `subagents_docs/cycles/` working area as baseline harness structure.
    - Default to `docs/guide/README.md` and `docs/implementation/AGENTS.md`.
    - When an implementation record is created, follow the rule-defined section shape directly, including unit-test, end-to-end test, manual-check, and gap notes in `Verification`; do not copy skill `assets/` into the target repository.
@@ -124,6 +132,9 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - Do not create or update final `docs/implementation/` briefings from a plan-only or generator-only state.
    - Keep starter local skills aligned through clear `SKILL.md` descriptions, matching metadata, and `allow_implicit_invocation` support.
    - Split multiple plans into separate plan cycles; run them in parallel only when they are independent and in order when they are dependent.
+   - Link each plan cycle to one roadmap phase or phase section.
+   - When evaluator records `FAIL`, update that phase's checklist and notes and continue in the same phase unless an external-input blocker is real.
+   - Start the next dependent phase only after the previous phase's required checklist is satisfied and evaluator records `PASS`.
    - Treat design quality and originality as higher-weight evaluation criteria than completeness and functionality.
 9. Preserve existing projects carefully.
    - Prefer additive initialization.
@@ -148,6 +159,7 @@ In existing repositories or uncertain structures, inspect first, ask the missing
 ### Target Repository Outputs
 
 - root `README.md`
+- root `PROJECT_OVERVIEW.md`
 - thin root `AGENTS.md`
 - `.codex/config.toml`
 - `.codex/agents/planner.toml`
@@ -167,9 +179,11 @@ In existing repositories or uncertain structures, inspect first, ask the missing
 - `rule/rules/` with the detailed starter rule documents
 - `rule/rules/subagent-orchestration.md`
 - `rule/rules/subagents-docs.md`
+- `rule/rules/planning-roadmap.md`
 - `rule/rules/cycle-document-contract.md`
 - `rule/rules/language-policy.md`
 - `subagents_docs/AGENTS.md`
+- `subagents_docs/roadmap.md`
 - `subagents_docs/cycles/`
 - `docs/guide/`
 - `docs/implementation/` with category-based record placement rules instead of a flat history directory by default
@@ -177,6 +191,7 @@ In existing repositories or uncertain structures, inspect first, ask the missing
 - focused guide documents under `docs/guide/` only when actual user-facing workflows justify them
 - `docs/implementation/AGENTS.md` by default
 - starter rule documents including `rule/rules/rule-maintenance.md`, `rule/rules/readme-maintenance.md`, `rule/rules/development-standards.md`, and `rule/rules/testing-standards.md`
+- starter phase-gate rule document `rule/rules/planning-roadmap.md`
 - authoritative cycle and language rules at `rule/rules/cycle-document-contract.md` and `rule/rules/language-policy.md`
 - other local `AGENTS.md` files where they reduce scope and context
 - minimal but meaningful starter content in generated files
@@ -185,13 +200,16 @@ In existing repositories or uncertain structures, inspect first, ask the missing
 ### Skill-Bundled Resources
 
 - canonical root README templates at `assets/README/root.en.md` and `assets/README/root.ko.md`
+- canonical project overview templates at `assets/PROJECT_OVERVIEW/root.en.md` and `assets/PROJECT_OVERVIEW/root.ko.md`
 - canonical root templates at `assets/AGENTS/root.en.md` and `assets/AGENTS/root.ko.md`
 - canonical `.codex` harness templates at `assets/.codex/config.toml` and `assets/.codex/agents/*.toml`
 - canonical starter local skill templates at `assets/.codex/skills/change-analysis/`, `assets/.codex/skills/code-implementation/`, `assets/.codex/skills/test-debug/`, `assets/.codex/skills/docs-sync/`, and `assets/.codex/skills/quality-review/`
 - canonical starter templates at `assets/rule/index.en.md` and `assets/rule/index.ko.md`
 - starter rule templates for the default rule set in `assets/rule/`
+- canonical planning roadmap rule templates at `assets/rule/planning-roadmap.en.md` and `assets/rule/planning-roadmap.ko.md`
 - canonical cycle and language rule templates at `assets/rule/cycle-document-contract.en.md`, `assets/rule/cycle-document-contract.ko.md`, `assets/rule/language-policy.en.md`, and `assets/rule/language-policy.ko.md`
 - canonical `subagents_docs/AGENTS.md` templates at `assets/subagents_docs/AGENTS.en.md` and `assets/subagents_docs/AGENTS.ko.md`
+- canonical roadmap templates at `assets/subagents_docs/roadmap.en.md` and `assets/subagents_docs/roadmap.ko.md`
 - canonical implementation-record templates at `assets/docs/implementation/record.en.md` and `assets/docs/implementation/record.ko.md`
 - deterministic generator script at `scripts/materialize_repo.sh`
 - release-aware updater script at `scripts/update-skill-release.py`

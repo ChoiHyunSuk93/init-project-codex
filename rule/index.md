@@ -53,9 +53,9 @@
 ### language-policy
 - Path: [`rule/rules/language-policy.md`](rules/language-policy.md)
 - Scope: repository-wide documentation
-- Applies to: `AGENTS.md`, `rule/`, `docs/guide/`, `docs/implementation/`, `subagents_docs/`, generated structures
+- Applies to: `AGENTS.md`, `PROJECT_OVERVIEW.md`, `rule/`, `docs/guide/`, `docs/implementation/`, `subagents_docs/`, generated structures
 - Authority: global
-- Summary: current repo와 generated structure의 문서 본문 언어, 제어 파일 이름, 경로 표기 불변 조건을 정의한다.
+- Summary: current repo와 generated structure의 문서 본문 언어, 제어 파일 이름, roadmap/overview 경로, 경로 표기 불변 조건을 정의한다.
 
 ### readme-maintenance
 - Path: [`rule/rules/readme-maintenance.md`](rules/readme-maintenance.md)
@@ -77,6 +77,13 @@
 - Applies to: `subagents_docs/`
 - Authority: global
 - Summary: `subagents_docs/` working area, cycle document 사용 조건, phase별 working record 배치 규칙을 정의한다.
+
+### planning-roadmap
+- Path: [`rule/rules/planning-roadmap.md`](rules/planning-roadmap.md)
+- Scope: repository-wide workflow
+- Applies to: `PROJECT_OVERVIEW.md`, `subagents_docs/roadmap.md`, `subagents_docs/cycles/`
+- Authority: global
+- Summary: 프로젝트 오버뷰, phase 로드맵, phase별 필수 체크리스트와 다음 phase 진입 gate를 정의한다.
 
 ## 품질 규칙
 

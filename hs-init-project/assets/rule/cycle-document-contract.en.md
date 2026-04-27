@@ -16,6 +16,7 @@ Small direct changes may skip the cycle document entirely; this contract applies
 
 - Use one cycle file per cycle-backed plan at `subagents_docs/cycles/<NN>-<slug>.md`.
 - Keep one file identity per plan cycle rather than splitting plan, change, and evaluation into separate working files.
+- Each cycle document must link to a specific phase or phase section in [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md).
 
 ## Header Contract
 
@@ -57,6 +58,7 @@ Small direct changes may skip the cycle document entirely; this contract applies
 - State whether the section starts a new cycle or responds to a specific `Evaluator vN`.
 - State whether the plan was written directly by the coordinator or from planner/explorer-assisted analysis.
 - Include goals, scope, non-goals, user-visible outcome, acceptance criteria, constraints, risks, dependencies, open questions, and next handoff.
+- Include the linked roadmap phase and that phase's required checklist.
 
 ### Generator
 
@@ -64,12 +66,15 @@ Small direct changes may skip the cycle document entirely; this contract applies
 - Record whether the implementation was done by the coordinator directly or by delegated implementation slices.
 - Record implemented scope, changed files, verification, and the workspace or baseline scope used for verification.
 - Record remaining gaps or risks and next handoff.
+- If implementation changed phase checklist or notes, record whether [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md) must be updated.
 
 ### Evaluator
 
 - Record the evaluated planner section and generator section.
 - Record exact checks, acceptance-criteria judgment, findings, and next handoff.
 - Record the dirty-worktree comparison basis used for the judgment.
+- Judge whether the linked roadmap phase's required checklist is satisfied and whether the next phase may start.
+- On `FAIL`, record the gaps that must be reflected in that phase's checklist and notes.
 
 ## Dirty Worktree Evaluation
 

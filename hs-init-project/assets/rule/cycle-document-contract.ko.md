@@ -16,6 +16,7 @@ cycle 문서 경로, header 상태 전이, append-only section, provenance, dirt
 
 - cycle-backed plan은 `subagents_docs/cycles/<NN>-<slug>.md` 한 문서로 관리한다.
 - plan, change, evaluation을 별도 working file로 분리하지 않는다.
+- 각 cycle 문서는 [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md)의 특정 phase 또는 phase section에 연결되어야 한다.
 
 ## header 계약
 
@@ -57,6 +58,7 @@ cycle 문서 경로, header 상태 전이, append-only section, provenance, dirt
 - 신규 cycle인지, 특정 `Evaluator vN`을 받아 재계획하는지 명시한다.
 - coordinator가 직접 쓴 계획인지, planner/explorer 보조를 받아 정리한 계획인지 남긴다.
 - 목표, 범위, 비범위, 사용자 관점 결과, acceptance criteria, 제약, 위험 요소, 의존관계, open questions, 다음 handoff를 포함한다.
+- 연결된 roadmap phase와 해당 phase의 필수 체크리스트를 포함한다.
 
 ### generator
 
@@ -64,12 +66,15 @@ cycle 문서 경로, header 상태 전이, append-only section, provenance, dirt
 - 구현을 coordinator가 직접 했는지, delegated implementation slice를 통합했는지 남긴다.
 - 실제 반영 범위, 변경 파일, 검증, 검증에 사용한 workspace 또는 baseline scope를 남긴다.
 - 남은 위험/제약, 다음 handoff를 남긴다.
+- 구현 후 변경된 phase checklist 또는 notes가 있으면 [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md) 갱신 필요 여부를 남긴다.
 
 ### evaluator
 
 - 평가 대상 planner section과 generator section을 남긴다.
 - 정확한 검증 명령 또는 절차, acceptance criteria 판정, findings, 다음 handoff를 남긴다.
 - dirty worktree 비교 기준을 남긴다.
+- 연결된 roadmap phase의 필수 체크리스트 충족 여부와 다음 phase 진입 가능 여부를 판정한다.
+- `FAIL`이면 해당 phase checklist와 notes에 반영해야 할 gap을 남긴다.
 
 ## dirty worktree 평가 규칙
 

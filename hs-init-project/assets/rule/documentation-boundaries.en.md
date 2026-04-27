@@ -7,10 +7,11 @@ Define the difference between rule documents, guide documents, and implementatio
 ## Directory Roles
 
 - [`README.md`](../../README.md): primary human-facing repository summary at the root
+- [`PROJECT_OVERVIEW.md`](../../PROJECT_OVERVIEW.md): requirements specification for the whole project flow
 - `rule/`: authoritative Codex execution rules, with [`rule/index.md`](../index.md) as the discovery entry point
 - `docs/guide/`: user-facing guides for real workflows, with [`docs/guide/README.md`](../../docs/guide/README.md) as the default entry point
 - `docs/implementation/`: human-facing final briefings and outcomes only, with [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md) as the control file
-- `subagents_docs/`: planner, generator, and evaluator working documents, with [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md) as the control file
+- `subagents_docs/`: planner, generator, and evaluator working documents, with [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md) as the control file and [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md) as the phase roadmap
 
 ## Default Control Files
 
@@ -18,6 +19,7 @@ Define the difference between rule documents, guide documents, and implementatio
 - `docs/guide/` -> [`docs/guide/README.md`](../../docs/guide/README.md)
 - `docs/implementation/` -> [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md)
 - `subagents_docs/` -> [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md)
+- phase roadmap -> [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md)
 
 Keep these control filenames stable across language modes.
 
@@ -40,6 +42,8 @@ Keep these control filenames stable across language modes.
 ## Documentation Automation
 
 - Create or update the root `README.md` when durable repository-facing facts or project structure become clearer.
+- Create or update [`PROJECT_OVERVIEW.md`](../../PROJECT_OVERVIEW.md) when project purpose, core flows, requirements, or constraints emerge or change.
+- Update [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md) when implementation phases or completion criteria change.
 - Add or update guide documents only when a stable user-facing workflow exists, such as running, deploying, testing, operations, or request intake.
 - Do not create guide documents from observed structure, test layout, tooling inventories, or implementation notes alone.
 - Keep working documents in `subagents_docs/`, final briefings in `docs/implementation/`, and execution rules in `rule/`.

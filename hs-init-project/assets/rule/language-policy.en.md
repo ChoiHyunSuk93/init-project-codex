@@ -8,6 +8,7 @@ Define the authoritative language policy for human-facing generated documents, `
 
 - Use the selected language for human-facing generated documents.
 - Use the selected language for generated `AGENTS.md` contents.
+- Use the selected language for generated `PROJECT_OVERVIEW.md` contents.
 - Use the selected language for `subagents_docs/` working documents.
 - Use the selected language for generated starter local skill `SKILL.md` contents under `.codex/skills/`.
 
@@ -24,7 +25,7 @@ Define the authoritative language policy for human-facing generated documents, `
 
 ## Shared Invariants
 
-- Keep control filenames stable: [`README.md`](../../README.md), [`AGENTS.md`](../../AGENTS.md), [`rule/index.md`](../index.md).
+- Keep control filenames stable: [`README.md`](../../README.md), [`AGENTS.md`](../../AGENTS.md), [`PROJECT_OVERVIEW.md`](../../PROJECT_OVERVIEW.md), [`rule/index.md`](../index.md), [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md).
 - Keep indexed rule documents under `rule/rules/*.md`.
 - Keep directory names in English.
 - Keep code, commands, config keys, slugs, and path literals in English.

@@ -13,12 +13,21 @@
 문서 분석은 독립적인 질문 단위라면 병렬 `explorer` 호출을 우선 고려한다.
 coordinator는 subagent 응답을 오래 기다릴 수 있지만, 반영이 끝난 completed/unused thread는 즉시 닫아야 한다.
 stale session이나 thread limit으로 delegation이 막히면 cleanup을 먼저 수행한다.
+프로젝트 요구사항과 phase gate는 [`rule/rules/planning-roadmap.md`](planning-roadmap.md)를 기준으로 삼는다.
 
 ## Intent Gate
 
 - 분석, 질문, 리뷰, 설명 요청은 구현 사이클로 시작하지 않는다.
 - 구현 경로는 사용자가 명시적으로 구현, 변경, 생성, 수정, materialize를 요청했을 때만 시작한다.
 - 구현 의도가 모호하면 추측으로 진행하지 말고 분석으로 멈추거나 clarification을 요청한다.
+
+## Overview And Roadmap Gate
+
+- 구현 cycle을 시작하기 전에 [`PROJECT_OVERVIEW.md`](../../PROJECT_OVERVIEW.md)가 현재 요구사항 또는 관찰된 프로젝트 구조를 설명하는지 확인한다.
+- [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md)는 `PROJECT_OVERVIEW.md`를 기준으로 phase, 완료 체크리스트, 검증 방법, 의존 관계를 가져야 한다.
+- 구현 cycle은 roadmap의 특정 phase 또는 phase section에 연결한다.
+- 의존 관계가 있는 다음 phase는 선행 phase가 `PASS`가 되고 필수 체크리스트가 충족되기 전에는 시작하지 않는다.
+- evaluator가 `FAIL`을 기록하면 다음 phase로 넘어가지 말고 해당 phase checklist와 notes를 최신화한 뒤 같은 phase에서 재계획한다.
 
 ## 실행 모드
 
@@ -88,8 +97,8 @@ exact cycle 문서 경로, header 상태 전이, append-only section, provenance
 ## 다중 계획 실행
 
 - 여러 요구사항이 필요하면 `plan1`, `plan2`, `plan3`처럼 분리 관리한다.
-- 서로 독립이면 병렬로 진행한다.
-- 선행 plan의 결과가 후속 plan 입력에 영향을 주면 순차로 진행한다.
+- 서로 독립이면 병렬로 진행하되 각 계획은 roadmap phase 또는 phase section과 연결한다.
+- 선행 plan의 결과가 후속 plan 입력에 영향을 주면 선행 phase의 `PASS`와 필수 체크리스트 충족 뒤에 순차로 진행한다.
 
 ## 가드레일
 

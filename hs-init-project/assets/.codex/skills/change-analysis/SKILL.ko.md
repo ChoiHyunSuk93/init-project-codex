@@ -5,7 +5,7 @@ description: 요구사항 해석, 영향 범위 파악, acceptance criteria 정�
 
 # Change Analysis
 
-작성 전에 [`rule/index.md`](../../../rule/index.md), [`rule/rules/instruction-model.md`](../../../rule/rules/instruction-model.md), [`rule/rules/subagent-orchestration.md`](../../../rule/rules/subagent-orchestration.md), [`rule/rules/cycle-document-contract.md`](../../../rule/rules/cycle-document-contract.md), [`rule/rules/language-policy.md`](../../../rule/rules/language-policy.md)를 읽는다.
+작성 전에 [`rule/index.md`](../../../rule/index.md), [`rule/rules/instruction-model.md`](../../../rule/rules/instruction-model.md), [`rule/rules/subagent-orchestration.md`](../../../rule/rules/subagent-orchestration.md), [`rule/rules/planning-roadmap.md`](../../../rule/rules/planning-roadmap.md), [`rule/rules/cycle-document-contract.md`](../../../rule/rules/cycle-document-contract.md), [`rule/rules/language-policy.md`](../../../rule/rules/language-policy.md)를 읽는다.
 
 이 skill은 변경 분석과 계획 정리 작업에 사용한다.
 
