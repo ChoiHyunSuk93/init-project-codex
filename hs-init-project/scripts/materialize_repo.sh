@@ -96,6 +96,77 @@ render_bullets() {
   done
 }
 
+build_working_principles() {
+  language=$1
+
+  if [ "$language" = "ko" ]; then
+    cat <<'EOF'
+## 작업 대원칙
+
+### 구현 전 사고
+
+- 구현 전에 가정, 불확실성, 가능한 해석, 주요 절충점을 명시한다.
+- 요구가 불명확하면 조용히 해석을 고르지 말고 무엇이 혼란스러운지 밝히고 질문한다.
+- 더 단순한 접근이 있거나 요청 자체에 조정이 필요하면 구현 전에 말한다.
+
+### 단순성 우선
+
+- 요청받은 문제를 해결하는 최소 변경만 작성한다.
+- 요청받지 않은 기능, 단일 사용처를 위한 추상화, 불필요한 유연성이나 설정 가능성을 추가하지 않는다.
+- 현실적으로 발생하지 않는 시나리오를 위한 오류 처리나 방어 코드를 넣지 않는다.
+- 같은 요구를 훨씬 적은 코드로 해결할 수 있다면 더 단순하게 다시 쓴다.
+
+### 외과적 변경
+
+- 변경한 모든 줄은 사용자 요청과 직접 연결되어야 한다.
+- 인접 코드, 주석, 포맷을 임의로 개선하거나 고장 나지 않은 코드를 리팩터링하지 않는다.
+- 기존 스타일을 따른다. 선호하는 방식이 달라도 현재 코드베이스의 관례를 우선한다.
+- 변경으로 인해 새로 생긴 unused import, 변수, 함수, dead code만 정리한다.
+- 기존에 있던 무관한 dead code는 삭제하지 말고 필요하면 별도로 언급한다.
+
+### 목표 기반 실행
+
+- 작업을 검증 가능한 성공 기준으로 바꾼다.
+- 버그 수정은 재현 검증 후 통과, 검증 추가는 실패 입력 테스트 후 통과, 리팩터링은 전후 검증 통과처럼 확인 가능한 목표로 둔다.
+- 여러 단계 작업은 각 단계와 검증 방법을 짧게 적는다.
+- 검증되거나 명확한 차단 요인이 확인될 때까지 반복한다.
+EOF
+    return 0
+  fi
+
+  cat <<'EOF'
+## Working Principles
+
+### Think Before Coding
+
+- State assumptions, uncertainty, possible interpretations, and meaningful tradeoffs before implementation.
+- If a requirement is unclear, do not silently choose an interpretation. Name the confusion and ask.
+- If a simpler approach exists or the request should be adjusted, say so before implementing.
+
+### Simplicity First
+
+- Write the minimum change that solves the requested problem.
+- Do not add unrequested features, single-use abstractions, or unnecessary flexibility or configurability.
+- Do not add error handling or defensive code for scenarios that cannot realistically happen.
+- If the same requirement can be solved with much less code, rewrite it more simply.
+
+### Surgical Changes
+
+- Every changed line must trace directly to the user's request.
+- Do not casually improve adjacent code, comments, or formatting, and do not refactor code that is not broken.
+- Match the existing style even when you would prefer a different one.
+- Remove only unused imports, variables, functions, or dead code introduced by your change.
+- Mention unrelated pre-existing dead code when useful, but do not delete it without being asked.
+
+### Goal-Driven Execution
+
+- Convert each task into verifiable success criteria.
+- For bug fixes, reproduce then pass; for added validation, test invalid inputs then pass; for refactors, verify before and after.
+- For multi-step work, state each step and its verification method briefly.
+- Iterate until verification passes or a clear blocker is identified.
+EOF
+}
+
 list_top_level_dirs() {
   target_dir=$1
   find "$target_dir" -mindepth 1 -maxdepth 1 -type d ! -name '.git' \
@@ -1550,6 +1621,7 @@ build_development_standards() {
   observed_files=$6
   tooling_files=$7
   merged_non_runtime_dirs=$(merge_non_runtime_dirs "$non_runtime_dirs")
+  working_principles=$(build_working_principles "$language")
 
   if [ "$standards_mode" = "existing" ]; then
     if [ "$language" = "ko" ]; then
@@ -1613,6 +1685,8 @@ $non_runtime_block
 - 위 구조와 툴링 신호를 기준으로 프로젝트별 구현 규칙을 구체화한다.
 - 저장소에 이미 있는 naming pattern, 디렉토리 역할, 검증 경로를 일반 기본값보다 우선한다.
 - 특정 영역에 더 강한 규칙이 보이면 local rule로 더 좁게 분리한다.
+
+$working_principles
 
 ## 기본 품질 기대치
 
@@ -1692,6 +1766,8 @@ $non_runtime_block
 - Prefer observed naming, directory roles, and verification paths over generic defaults.
 - If stronger area-specific rules become clear, narrow them into local rule documents.
 
+$working_principles
+
 ## Baseline Quality Expectations
 
 - Keep functions, modules, and files focused on a clear responsibility where practical.
@@ -1710,7 +1786,7 @@ EOF
   fi
 
   if [ "$language" = "ko" ]; then
-    cat <<'EOF'
+    cat <<EOF
 # 개발 표준 규칙
 
 ## 목적
@@ -1722,6 +1798,8 @@ EOF
 - 이 문서는 아직 provisional한 상태다.
 - 실제 스택, 구조, 툴링 관례가 드러나기 전까지는 최소 기대치만 적용한다.
 - 실제 프로젝트 관례가 드러나면 이 문서의 일반 규칙을 관찰된 규칙으로 교체한다.
+
+$working_principles
 
 ## 현재 최소 기대치
 
@@ -1740,7 +1818,7 @@ EOF
     return 0
   fi
 
-  cat <<'EOF'
+  cat <<EOF
 # Development Standards Rule
 
 ## Purpose
@@ -1752,6 +1830,8 @@ Define how implementation quality standards are established and maintained in th
 - This document is provisional until real stack, structure, and tooling conventions become concrete.
 - Until then, apply only minimal baseline expectations.
 - Replace generic guidance with observed project-specific standards as they emerge.
+
+$working_principles
 
 ## Current Minimal Expectations
 

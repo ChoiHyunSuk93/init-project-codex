@@ -164,6 +164,11 @@ When repository structure, runtime boundaries, or rule-bearing conventions becom
 
 Treat `rule/rules/development-standards.md` differently by mode.
 
+In all generated development standards documents:
+
+- include language-appropriate working principles for thinking before coding, simplicity first, surgical changes, and goal-driven execution
+- keep those principles in `rule/rules/development-standards.md` instead of duplicating them across root instructions or starter local skills
+
 In fresh repositories:
 
 - create a provisional standards document

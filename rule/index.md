@@ -92,7 +92,7 @@
 - Scope: repository-wide
 - Applies to: code, tests, schemas, public interfaces, and related docs
 - Authority: global
-- Summary: 기본 구현 품질, 관례 준수, 검증 기대치를 정의한다.
+- Summary: 작업 대원칙, 기본 구현 품질, 관례 준수, 검증 기대치를 정의한다.
 
 ### testing-standards
 - Path: [`rule/rules/testing-standards.md`](rules/testing-standards.md)

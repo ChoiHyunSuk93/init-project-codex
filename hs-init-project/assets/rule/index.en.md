@@ -92,7 +92,7 @@ Rules that are not listed here are not authoritative until they are indexed.
 - Scope: repository-wide
 - Applies to: code, tests, schemas, public interfaces, and related docs
 - Authority: global
-- Summary: Defines baseline implementation quality, convention-following, and verification expectations.
+- Summary: Defines working principles, baseline implementation quality, convention-following, and verification expectations.
 
 ### testing-standards
 - Path: [`rule/rules/testing-standards.md`](rules/testing-standards.md)
