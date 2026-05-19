@@ -1896,10 +1896,38 @@ $test_tooling_block
 
 ## 기본 기대치
 
-- 동작이 바뀌면 가능하면 가장 관련 있는 최소 자동화 테스트 계층을 추가하거나 수정한다.
+- 모든 함수나 기능마다 기계적으로 테스트를 만들지 않는다.
+- 동작이 바뀌더라도 아래 판단 기준에 부합할 때 가장 관련 있는 최소 자동화 테스트 계층을 추가하거나 수정한다.
 - 단위 테스트가 더 적합한 변경을 E2E 테스트만으로 대체하지 않는다.
 - 사용자 핵심 흐름이나 경계를 넘는 동작이 바뀌면 E2E 수준 검증 필요 여부를 함께 판단한다.
 - 자동화 테스트 경로가 아직 불분명하면 수동 검증 메모를 남기고, 경로가 구체화되면 이 문서를 갱신한다.
+
+## 테스트 작성 판단 기준
+
+- 테스트는 의미 있는 동작, 업무 규칙, 권한/보안, 데이터 무결성, 금액/수량 계산, 상태 전이, 실패 처리, 외부 연동, 고위험 회귀를 보호할 때 작성한다.
+- 테스트는 구현 세부가 아니라 관찰 가능한 동작을 검증한다.
+- 테스트를 추가하기 전에 다음 질문을 확인한다.
+  - 어떤 회귀를 막는가?
+  - 어떤 업무 또는 사용자 리스크를 줄이는가?
+  - 타입, lint, 프레임워크 동작, 데이터베이스 제약으로 이미 보장되는가?
+  - 합당한 리팩터링 뒤에도 유지될 테스트인가?
+
+## 선호하는 테스트
+
+- 업무 불변식 테스트
+- 권한과 보안 테스트
+- 금액, 수량, 상태 전이 테스트
+- 경계값과 실패 처리 테스트
+- 외부 시스템 통합 테스트
+
+## 피하는 테스트
+
+- 단순 CRUD passthrough, getter/setter, DTO shape만 확인하는 테스트
+- 프레임워크 기본 동작, 라이브러리 동작, 타입 시스템 또는 데이터베이스가 이미 보장하는 동작 테스트
+- private helper나 내부 호출 순서처럼 구현 세부에 고정된 테스트
+- 실제 동작을 검증하지 못하는 mock-heavy 테스트
+- 행동 가치가 없는 snapshot 테스트
+- coverage 수치만 올리는 assertion
 
 ## 구현 기록의 검증 섹션
 
@@ -1946,10 +1974,38 @@ $test_tooling_block
 
 ## Baseline Expectations
 
-- For behavior changes, add or update the smallest relevant automated test layer when practical.
+- Do not create tests mechanically for every function or feature.
+- For behavior changes, add or update the smallest relevant automated test layer only when the test meets the decision criteria below.
 - Do not replace focused unit tests with end-to-end tests alone when a narrower test is the better fit.
 - Re-evaluate whether end-to-end coverage is needed when user-critical or cross-boundary flows change.
 - If automated test paths are still unclear, leave a concise manual verification note and update this rule as the paths become concrete.
+
+## Test Authoring Decision Criteria
+
+- Write tests when they protect meaningful behavior, business rules, permission/security behavior, data integrity, money/count calculations, state transitions, failure handling, external integrations, or high-risk regressions.
+- Tests should verify observable behavior, not implementation details.
+- Before adding a test, check:
+  - What regression does this prevent?
+  - What business or user risk does it reduce?
+  - Is this already guaranteed by types, linting, framework behavior, or the database?
+  - Will this test survive a valid refactor?
+
+## Prefer
+
+- Business invariant tests
+- Permission and security tests
+- Money, count, and state transition tests
+- Boundary and failure-handling tests
+- Integration tests for external systems
+
+## Avoid
+
+- Tests for simple CRUD passthroughs, getters/setters, or DTO shape alone
+- Tests for framework defaults, library behavior, or behavior already guaranteed by the type system or database
+- Tests coupled to private helpers, internal call order, or other implementation details
+- Mock-heavy tests with no real behavior
+- Snapshots without behavioral value
+- Assertions written only to increase coverage
 
 ## Implementation Record Verification
 
@@ -1978,12 +2034,40 @@ EOF
 
 ## 현재 최소 기대치
 
-- 동작이 바뀌면 가능한 범위에서 가장 작은 관련 테스트 계층을 추가하거나 수정한다.
+- 모든 함수나 기능마다 기계적으로 테스트를 만들지 않는다.
+- 동작이 바뀌더라도 아래 판단 기준에 부합할 때 가능한 범위에서 가장 작은 관련 테스트 계층을 추가하거나 수정한다.
 - 단위 테스트가 더 적합한 변경을 E2E 테스트만으로 대체하지 않는다.
 - 자동화 테스트 경로가 아직 없다면 수동 검증 메모를 남긴다.
 - 역할 분리 하네스를 따를 때 generator는 단위 수준 검증을 우선하고, evaluator는 대표 사용자 surface 직접 검증을 포함한 strongest feasible user-surface/E2E 검증을 맡는다.
 - 대표 사용자 surface가 있으면 evaluator는 브라우저, 시뮬레이터, 런타임, CLI, API 호출처럼 해당 프로젝트 타입의 실제 진입점을 가능한 한 직접 검증한다.
 - 대표 사용자 surface를 직접 실행하지 못했다면 이유, 누락된 환경, 대체 검증 한계와 남은 공백을 검증 기록에 남긴다.
+
+## 테스트 작성 판단 기준
+
+- 테스트는 의미 있는 동작, 업무 규칙, 권한/보안, 데이터 무결성, 금액/수량 계산, 상태 전이, 실패 처리, 외부 연동, 고위험 회귀를 보호할 때 작성한다.
+- 테스트는 구현 세부가 아니라 관찰 가능한 동작을 검증한다.
+- 테스트를 추가하기 전에 다음 질문을 확인한다.
+  - 어떤 회귀를 막는가?
+  - 어떤 업무 또는 사용자 리스크를 줄이는가?
+  - 타입, lint, 프레임워크 동작, 데이터베이스 제약으로 이미 보장되는가?
+  - 합당한 리팩터링 뒤에도 유지될 테스트인가?
+
+## 선호하는 테스트
+
+- 업무 불변식 테스트
+- 권한과 보안 테스트
+- 금액, 수량, 상태 전이 테스트
+- 경계값과 실패 처리 테스트
+- 외부 시스템 통합 테스트
+
+## 피하는 테스트
+
+- 단순 CRUD passthrough, getter/setter, DTO shape만 확인하는 테스트
+- 프레임워크 기본 동작, 라이브러리 동작, 타입 시스템 또는 데이터베이스가 이미 보장하는 동작 테스트
+- private helper나 내부 호출 순서처럼 구현 세부에 고정된 테스트
+- 실제 동작을 검증하지 못하는 mock-heavy 테스트
+- 행동 가치가 없는 snapshot 테스트
+- coverage 수치만 올리는 assertion
 
 ## 향후 구체화
 
@@ -2009,9 +2093,37 @@ Define how unit tests, end-to-end tests, and verification expectations are estab
 
 ## Current Minimal Expectations
 
-- For behavior changes, add or update the smallest relevant test layer when practical.
+- Do not create tests mechanically for every function or feature.
+- For behavior changes, add or update the smallest relevant test layer only when the test meets the decision criteria below.
 - Do not replace focused unit tests with end-to-end tests alone when a narrower test is the better fit.
 - Leave a concise manual verification note if no automated test path exists yet.
+
+## Test Authoring Decision Criteria
+
+- Write tests when they protect meaningful behavior, business rules, permission/security behavior, data integrity, money/count calculations, state transitions, failure handling, external integrations, or high-risk regressions.
+- Tests should verify observable behavior, not implementation details.
+- Before adding a test, check:
+  - What regression does this prevent?
+  - What business or user risk does it reduce?
+  - Is this already guaranteed by types, linting, framework behavior, or the database?
+  - Will this test survive a valid refactor?
+
+## Prefer
+
+- Business invariant tests
+- Permission and security tests
+- Money, count, and state transition tests
+- Boundary and failure-handling tests
+- Integration tests for external systems
+
+## Avoid
+
+- Tests for simple CRUD passthroughs, getters/setters, or DTO shape alone
+- Tests for framework defaults, library behavior, or behavior already guaranteed by the type system or database
+- Tests coupled to private helpers, internal call order, or other implementation details
+- Mock-heavy tests with no real behavior
+- Snapshots without behavioral value
+- Assertions written only to increase coverage
 
 ## Future Refinement
 
