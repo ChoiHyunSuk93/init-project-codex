@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define how human-facing final briefings are stored under `docs/implementation/`.
+Define how completed implementation history is stored as new human-facing final briefing records under `docs/implementation/`.
 
 ## Category Model
 
@@ -14,11 +14,12 @@ Define how human-facing final briefings are stored under `docs/implementation/`.
 ## Record Placement
 
 - Do not pre-create empty category directories or placeholder records during initialization.
-- Put each record into the closest existing category directory.
+- Put each new implementation record into the closest existing category directory.
 - Add a new category only when the current categories no longer describe the work cleanly.
 - Do not dump records flat under `docs/implementation/` unless a flat layout is explicitly requested.
 - Do not create a top-level `docs/implementation/briefings/` directory.
-- For every plan cycle that evaluator passes, create or update the corresponding final briefing.
+- For every plan cycle that evaluator passes, create a new final briefing.
+- Preserve existing final briefings as historical implementation records. Do not search or update old records to align them with current changes unless correcting typos, broken links, incorrect verification metadata, or an explicit user request.
 - Keep numbering ordered within the chosen category.
 
 ## File Naming

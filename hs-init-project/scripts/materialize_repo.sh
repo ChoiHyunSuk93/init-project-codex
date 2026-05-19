@@ -1434,7 +1434,7 @@ build_docs_sync_skill() {
       cat <<EOF
 ---
 name: docs-sync
-description: 코드나 규칙 변경에 맞춰 README, guide, rule, implementation briefing을 동기화하는 문서 정리 작업에 사용한다.
+description: 코드나 규칙 변경에 맞춰 README, guide, rule, roadmap 같은 현재 상태 문서를 동기화하는 문서 정리 작업에 사용한다.
 ---
 
 # Docs Sync
@@ -1452,7 +1452,8 @@ $docs_block
 $observed_file_block
 
 - 기존 README와 docs 구조가 의미 있으면 generic 재서술보다 우선 보존·보강한다.
-- README, guide, rule, implementation briefing의 경계를 유지한다.
+- README, guide, rule, roadmap 같은 현재 상태 문서와 구현 이력 문서의 경계를 유지한다.
+- 기존 \`docs/implementation/\` 브리핑은 과거 구현 이력이므로 현재 변경사항 동기화 대상으로 탐색하거나 수정하지 않는다.
 - 실제로 바뀐 사용자 영향과 운영 사실만 반영하고, stable rule text는 참조형으로 연결한다.
 EOF
       return 0
@@ -1473,7 +1474,7 @@ EOF
     cat <<EOF
 ---
 name: docs-sync
-description: Use for documentation-sync work that keeps README, guides, rules, and implementation briefings aligned with code or policy changes.
+description: Use for documentation-sync work that keeps current-state docs such as README, guides, rules, and roadmaps aligned with code or policy changes.
 ---
 
 # Docs Sync
@@ -1491,7 +1492,8 @@ $docs_block
 $observed_file_block
 
 - Prefer preserving and extending meaningful existing README or docs structure over generic rewrites.
-- Keep the boundary between README, guides, rules, and implementation briefings.
+- Keep the boundary between current-state docs such as README, guides, rules, and roadmaps and historical implementation records.
+- Existing \`docs/implementation/\` briefings are historical records; do not search or update them for current-change synchronization.
 - Reflect only real user-impact or operating facts that changed and reference stable rules instead of copying them.
 EOF
     return 0
@@ -1901,7 +1903,7 @@ $test_tooling_block
 
 ## 구현 기록의 검증 섹션
 
-- 구현 기록에는 단위 테스트, E2E 테스트, 수동 검증, 미실행 또는 남은 공백을 구분해 적는다.
+- 새 구현 기록에는 단위 테스트, E2E 테스트, 수동 검증, 미실행 또는 남은 공백을 구분해 적는다.
 - 테스트를 실행하지 않았거나 추가하지 않았다면 이유를 기록한다.
 EOF
       return 0
@@ -1951,7 +1953,7 @@ $test_tooling_block
 
 ## Implementation Record Verification
 
-- Record unit tests, end-to-end tests, manual checks, and remaining gaps separately in implementation records.
+- Record unit tests, end-to-end tests, manual checks, and remaining gaps separately in new implementation records.
 - In a role-separated harness, evaluator owns the strongest feasible user-surface/end-to-end validation, including direct checks through browser UI, app simulator/runtime, game runtime/scene, CLI entrypoints, or API request/response flows when those are the representative surfaces.
 - If the representative user surface could not be exercised directly, explain why, what environment is missing, what substitute validation was used, and what gap remains.
 - Explain why tests were not added or run when that happens.
@@ -1986,7 +1988,7 @@ EOF
 ## 향후 구체화
 
 - 실제 test 디렉토리, 명령, framework가 정해지면 이 문서에 반영한다.
-- 구현 기록의 `검증` 섹션에는 단위 테스트, E2E 테스트, 수동 검증, 남은 공백을 구분해 적는다.
+- 새 구현 기록의 `검증` 섹션에는 단위 테스트, E2E 테스트, 수동 검증, 남은 공백을 구분해 적는다.
 EOF
     return 0
   fi
@@ -2014,7 +2016,7 @@ Define how unit tests, end-to-end tests, and verification expectations are estab
 ## Future Refinement
 
 - Record real test directories, commands, and frameworks here once they become known.
-- In implementation records, separate unit tests, end-to-end tests, manual checks, and remaining gaps in `Verification`.
+- In new implementation records, separate unit tests, end-to-end tests, manual checks, and remaining gaps in `Verification`.
 EOF
 }
 
@@ -2211,8 +2213,9 @@ build_subagents_docs_rule() {
 
 - `subagents_docs/`에는 작업용 문서만 둔다.
 - 신규 working record는 `subagents_docs/cycles/`에 쓴다.
-- 사용자-facing 최종 브리핑은 evaluator pass 이후 [\`docs/implementation/AGENTS.md\`](../../docs/implementation/AGENTS.md)를 기준으로 `docs/implementation/`의 관심사 카테고리 안에 짧고 읽기 쉽게 남긴다.
+- 사용자-facing 최종 브리핑은 evaluator pass 이후 [\`docs/implementation/AGENTS.md\`](../../docs/implementation/AGENTS.md)를 기준으로 `docs/implementation/`의 관심사 카테고리 안에 새 문서로 짧고 읽기 쉽게 남긴다.
 - plan-only 상태나 generator-only 상태를 근거로 [\`docs/implementation/AGENTS.md\`](../../docs/implementation/AGENTS.md) 아래 최종 브리핑을 만들거나 갱신하지 않는다.
+- 기존 `docs/implementation/` 브리핑은 과거 구현 이력으로 보존하고, 현재 변경사항 동기화 대상으로 탐색하거나 수정하지 않는다.
 - 역할별 소유 문서를 섞어 쓰지 않는다.
 - top-level `docs/implementation/briefings/` 디렉토리는 만들지 않는다.
 EOF
@@ -2265,8 +2268,9 @@ Define `subagents_docs/` as the working-document area used by the main agent and
 ## Document Boundary
 
 - Keep working documents only under `subagents_docs/`.
-- Leave short, human-facing final briefings under concern-based categories in [\`docs/implementation/AGENTS.md\`](../../docs/implementation/AGENTS.md) only after evaluator pass.
+- Leave a new short, human-facing final briefing under a concern-based category in [\`docs/implementation/AGENTS.md\`](../../docs/implementation/AGENTS.md) only after evaluator pass.
 - Do not create or update final briefings from a plan-only or generator-only state under [\`docs/implementation/AGENTS.md\`](../../docs/implementation/AGENTS.md).
+- Preserve existing `docs/implementation/` briefings as historical records instead of searching or updating them for current-change synchronization.
 - Do not mix role-owned working documents into user-facing documentation.
 - Do not create a top-level `docs/implementation/briefings/` directory.
 EOF

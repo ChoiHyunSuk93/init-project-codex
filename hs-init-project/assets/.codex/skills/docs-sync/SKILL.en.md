@@ -1,6 +1,6 @@
 ---
 name: docs-sync
-description: Use for documentation-sync work that keeps README, guides, rules, and implementation briefings aligned with code or policy changes.
+description: Use for documentation-sync work that keeps current-state docs such as README, guides, rules, and roadmaps aligned with code or policy changes.
 ---
 
 # Docs Sync
@@ -9,7 +9,8 @@ Read [`rule/index.md`](../../../rule/index.md), [`rule/rules/documentation-bound
 
 Use this skill for documentation synchronization work.
 
-- Update README, guides, rules, and implementation briefings according to the actual change.
+- Update current-state docs such as README, guides, rules, and roadmaps according to the actual change.
+- Existing briefings under `docs/implementation/` are historical implementation records; do not search or update them for current-change synchronization.
 - Preserve the boundary between user-facing docs and working records.
 - Reference authoritative rules instead of copying stable rule text into docs.
 - Reflect only real user-impact or operating facts that changed.

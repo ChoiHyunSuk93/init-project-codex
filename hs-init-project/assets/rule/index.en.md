@@ -115,7 +115,7 @@ Rules that are not listed here are not authoritative until they are indexed.
 - Scope: implementation history
 - Applies to: `docs/implementation/`
 - Authority: global
-- Summary: Defines concern-based category directories, ordered record naming, and non-flat history rules.
+- Summary: Defines concern-based category directories, new-record placement, ordered record naming, and non-flat history rules.
 
 ## Local Rules
 

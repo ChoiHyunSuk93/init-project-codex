@@ -21,6 +21,7 @@
 - `PROJECT_OVERVIEW.md`를 요구사항 기준으로 만들고, `subagents_docs/roadmap.md`에 phase와 완료 체크리스트를 만든다.
 - 각 구현 cycle은 roadmap phase에 연결하고, evaluator 검수 후 checklist와 상태를 갱신한다.
 - 의존 phase는 선행 phase가 `PASS`가 된 뒤에만 시작한다.
+- evaluator가 통과한 새 구현 변경은 `docs/implementation/` 아래에 새 최종 브리핑 이력 문서로 남긴다.
 
 ## 요구사항
 
@@ -30,12 +31,14 @@
 - `rule/rules/planning-roadmap.md`가 overview, roadmap, phase checklist, phase gate의 authoritative rule이어야 한다.
 - 템플릿 산출물과 `scripts/materialize_repo.sh`의 direct-generation 경로는 같은 구조와 문구를 생성해야 한다.
 - 생성되는 starter local skill과 agent metadata는 새 phase-gate 구조를 참조해야 한다.
+- `docs/implementation/`의 기존 브리핑은 과거 구현 이력으로 보존해야 하며, 최신화나 동기화 대상은 README, 오버뷰, 로드맵, guide, rule 같은 현재 상태 문서로 제한해야 한다.
 
 ## 비범위
 
 - 생성 대상 프로젝트의 실제 애플리케이션 기능, 기술 스택, 실행 명령을 임의로 확정하지 않는다.
 - 사용자가 명시하지 않은 package, CI, product feature를 생성하지 않는다.
 - `docs/guide/`를 rule 복사본이나 작업 로그 저장소로 쓰지 않는다.
+- 기존 구현 브리핑을 현재 변경사항에 맞추기 위해 불필요하게 탐색하거나 수정하지 않는다.
 
 ## 제약과 결정
 

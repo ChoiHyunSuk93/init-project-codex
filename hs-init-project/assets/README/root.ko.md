@@ -22,7 +22,7 @@
 - `subagents_docs/`: planner, generator, evaluator 작업 문서를 두는 공간이며 기본 진입점은 [`subagents_docs/AGENTS.md`](subagents_docs/AGENTS.md), phase 로드맵은 [`subagents_docs/roadmap.md`](subagents_docs/roadmap.md)다
 - `rule/`: 기준 Codex 규칙이며 탐색 시작점은 [`rule/index.md`](rule/index.md)다
 - `docs/guide/`: 사람이 읽는 사용자 가이드 문서이며 기본 진입점은 [`docs/guide/README.md`](docs/guide/README.md)다
-- `docs/implementation/`: evaluator가 통과시킨 plan cycle 뒤의 사용자-facing 최종 브리핑 문서이며 배치 기준은 [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md)다
+- `docs/implementation/`: evaluator가 통과시킨 plan cycle 뒤에 새로 남기는 user-facing 최종 브리핑 이력이며 배치 기준은 [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md)다
 - [`rule/rules/subagent-orchestration.md`](rule/rules/subagent-orchestration.md): 역할 분리와 handoff 규칙
 
 이 README에서 실제 진입점 문서나 제어문서를 가리킬 때는 Markdown 링크를 사용한다.

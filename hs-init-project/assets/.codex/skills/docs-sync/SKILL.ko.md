@@ -1,6 +1,6 @@
 ---
 name: docs-sync
-description: 코드나 규칙 변경에 맞춰 README, guide, rule, implementation briefing을 동기화하는 문서 정리 작업에 사용한다.
+description: 코드나 규칙 변경에 맞춰 README, guide, rule, roadmap 같은 현재 상태 문서를 동기화하는 문서 정리 작업에 사용한다.
 ---
 
 # Docs Sync
@@ -9,7 +9,8 @@ description: 코드나 규칙 변경에 맞춰 README, guide, rule, implementati
 
 이 skill은 문서 동기화 작업에 사용한다.
 
-- 변경 결과에 맞춰 README, guide, rule, implementation briefing을 구분해 갱신한다.
+- 변경 결과에 맞춰 README, guide, rule, roadmap처럼 현재 상태를 설명하는 문서를 구분해 갱신한다.
+- `docs/implementation/`의 기존 브리핑은 과거 구현 이력이므로 현재 변경사항 동기화 대상으로 탐색하거나 수정하지 않는다.
 - user-facing 문서와 working record의 경계를 유지한다.
 - 문서에 규칙 본문을 중복 복사하지 말고 authoritative rule을 참조형으로 연결한다.
 - 실제로 바뀐 사용자 영향과 운영 사실만 반영한다.

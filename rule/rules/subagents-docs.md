@@ -50,8 +50,9 @@
 
 - `subagents_docs/`에는 작업용 문서만 둔다.
 - 신규 working record는 `subagents_docs/cycles/`에 쓴다.
-- 사용자-facing 최종 브리핑은 evaluator pass 이후 [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md)를 기준으로 `docs/implementation/`에 요약본으로 남긴다.
+- 사용자-facing 최종 브리핑은 evaluator pass 이후 [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md)를 기준으로 `docs/implementation/`에 새 요약본으로 남긴다.
 - plan-only 상태나 generator-only 상태를 근거로 [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md) 아래 최종 브리핑을 만들지 않는다.
+- 기존 `docs/implementation/` 브리핑은 과거 구현 이력으로 보존하고, 현재 변경사항 동기화 대상으로 탐색하거나 수정하지 않는다.
 - 역할별 소유 문서를 섞어 쓰지 않는다.
 - 메인 에이전트는 이 문서 흐름의 planning/implementation/integration 책임을 질 수 있고, 필요할 때만 subagent를 선택적으로 사용한다.
 - coordinator는 completed/unused subagent thread를 정리하고, cleanup 없이 thread를 방치하지 않는다.

@@ -46,8 +46,10 @@ Keep these control filenames stable across language modes.
 - Update [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md) when implementation phases or completion criteria change.
 - Add or update guide documents only when a stable user-facing workflow exists, such as running, deploying, testing, operations, or request intake.
 - Do not create guide documents from observed structure, test layout, tooling inventories, or implementation notes alone.
-- Keep working documents in `subagents_docs/`, final briefings in `docs/implementation/`, and execution rules in `rule/`.
-- Keep final briefings synchronized with completed plan-cycle outcomes.
+- Limit current-state synchronization to documents that describe current usage, requirements, rules, and phase status, such as `README.md`, `PROJECT_OVERVIEW.md`, `subagents_docs/roadmap.md`, `docs/guide/`, and `rule/`.
+- Keep working documents in `subagents_docs/`, final briefings in category-based historical records under `docs/implementation/`, and execution rules in `rule/`.
+- For each evaluator-passed implementation change, create a new final briefing in the closest category and keep numbering ordered.
+- Preserve existing `docs/implementation/` briefings as historical implementation records. Do not search or update old records to align them with current changes unless correcting typos, broken links, incorrect verification metadata, or an explicit user request.
 - Follow [`rule/rules/rule-maintenance.md`](rule-maintenance.md) when explicit rule requirements are added or changed so the relevant `rule/rules/` document and [`rule/index.md`](../index.md) stay aligned.
 
 ## Language Note

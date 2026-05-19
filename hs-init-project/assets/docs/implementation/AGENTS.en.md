@@ -6,7 +6,7 @@ This directory stores human-facing final briefings.
 
 - Keep implementation history organized by concern-based category directories.
 - Create a category directory only when the first record for that concern is actually written.
-- Place new records in the closest existing category.
+- Place new implementation records in the closest existing category.
 - Add a new category only when the current categories no longer describe the work cleanly.
 - This directory is for human-facing short final briefings and outcomes only.
 - Keep briefings inside concern-based categories. Do not create a top-level `briefings/` directory.
@@ -14,8 +14,9 @@ This directory stores human-facing final briefings.
 ## File Rules
 
 - Do not pre-create empty category directories or placeholder records during initialization.
-- For every plan cycle that evaluator passes, create or update the corresponding final briefing.
+- For every plan cycle that evaluator passes, create a new final briefing.
 - Do not create or update final briefings from a plan-only or generator-only state.
+- Preserve existing final briefings as historical implementation records. Do not search or update old records to align them with current changes unless correcting typos, broken links, incorrect verification metadata, or an explicit user request.
 - Use `NN-name.md` filenames inside each category.
 - Keep numbering ordered within each category.
 - Do not dump records flat under `docs/implementation/` unless a flat layout was explicitly requested.
@@ -31,7 +32,7 @@ This directory stores human-facing final briefings.
 - If a change affects a real user-facing workflow, create or update the relevant guide document under `docs/guide/`.
 - Do not move implementation notes, repository maps, or copied rule text into `docs/guide/`.
 - When a rule gains explicit new requirements or an existing rule changes, follow [`rule/rules/rule-maintenance.md`](../../rule/rules/rule-maintenance.md) and keep the relevant rule document plus [`rule/index.md`](../../rule/index.md) aligned in the same change.
-- Keep implementation records aligned with [`rule/rules/testing-standards.md`](../../rule/rules/testing-standards.md) when tests or verification conventions become more concrete.
+- New implementation records follow the current verification-recording guidance in [`rule/rules/testing-standards.md`](../../rule/rules/testing-standards.md).
 - Keep planner documents, generator change records, and evaluator reports in separate owned outputs under `subagents_docs/`.
 - Use [`rule/rules/cycle-document-contract.md`](../../rule/rules/cycle-document-contract.md) for the exact working-record contract that keeps cycle outputs out of `docs/implementation/`.
 

@@ -110,3 +110,4 @@ exact cycle 문서 경로, header 상태 전이, append-only section, provenance
 - 계획 범위가 불명확하면 generator가 임의 추측으로 진행하지 말고 explorer 분석이나 planner assist를 통해 planning revision을 요구한다.
 - 구현이 나오기 전 plan 단독 상태를 cycle pass/fail 평가로 간주하지 않는다.
 - plan-only 상태나 generator-only 상태를 근거로 `docs/implementation/` 최종 브리핑을 만들거나 갱신하지 않는다.
+- 기존 `docs/implementation/` 브리핑은 과거 구현 이력으로 보존하고, 현재 변경사항 동기화 대상으로 탐색하거나 수정하지 않는다.

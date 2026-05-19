@@ -38,7 +38,8 @@
 - 기존 저장소에서는 없는 내용을 지어내지 말고, 관찰된 프로젝트 구조와 오래 유지되는 사실을 기준으로 [`README.md`](README.md)를 갱신한다.
 - 실행, 배포, 테스트 실행, 요청 절차처럼 실제 사용자가 따라야 하는 안정적인 워크플로가 생기거나 바뀌면 `docs/guide/` 아래의 관련 가이드 문서를 생성하거나 수정한다.
 - 저장소 구조 요약, 프로젝트 규약, 테스트 디렉토리 나열, 구현 메모만으로 guide 문서를 만들지 않는다.
-- evaluator가 통과시킨 각 plan cycle마다 `docs/implementation/` 아래의 가장 가까운 관심사 카테고리 안에 최종 브리핑을 생성하거나 수정한다.
+- evaluator가 통과시킨 각 plan cycle마다 `docs/implementation/` 아래의 가장 가까운 관심사 카테고리 안에 새 최종 브리핑 문서를 생성한다.
+- 기존 `docs/implementation/` 브리핑은 과거 구현 이력으로 보존하고, 오기·깨진 링크·잘못된 검증 메타데이터·명시적 사용자 요청이 없으면 현재 변경사항에 맞추기 위해 탐색하거나 수정하지 않는다.
 - 작업용 계획, generator 변경 노트, evaluator 보고서는 `subagents_docs/`에 둔다.
 - 구현 cycle은 [`subagents_docs/roadmap.md`](subagents_docs/roadmap.md)의 한 phase 또는 phase section에 연결하고, 의존 phase는 선행 phase가 `PASS`가 된 뒤에만 시작한다.
 - 동작이 바뀌는 변경이라면 가능하면 가장 관련 있는 테스트 계층을 추가하거나 수정하고, 실제 테스트 관례가 드러나면 [`rule/rules/testing-standards.md`](rule/rules/testing-standards.md)도 함께 갱신한다.

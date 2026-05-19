@@ -135,4 +135,5 @@ Weight `design quality` and `originality` more heavily than `completeness` and `
 - If direct user-surface validation is unavailable, evaluator should record why, what environment or access is missing, what substitute validation was used, and why any critical unverified surface cannot be soft-passed.
 - Do not treat plan-only artifacts as a cycle pass/fail evaluation before implementation exists.
 - Do not create or update final `docs/implementation/` briefings from a plan-only or generator-only state.
+- After evaluator pass, create a new final briefing for the new implementation result instead of updating old `docs/implementation/` records as current-state synchronization targets.
 - Do not create `docs/implementation/briefings/`; keep `docs/implementation/` category-based.

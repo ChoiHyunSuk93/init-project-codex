@@ -118,7 +118,8 @@ cycle 문서 형식, header 상태 전이, provenance 요구는 [`rule/rules/cyc
 - coordinator는 각 역할의 산출물을 반영한 뒤 완료되었거나 더 이상 필요 없는 subagent thread를 즉시 닫는다.
 - planner 문서나 coordinator plan이 모호하면 generator가 추측으로 보정하지 말고 planning revision을 요청한다.
 - 같은 cycle 문서는 같은 번호 또는 slug를 유지하고, 섹션 이름으로 버전을 추적한다.
-- [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md) 아래의 최종 브리핑은 evaluator가 `PASS`로 판정한 cycle만 요약하며, planner/generator/evaluator working docs를 대체하지 않는다.
+- [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md) 아래의 최종 브리핑은 evaluator가 `PASS`로 판정한 cycle을 새 기록으로 요약하며, planner/generator/evaluator working docs를 대체하지 않는다.
+- 기존 `docs/implementation/` 브리핑은 과거 구현 이력으로 보존하고, 현재 변경사항 동기화 대상으로 탐색하거나 수정하지 않는다.
 - coordinator는 handoff가 바뀔 때 cycle 문서 상단의 `Status`, `Current Plan Version`, `Next Handoff`를 함께 갱신한다.
 
 ## 문서화 규칙

@@ -115,7 +115,7 @@
 - Scope: implementation history
 - Applies to: `docs/implementation/`
 - Authority: global
-- Summary: concern-based category 디렉토리, 순번형 기록 이름 규칙, flat 금지 원칙을 정의한다.
+- Summary: concern-based category 디렉토리, 새 기록 추가 원칙, 순번형 기록 이름 규칙, flat 금지 원칙을 정의한다.
 
 ## 로컬 규칙
 

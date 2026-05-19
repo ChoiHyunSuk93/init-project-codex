@@ -17,7 +17,7 @@
 - [`rule/index.md`](rule/index.md)와 `rule/rules/*.md` 규칙 문서를 포함한 root `rule/`
 - planner / generator / evaluator 작업 문서를 위한 [`subagents_docs/AGENTS.md`](subagents_docs/AGENTS.md)와 `subagents_docs/`
 - [`docs/guide/README.md`](docs/guide/README.md)
-- [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md)와 사용자-facing 최종 브리핑
+- [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md)와 사용자-facing 최종 브리핑 이력
 - 언어 인식 문서 생성
 
 ## 저장소 구조

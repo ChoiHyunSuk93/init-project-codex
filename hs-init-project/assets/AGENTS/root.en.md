@@ -38,7 +38,8 @@ Keep this file thin and use it to route work to [`rule/index.md`](rule/index.md)
 - In existing repositories, update [`README.md`](README.md) from observed project structure and durable project facts instead of inventing missing details.
 - When work creates or changes a stable user-facing workflow, such as running, deploying, testing, operations, or request intake, create or update the relevant guide document under `docs/guide/`.
 - Do not create guide documents from repository structure summaries, project rules, test directory inventories, or implementation notes alone.
-- For every plan cycle that evaluator passes, create or update the corresponding final briefing inside the most relevant concern-based category under `docs/implementation/`.
+- For every plan cycle that evaluator passes, create a new final briefing inside the most relevant concern-based category under `docs/implementation/`.
+- Preserve existing `docs/implementation/` briefings as historical implementation records. Do not search or update old records to align them with current changes unless correcting typos, broken links, incorrect verification metadata, or an explicit user request.
 - Keep working plans, generator change notes, and evaluator reports under `subagents_docs/` instead of `docs/implementation/`.
 - Link each implementation cycle to one phase or phase section in [`subagents_docs/roadmap.md`](subagents_docs/roadmap.md), and start dependent phases only after the previous phase reaches `PASS`.
 - For behavior changes, add or update the most relevant test layer when practical and keep [`rule/rules/testing-standards.md`](rule/rules/testing-standards.md) aligned with real test conventions as they emerge.

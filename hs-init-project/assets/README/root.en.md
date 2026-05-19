@@ -22,7 +22,7 @@ Update this README as the real project purpose, structure, and usage become conc
 - `subagents_docs/`: planner, generator, and evaluator working documents, with [`subagents_docs/AGENTS.md`](subagents_docs/AGENTS.md) as the control entry point and [`subagents_docs/roadmap.md`](subagents_docs/roadmap.md) as the phase roadmap
 - `rule/`: authoritative Codex rules, with [`rule/index.md`](rule/index.md) as the discovery entry point
 - `docs/guide/`: user-facing workflow guides, with [`docs/guide/README.md`](docs/guide/README.md) as the default entry point
-- `docs/implementation/`: user-facing final briefings after evaluator-passed plan cycles, with [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md) as the placement rule
+- `docs/implementation/`: user-facing final briefing history added after evaluator-passed plan cycles, with [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md) as the placement rule
 - [`rule/rules/subagent-orchestration.md`](rule/rules/subagent-orchestration.md): role split and handoff rule
 
 Use Markdown links in this README when pointing to real entrypoint or control documents.

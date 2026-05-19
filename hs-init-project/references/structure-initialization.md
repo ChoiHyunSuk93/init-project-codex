@@ -418,6 +418,9 @@ When generating the root `AGENTS.md` or a local `docs/implementation/AGENTS.md`,
 - implementation categories are created lazily when the first relevant record is written
 - new implementation records belong in the closest existing category
 - add a new category only when the current categories no longer describe the work cleanly
+- each new evaluator-passed implementation change creates a new implementation record by default
+- existing implementation records are historical briefings, not current-state synchronization targets
+- edit old implementation records only for typos, broken links, incorrect verification metadata, or an explicit user request
 - do not dump records flat under `docs/implementation/` unless the user explicitly requested a flat layout
 - include the active language policy for human-facing generated documents
 - `subagents_docs/` working documents also follow the selected language

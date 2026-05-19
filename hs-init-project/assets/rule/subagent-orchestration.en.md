@@ -110,3 +110,4 @@ Use [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md) as the
 - If plan scope is unclear, resolve it through explorer analysis or planner assistance before delegated implementation starts.
 - Do not treat a plan-only artifact as a cycle pass/fail evaluation before implementation exists.
 - Do not create or update final `docs/implementation/` briefings from a plan-only or generator-only state.
+- Preserve existing `docs/implementation/` briefings as historical implementation records instead of searching or updating them for current-change synchronization.

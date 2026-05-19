@@ -46,8 +46,10 @@ rule 문서, guide 문서, implementation 기록 문서의 차이를 정의한�
 - 구현 작업을 phase로 나누거나 완료기준이 바뀌면 [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md)를 갱신한다.
 - 실행, 배포, 테스트 실행, 디자인 요청처럼 실제 사용자 워크플로가 분명해지면 guide 문서를 추가하거나 수정한다.
 - 관찰된 구조, 테스트 디렉토리, 툴링 목록, 구현 메모만으로는 guide 문서를 만들지 않는다.
-- 작업 문서는 `subagents_docs/`에 두고, 최종 브리핑은 `docs/implementation/`에 둔다.
-- 최종 브리핑은 항상 완료된 plan-cycle 결과와 함께 동기화하고, 카테고리 안의 번호 순서를 유지한다.
+- 현재 상태를 반영해야 하는 문서는 `README.md`, `PROJECT_OVERVIEW.md`, `subagents_docs/roadmap.md`, `docs/guide/`, `rule/`처럼 현행 사용법, 요구사항, 규칙, phase 상태를 설명하는 문서로 한정한다.
+- 작업 문서는 `subagents_docs/`에 두고, 최종 브리핑은 `docs/implementation/`의 category 기반 이력 문서로 둔다.
+- 구현 변경은 evaluator `PASS` 이후 가장 가까운 category 안에 새 최종 브리핑 문서로 기록하고, 카테고리 안의 번호 순서를 유지한다.
+- 기존 `docs/implementation/` 브리핑은 과거 구현 이력으로 보존한다. 오기, 깨진 링크, 잘못된 검증 메타데이터, 명시적 사용자 요청이 있는 경우를 제외하고 현재 변경사항에 맞추기 위해 과거 기록을 탐색하거나 수정하지 않는다.
 - 명시 규칙이 추가되거나 바뀌면 [`rule/rules/rule-maintenance.md`](rule-maintenance.md)를 따라 관련 `rule/rules/` 문서와 [`rule/index.md`](../index.md)를 함께 갱신한다.
 
 ## 언어 메모

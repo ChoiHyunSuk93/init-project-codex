@@ -13,7 +13,7 @@ Define how implementation quality standards are established and maintained in th
   - explicit data flow
   - readable control flow
   - correct error handling
-  - synchronized code, docs, and verification
+  - synchronized code, current-state docs, and verification
 - As real project conventions emerge, replace generic guidance here with observed rules.
 
 ## Existing Repositories
@@ -57,9 +57,10 @@ Define how implementation quality standards are established and maintained in th
 - Keep functions, modules, and files focused on a clear responsibility where practical.
 - Prefer readable control flow over clever compression.
 - Handle errors at the correct boundary and avoid silent failure.
-- Update related types, schemas, DTOs, interfaces, and docs together when behavior changes.
+- Update related types, schemas, DTOs, interfaces, and current-state docs together when behavior changes.
+- Current-state docs are limited to documents that describe current usage, requirements, rules, and phase status. Existing records under `docs/implementation/` are historical implementation records, not current-change synchronization targets.
 - Remove dead code, stale comments, and obvious duplication introduced by the change.
-- Keep docs, tests, and public behavior synchronized with the actual implementation.
+- Keep current-state docs, tests, and public behavior synchronized with the actual implementation.
 
 ## Verification Expectations
 

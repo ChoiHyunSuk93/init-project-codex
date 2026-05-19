@@ -25,3 +25,18 @@
 - `Verification`: `sh -n hs-init-project/scripts/materialize_repo.sh`, fresh Korean materialize smoke, existing English materialize smoke, `git diff --check`
 - `Cycle`: `subagents_docs/cycles/[NN-phase-slug].md`
 - `Notes`: release와 installed skill 갱신은 사용자가 별도로 요청할 때 진행한다. Smoke output에서 `PROJECT_OVERVIEW.md`, `subagents_docs/roadmap.md`, `rule/rules/planning-roadmap.md` 생성을 확인했다.
+
+## Phase 2 - Implementation Briefing History Boundary
+
+- `Status`: `PASS`
+- `Goal`: 구현 브리핑은 과거 구현 이력으로 보존하고, 새 변경은 새 브리핑 문서로 남기며, 현재 상태 동기화 대상은 README, 오버뷰, 로드맵, guide, rule로 제한한다.
+- `Scope`: current repo rule docs, generated templates, starter docs-sync skill metadata, materialize script, current README/overview/roadmap docs
+- `Non-goals`: 기존 구현 브리핑 본문 재작성, release tag 생성, installed global skill 갱신
+- `Required Checklist`:
+  - [x] `docs/implementation/` 기존 브리핑을 current-state sync 대상으로 보지 않도록 rule과 control docs가 명시한다.
+  - [x] 새 evaluator-passed 변경은 새 implementation record로 남기도록 current repo와 generated templates가 정렬된다.
+  - [x] docs-sync starter skill은 README, guide, rule, roadmap 같은 현재 상태 문서 동기화로 범위가 좁혀진다.
+  - [x] `scripts/materialize_repo.sh` fresh/existing generation 경로가 같은 문구를 생성한다.
+- `Verification`: `sh -n hs-init-project/scripts/materialize_repo.sh`, fresh Korean materialize smoke, existing English materialize smoke, generated-output `rg` check, `git diff --check`
+- `Cycle`: small direct policy change; shared cycle document omitted
+- `Notes`: 기존 `docs/implementation/subagent-harness/01-*`부터 `03-*`까지의 과거 브리핑은 현재 변경사항에 맞춰 수정하지 않았다.

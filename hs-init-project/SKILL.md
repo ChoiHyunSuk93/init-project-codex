@@ -109,6 +109,8 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - Create `subagents_docs/AGENTS.md` plus the `subagents_docs/cycles/` working area as baseline harness structure.
    - Default to `docs/guide/README.md` and `docs/implementation/AGENTS.md`.
    - When an implementation record is created, follow the rule-defined section shape directly, including unit-test, end-to-end test, manual-check, and gap notes in `Verification`; do not copy skill `assets/` into the target repository.
+   - Treat implementation records as historical briefings: each new evaluator-passed implementation change creates a new record by default.
+   - Do not search or update old `docs/implementation/` records to synchronize current changes, except for typo fixes, broken links, incorrect verification metadata, or an explicit user request.
    - Do not create a target-repository `assets/` directory unless the user explicitly asked for project assets unrelated to this skill.
    - Do not pre-create empty implementation category directories during initialization.
    - Create other local `AGENTS.md` files only where they improve scope clarity.
@@ -130,6 +132,7 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - Write evaluator rules and prompts around direct validation of the representative user surface for the change: browser UI for web, simulator/runtime for apps, runtime/scene for games, or actual CLI/API entrypoints when those are the primary surfaces.
    - If direct user-surface validation is unavailable, require the evaluator to record why, what environment or access is missing, what substitute validation was used, and why an unverified critical surface cannot be soft-passed.
    - Do not create or update final `docs/implementation/` briefings from a plan-only or generator-only state.
+   - After evaluator `PASS`, write a new final briefing for the new implementation result instead of updating old briefings as current-state sync targets.
    - Keep starter local skills aligned through clear `SKILL.md` descriptions, matching metadata, and `allow_implicit_invocation` support.
    - Split multiple plans into separate plan cycles; run them in parallel only when they are independent and in order when they are dependent.
    - Link each plan cycle to one roadmap phase or phase section.
@@ -237,6 +240,7 @@ Read [references/structure-initialization.md](references/structure-initializatio
 - Do not copy the skill's `assets/` directory into the target repository.
 - Do not place subagent working documents in `docs/guide/` or `docs/implementation/` for generated repositories; use `subagents_docs/` instead.
 - Do not use `docs/implementation/` for subagent working records in generated repositories; reserve it for final implementation briefings inside concern-based categories after a cycle passes.
+- Do not treat existing `docs/implementation/` briefings as current-state synchronization targets. Current-state sync applies to README, project overview, roadmap, guides, rules, and similar living documents, while new implementation work gets a new briefing record.
 - Do not create `docs/implementation/briefings/`; keep `docs/implementation/` category-based.
 - Do not ask the language question twice after a valid answer or explicit language selection is already available.
 - Do not request chooser, submit, modal, or dummy selection UI for the language prompt.

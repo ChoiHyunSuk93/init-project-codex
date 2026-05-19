@@ -17,7 +17,7 @@ It focuses on a small, explicit baseline:
 - root `rule/` with [`rule/index.md`](rule/index.md) and indexed rule documents under `rule/rules/*.md`
 - [`subagents_docs/AGENTS.md`](subagents_docs/AGENTS.md) plus `subagents_docs/` working docs for planner / generator / evaluator
 - [`docs/guide/README.md`](docs/guide/README.md)
-- [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md) plus user-facing final briefings
+- [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md) plus user-facing final briefing history
 - language-aware document generation
 
 ## Repository Layout

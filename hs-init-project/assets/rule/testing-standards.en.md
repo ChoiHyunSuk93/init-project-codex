@@ -33,6 +33,6 @@ Define how unit tests, end-to-end tests, and verification expectations are estab
 
 ## Verification Recording
 
-- Implementation records should state which unit tests were added or run.
-- Implementation records should state which end-to-end tests were added or run when relevant.
+- New implementation records should state which unit tests were added or run.
+- New implementation records should state which end-to-end tests were added or run when relevant.
 - If tests were not added or run, the record should explain why and describe the manual verification that was used instead.

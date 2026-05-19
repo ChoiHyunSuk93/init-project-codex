@@ -115,7 +115,7 @@
 - Scope: implementation history
 - Applies to: `docs/implementation/`
 - Authority: global
-- Summary: user-facing implementation briefings의 category 기반 구조, 순번형 기록 이름 규칙, flat 금지 원칙을 정의한다.
+- Summary: user-facing implementation briefings의 category 기반 구조, 새 기록 추가 원칙, 순번형 기록 이름 규칙, flat 금지 원칙을 정의한다.
 
 ## 로컬 규칙
 

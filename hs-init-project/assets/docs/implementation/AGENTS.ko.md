@@ -6,7 +6,7 @@
 
 - 구현 기록은 관심사 기반 카테고리 디렉토리로 정리한다.
 - 카테고리 디렉토리는 해당 관심사의 첫 구현 기록을 작성할 때 생성한다.
-- 새 기록은 가장 가까운 기존 카테고리에 배치한다.
+- 새 구현 기록은 가장 가까운 기존 카테고리에 배치한다.
 - 현재 카테고리로 더 이상 작업을 설명하기 어렵게 되었을 때만 새 카테고리를 추가한다.
 - 이 디렉토리는 사용자-facing 짧은 최종 브리핑과 결과만 담는 공간이다.
 - 브리핑은 관심사 카테고리 안에 두고, top-level `briefings/` 디렉토리는 만들지 않는다.
@@ -14,8 +14,9 @@
 ## 파일 규칙
 
 - 초기화 단계에서 빈 카테고리 디렉토리나 placeholder 기록 문서를 미리 만들지 않는다.
-- evaluator가 통과시킨 각 plan cycle마다 해당 최종 브리핑을 생성하거나 수정한다.
+- evaluator가 통과시킨 각 plan cycle마다 새 최종 브리핑 문서를 생성한다.
 - plan 문서나 generator change record만 있는 상태에서는 최종 브리핑을 만들거나 갱신하지 않는다.
+- 기존 최종 브리핑은 과거 구현 이력으로 보존한다. 오기, 깨진 링크, 잘못된 검증 메타데이터, 명시적 사용자 요청이 있는 경우를 제외하고 현재 변경사항에 맞추기 위해 과거 기록을 탐색하거나 수정하지 않는다.
 - 각 카테고리 안에서는 `NN-name.md` 형식을 사용한다.
 - 각 카테고리 안의 번호는 순서에 맞게 유지한다.
 - flat layout을 명시적으로 요청하지 않았다면 기록을 `docs/implementation/` 루트에 평평하게 쌓지 않는다.
@@ -31,8 +32,8 @@
 - 변경이 실제 사용자 워크플로를 바꾸면 `docs/guide/`의 관련 가이드를 함께 생성하거나 수정한다.
 - 구현 메모, 저장소 구조 요약, 규칙 복사본을 `docs/guide/`로 옮기지 않는다.
 - 규칙에 새로운 명시 사항이 추가되거나 기존 규칙이 바뀌면 [`rule/rules/rule-maintenance.md`](../../rule/rules/rule-maintenance.md)를 따라 관련 규칙 문서와 [`rule/index.md`](../../rule/index.md)를 함께 갱신한다.
-- 테스트나 검증 관례가 더 구체화되면 구현 기록도 [`rule/rules/testing-standards.md`](../../rule/rules/testing-standards.md)와 맞춰서 유지한다.
-- planner 문서, generator 구현 기록, evaluator 보고서는 `subagents_docs/`에 서로 다른 소유 산출물로 유지한다.
+- 새 구현 기록은 [`rule/rules/testing-standards.md`](../../rule/rules/testing-standards.md)의 현재 검증 기록 기준을 따른다.
+- planner 문서, generator 변경 기록, evaluator 보고서는 `subagents_docs/`에 서로 다른 소유 산출물로 유지한다.
 - cycle working record가 `docs/implementation/`으로 섞이지 않도록 exact 계약은 [`rule/rules/cycle-document-contract.md`](../../rule/rules/cycle-document-contract.md)를 따른다.
 
 ## 권한 범위
