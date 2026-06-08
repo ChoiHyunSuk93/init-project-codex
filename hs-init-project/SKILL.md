@@ -99,6 +99,8 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - Create starter rule documents under `rule/rules/` from the language-appropriate templates in the skill's `assets/rule/`.
    - Include a starter rule for rule maintenance and rule-index alignment unless the repository already has a stronger equivalent.
    - Include starter rules for root README maintenance and development standards unless the repository already has stronger equivalents.
+   - Generated `rule/rules/development-standards.md` must explicitly include required code implementation principles covering existing structure first, reuse over duplication, clear responsibility separation, no hardcoding, fail fast with no silent fallback, YAGNI, explicit naming and behavior, testability, and observability.
+   - Generated development standards must state that implementations conflicting with those principles are incorrect even if the feature appears to work.
    - Include a starter rule for unit-test and end-to-end test expectations unless the repository already has a stronger equivalent.
    - In fresh mode, make `rule/rules/development-standards.md` provisional and refine it as real stack, tooling, and structure conventions become concrete during ongoing work.
    - In existing-project mode, derive `rule/rules/development-standards.md` from observed project structure, naming patterns, tooling, automation, and verification commands instead of leaving it generic.
@@ -226,6 +228,7 @@ Read [references/structure-initialization.md](references/structure-initializatio
 - Do not invent `README.md` sections that imply unobserved features, commands, or setup guarantees.
 - Do not freeze generic development standards as if they were final project-specific rules in a fresh repository.
 - Do not write authoritative development standards for an existing repository without analyzing observed structure, tooling, and verification paths first.
+- Do not omit the required code implementation principles from generated development standards.
 - Do not write authoritative testing standards for an existing repository without analyzing observed test structure, tooling, and verification paths first.
 - Do not assume an end-to-end framework exists in a fresh repository before the real stack or delivery surface exists.
 - Do not ask the user to name implementation categories unless the user explicitly wants to control category naming.

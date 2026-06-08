@@ -167,6 +167,8 @@ Treat `rule/rules/development-standards.md` differently by mode.
 In all generated development standards documents:
 
 - include language-appropriate working principles for thinking before coding, simplicity first, surgical changes, and goal-driven execution
+- explicitly include the required code implementation principles: existing structure first, reuse over duplication, clear responsibility separation, no hardcoding, fail fast with no silent fallback, YAGNI, explicit naming and behavior, testability, and observability
+- state that implementations conflicting with those principles are incorrect even if the feature appears to work
 - keep those principles in `rule/rules/development-standards.md` instead of duplicating them across root instructions or starter local skills
 
 In fresh repositories:

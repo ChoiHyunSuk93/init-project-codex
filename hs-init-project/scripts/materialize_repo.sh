@@ -167,6 +167,49 @@ EOF
 EOF
 }
 
+build_code_implementation_principles() {
+  language=$1
+
+  if [ "$language" = "ko" ]; then
+    cat <<'EOF'
+## 필수 코드 구현 원칙
+
+아래 원칙은 모든 코드 구현의 필수 기준이다. 프로젝트별 관례나 local rule은 더 구체화할 수 있지만 약화할 수 없다. 충돌하는 구현은 기능 동작 여부와 관계없이 잘못된 구현으로 간주한다.
+
+1. 기존 구조 우선: 구현 전 기존 구조, 패턴, 공통 모듈을 먼저 확인하고 기존 아키텍처를 확장한다. 같은 문제에 새 패턴을 추가하거나 혼재된 구조를 만들지 않는다.
+2. 재사용 우선(DRY): 동일하거나 유사한 로직과 비즈니스 규칙은 단일 책임 위치(Single Source of Truth)에서 관리하고 공통 모듈, 함수, 클래스, 컴포넌트로 재사용한다.
+3. 책임 분리(Single Responsibility): 파일, 모듈, 클래스, 함수는 하나의 명확한 책임만 가진다. UI, 비즈니스 로직, 데이터 접근, 조회, 검증, 저장, 변환, 알림 책임을 한 단위에 섞지 않는다.
+4. 하드코딩 금지: 반복 값은 상수로, 환경별 값은 설정이나 환경 변수로, 정책값은 단일 정의 위치로 분리한다. 매직 넘버, 반복 문자열, URL, 경로, API endpoint, 임계값을 하드코딩하지 않는다.
+5. Fail Fast: 기대 동작이 실패하면 충분한 진단 정보와 함께 즉시 오류를 노출한다. 조용한 fallback, 예외 무시, 기본값 반환으로 실패를 숨기는 우회 로직을 금지한다.
+6. YAGNI: 현재 요구사항을 충족하는 범위까지만 구현한다. 실제 사용 사례가 없는 기능, 옵션, 설정, 인터페이스, 확장 포인트, 미래 대비 추상화를 추가하지 않는다.
+7. 명시성: 이름만 보고 역할과 의도를 이해할 수 있어야 하며 동작은 명시적으로 표현한다. `util`, `helper`, `common`, `temp`, `data`, `value` 같은 모호한 이름과 암묵적 상태 변경을 피한다.
+8. 테스트 가능성: 핵심 비즈니스 로직은 독립적으로 테스트 가능해야 하며 외부 의존성은 주입 가능해야 한다. 함수 내부에서 DB, API, 파일 시스템 의존성을 직접 생성하는 강결합을 피한다.
+9. 관측 가능성: 주요 처리 흐름과 오류 원인은 추적 가능해야 한다. 빈 `catch`, 원인 없는 에러 메시지, 디버깅 불가능한 예외 처리를 금지한다.
+
+구현 우선순위는 기존 구조, 재사용, 책임 분리, 하드코딩 금지, Fail Fast, YAGNI, 명시성, 테스트 가능성, 관측 가능성 순서로 둔다.
+EOF
+    return 0
+  fi
+
+  cat <<'EOF'
+## Required Code Implementation Principles
+
+These principles are mandatory for all code implementation. Project-specific conventions and local rules may make them more concrete, but must not weaken them. Conflicting implementations are incorrect even if the feature appears to work.
+
+1. Existing structure first: Before implementing, inspect existing structure, patterns, and shared modules, then extend the existing architecture. Do not add new patterns for the same problem or create mixed architecture.
+2. Reuse first (DRY): Manage identical or similar logic and business rules in a single source of truth, reused through shared modules, functions, classes, or components.
+3. Responsibility separation (Single Responsibility): Each file, module, class, and function has one clear responsibility. Do not mix UI, business logic, data access, retrieval, validation, persistence, transformation, and notification in one unit.
+4. No hardcoding: Put repeated values in constants, environment-specific values in configuration or environment variables, and policy values in a single definition point. Do not hardcode magic numbers, repeated strings, URLs, paths, API endpoints, or thresholds.
+5. Fail fast: When expected behavior fails, expose an error immediately with enough diagnostic information. Do not hide failures with silent fallback, ignored exceptions, default returns, or bypass logic.
+6. YAGNI: Implement only the current requirement. Do not add unused features, options, settings, interfaces, extension points, or speculative abstractions.
+7. Explicitness: Names must reveal role and intent, and behavior must be explicit. Avoid vague names such as `util`, `helper`, `common`, `temp`, `data`, and `value`, and avoid implicit state changes.
+8. Testability: Core business logic must be independently testable and external dependencies injectable. Avoid tightly coupling functions to DB, API, or filesystem dependency creation.
+9. Observability: Major processing flows and failure causes must be traceable. Empty `catch` blocks, error messages without cause information, and undebuggable exception handling are prohibited.
+
+Implementation priority is: existing structure, reuse, responsibility separation, no hardcoding, fail fast, YAGNI, explicitness, testability, observability.
+EOF
+}
+
 list_top_level_dirs() {
   target_dir=$1
   find "$target_dir" -mindepth 1 -maxdepth 1 -type d ! -name '.git' \
@@ -1624,6 +1667,7 @@ build_development_standards() {
   tooling_files=$7
   merged_non_runtime_dirs=$(merge_non_runtime_dirs "$non_runtime_dirs")
   working_principles=$(build_working_principles "$language")
+  code_implementation_principles=$(build_code_implementation_principles "$language")
 
   if [ "$standards_mode" = "existing" ]; then
     if [ "$language" = "ko" ]; then
@@ -1689,6 +1733,8 @@ $non_runtime_block
 - 특정 영역에 더 강한 규칙이 보이면 local rule로 더 좁게 분리한다.
 
 $working_principles
+
+$code_implementation_principles
 
 ## 기본 품질 기대치
 
@@ -1770,6 +1816,8 @@ $non_runtime_block
 
 $working_principles
 
+$code_implementation_principles
+
 ## Baseline Quality Expectations
 
 - Keep functions, modules, and files focused on a clear responsibility where practical.
@@ -1803,6 +1851,8 @@ EOF
 
 $working_principles
 
+$code_implementation_principles
+
 ## 현재 최소 기대치
 
 - 명확한 이름을 사용한다.
@@ -1834,6 +1884,8 @@ Define how implementation quality standards are established and maintained in th
 - Replace generic guidance with observed project-specific standards as they emerge.
 
 $working_principles
+
+$code_implementation_principles
 
 ## Current Minimal Expectations
 

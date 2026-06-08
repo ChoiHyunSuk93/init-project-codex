@@ -52,6 +52,22 @@ Define how implementation quality standards are established and maintained in th
 - For multi-step work, state each step and its verification method briefly.
 - Iterate until verification passes or a clear blocker is identified.
 
+## Required Code Implementation Principles
+
+These principles are mandatory for all code implementation. Project-specific conventions and local rules may make them more concrete, but must not weaken them. Conflicting implementations are incorrect even if the feature appears to work.
+
+1. Existing structure first: Before implementing, inspect existing structure, patterns, and shared modules, then extend the existing architecture. Do not add new patterns for the same problem or create mixed architecture.
+2. Reuse first (DRY): Manage identical or similar logic and business rules in a single source of truth, reused through shared modules, functions, classes, or components.
+3. Responsibility separation (Single Responsibility): Each file, module, class, and function has one clear responsibility. Do not mix UI, business logic, data access, retrieval, validation, persistence, transformation, and notification in one unit.
+4. No hardcoding: Put repeated values in constants, environment-specific values in configuration or environment variables, and policy values in a single definition point. Do not hardcode magic numbers, repeated strings, URLs, paths, API endpoints, or thresholds.
+5. Fail fast: When expected behavior fails, expose an error immediately with enough diagnostic information. Do not hide failures with silent fallback, ignored exceptions, default returns, or bypass logic.
+6. YAGNI: Implement only the current requirement. Do not add unused features, options, settings, interfaces, extension points, or speculative abstractions.
+7. Explicitness: Names must reveal role and intent, and behavior must be explicit. Avoid vague names such as `util`, `helper`, `common`, `temp`, `data`, and `value`, and avoid implicit state changes.
+8. Testability: Core business logic must be independently testable and external dependencies injectable. Avoid tightly coupling functions to DB, API, or filesystem dependency creation.
+9. Observability: Major processing flows and failure causes must be traceable. Empty `catch` blocks, error messages without cause information, and undebuggable exception handling are prohibited.
+
+Implementation priority is: existing structure, reuse, responsibility separation, no hardcoding, fail fast, YAGNI, explicitness, testability, observability.
+
 ## Baseline Quality Expectations
 
 - Keep functions, modules, and files focused on a clear responsibility where practical.
