@@ -15,6 +15,7 @@ Use `docs/guide/` for user-facing guidance and `docs/implementation/` only for s
 Generated repositories must include `rule/rules/cycle-document-contract.md` and `rule/rules/language-policy.md` as the authoritative cycle and language rules.
 Generated repositories must include `rule/rules/planning-roadmap.md`, root `PROJECT_OVERVIEW.md`, and `subagents_docs/roadmap.md` so implementation cycles start from a project-level requirements baseline and phase checklist.
 Generated repositories may include process-oriented starter local skills under `.codex/skills/`; keep their `SKILL.md` descriptions, metadata, and `allow_implicit_invocation` support aligned.
+Generated custom agent files must omit the optional `model` and `model_reasoning_effort` fields so planner, generator, and evaluator inherit both settings from the parent agent.
 The coordinator may wait as long as needed for subagent output, but it must close completed or no-longer-needed subagent threads immediately after integrating their outputs.
 If stale sessions or thread-limit blockage prevent more delegation, cleanup is required coordination work before continuing.
 

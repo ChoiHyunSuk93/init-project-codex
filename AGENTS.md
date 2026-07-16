@@ -41,7 +41,7 @@
 - 구현 cycle은 [`subagents_docs/roadmap.md`](subagents_docs/roadmap.md)의 한 phase 또는 phase section에 연결하고, 의존 phase는 선행 phase가 `PASS`가 된 뒤에만 시작한다.
 - 작은 직접 변경은 shared handoff가 없으면 cycle 문서를 생략할 수 있고, 중간 이상 변경이나 명시적 work-sharing이 있으면 cycle 문서를 사용한다.
 - subagent 작업 문서를 `docs/implementation/` 아래에 두지 말고 `subagents_docs/`를 사용한다.
-- `.codex/agents/*.toml`의 reasoning 기본값은 `high`로 두고, 작업 난이도와 리스크에 따라 조정할 수 있게 유지한다.
+- `.codex/agents/*.toml`에서는 `model`과 `model_reasoning_effort`를 생략해 두 설정을 부모 agent에서 상속하고, 기본 하네스에서 별도로 override하지 않는다.
 - subagent 응답이 느리더라도 메인 에이전트는 우선 기존 handoff와 통합 책임을 유지하고, 완료되었거나 더 이상 필요 없는 subagent thread는 작업 종료 전에 정리한다.
 - stale session이나 thread limit 때문에 새 subagent를 띄우지 못하면, 메인 에이전트는 thread cleanup을 먼저 수행한다.
 

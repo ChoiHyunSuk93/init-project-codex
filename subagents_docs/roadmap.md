@@ -40,3 +40,18 @@
 - `Verification`: `sh -n hs-init-project/scripts/materialize_repo.sh`, fresh Korean materialize smoke, existing English materialize smoke, generated-output `rg` check, `git diff --check`
 - `Cycle`: small direct policy change; shared cycle document omitted
 - `Notes`: 기존 `docs/implementation/subagent-harness/01-*`부터 `03-*`까지의 과거 브리핑은 현재 변경사항에 맞춰 수정하지 않았다.
+
+## Phase 3 - Parent Model And Reasoning Inheritance
+
+- `Status`: `PASS`
+- `Goal`: 기본 subagent 하네스가 모델과 reasoning effort를 고정하지 않고 부모 agent 설정을 그대로 상속한다.
+- `Scope`: current/generated agent TOML, skill instructions/reference/metadata, current/generated AGENTS 및 README 문구, 검증 smoke
+- `Non-goals`: agent 역할 지침 또는 sandbox 정책 변경, 과거 cycle/implementation 기록 수정, release/tag 생성, installed global skill 갱신
+- `Required Checklist`:
+  - [x] current repo와 generated planner/generator/evaluator TOML에서 `model`과 `model_reasoning_effort`가 모두 제거된다.
+  - [x] current-state rule/doc와 skill metadata가 부모 설정 상속 정책으로 정렬된다.
+  - [x] fresh/existing materialize 결과의 세 agent TOML이 모델과 reasoning effort를 명시하지 않는다.
+  - [x] skill 구조 검증, shell syntax, TOML parse, generated-output assertion, diff 검사에 통과한다.
+- `Verification`: skill quick validation, `sh -n`, current/template TOML parse, fresh Korean materialize smoke, existing English materialize smoke, living-source `rg` assertion, `git diff --check`
+- `Cycle`: [`subagents_docs/cycles/32-inherit-agent-model-reasoning.md`](cycles/32-inherit-agent-model-reasoning.md)
+- `Notes`: [`Evaluator v1`](cycles/32-inherit-agent-model-reasoning.md)이 current/template TOML, fresh Korean, existing English, living-source drift, diff scope를 재검증해 `PASS`했다. 현재 Codex manual은 custom agent 파일에서 생략한 `model`과 `model_reasoning_effort`가 부모 session에서 상속된다고 명시한다. 기존 구현 브리핑과 완료 cycle은 과거 기록으로 유지한다.

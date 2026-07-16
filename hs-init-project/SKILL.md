@@ -75,7 +75,7 @@ In existing repositories or uncertain structures, inspect first, ask the missing
    - Keep control filenames, directory names, code, commands, config keys, slugs, and predictable rule-path conventions aligned with the generated language rule.
 7. Create the rule, subagent, and documentation structure.
    - Create `.codex/config.toml` and `.codex/agents/planner.toml`, `.codex/agents/generator.toml`, `.codex/agents/evaluator.toml` as required baseline files.
-   - Set `model_reasoning_effort = "high"` for generated planner, generator, and evaluator agents, and keep the surrounding guidance compatible with task-specific adjustment.
+   - Omit `model` and `model_reasoning_effort` from generated planner, generator, and evaluator agent files so both settings inherit from the parent agent instead of being overridden by the baseline harness.
    - Create process-oriented starter local skills under `.codex/skills/change-analysis/`, `.codex/skills/code-implementation/`, `.codex/skills/test-debug/`, `.codex/skills/docs-sync/`, and `.codex/skills/quality-review/`, each with a thin `SKILL.md` and `agents/openai.yaml`.
    - Write those starter skills with clear task-matching descriptions, aligned metadata, and `policy.allow_implicit_invocation: true`.
    - Keep starter skill bodies thin and rule-referencing. Do not copy stable repository rules into the skill body.
