@@ -11,6 +11,7 @@
 메인 에이전트는 작업 분류, 계획 승인, 구현 통합, handoff 결정을 담당한다.
 메인 에이전트는 필요하면 subagent를 자율적으로 호출할 수 있다.
 문서 분석은 독립적인 질문 단위라면 병렬 `explorer` 호출을 우선 고려한다.
+`.codex/agents/*.toml`에서는 선택 항목인 `model`과 `model_reasoning_effort`를 생략해 planner, generator, evaluator가 두 설정을 부모 agent에서 상속하게 한다.
 coordinator는 subagent 응답을 오래 기다릴 수 있지만, 반영이 끝난 completed/unused thread는 즉시 닫아야 한다.
 stale session이나 thread limit으로 delegation이 막히면 cleanup을 먼저 수행한다.
 프로젝트 요구사항과 phase gate는 [`rule/rules/planning-roadmap.md`](planning-roadmap.md)를 기준으로 삼는다.

@@ -66,7 +66,7 @@ Keep this file thin and use it to route work to [`rule/index.md`](rule/index.md)
 - If stale sessions or thread limits block new delegation, perform thread cleanup before continuing.
 - Use [`rule/rules/cycle-document-contract.md`](rule/rules/cycle-document-contract.md) for exact cycle file paths, header transitions, append-only section rules, provenance, and dirty-worktree evaluation requirements.
 - Use [`rule/rules/language-policy.md`](rule/rules/language-policy.md) for document-language and stable filename/path rules.
-- Generated `.codex/agents/*.toml` should default to `model_reasoning_effort = "high"` and allow task-specific adjustment.
+- Omit `model` and `model_reasoning_effort` from generated `.codex/agents/*.toml` so both settings inherit from the parent agent.
 - Keep `.codex/agents/*.toml` and [`subagents_docs/AGENTS.md`](subagents_docs/AGENTS.md) aligned with those authoritative rules.
 - Keep `subagents_docs/` for working records and keep `docs/implementation/` as the user-facing summary layer for passed cycles only.
 

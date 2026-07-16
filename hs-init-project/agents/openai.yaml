@@ -22,8 +22,8 @@ interface:
     explicit naming and behavior, testability, and observability; conflicting
     implementations are incorrect even if they appear to work. Generated
     `.codex/agents/planner.toml`, `.codex/agents/generator.toml`, and
-    `.codex/agents/evaluator.toml` must default to
-    `model_reasoning_effort = "high"` while allowing task-specific adjustment.
+    `.codex/agents/evaluator.toml` must omit `model` and
+    `model_reasoning_effort` so both settings inherit from the parent agent.
     Generated harness rules should let the main agent choose the appropriate
     adaptive workflow, may use subagents when needed, and must keep evaluator
     validation separate and grounded in the representative user surface when one

@@ -10,6 +10,7 @@
 coordinator는 필요할 때 planner, generator, evaluator, explorer 같은 subagent를 자율적으로 호출할 수 있다.
 문서 분석이나 비교 독해가 필요한 경우에는 독립적인 질문 단위로 병렬 `explorer` 호출을 우선 고려한다.
 evaluator는 어떤 경로를 선택하더라도 가능한 한 분리된 검증 역할로 유지한다.
+`.codex/agents/*.toml`에서는 선택 항목인 `model`과 `model_reasoning_effort`를 생략해 planner, generator, evaluator가 두 설정을 부모 agent에서 상속하게 한다.
 coordinator는 완료되었거나 더 이상 필요 없는 subagent thread는 결과를 반영한 직후 반드시 닫는다.
 stale session이나 thread limit 때문에 후속 subagent 실행이 막히면, coordinator는 thread cleanup을 우선 수행한다.
 cycle 문서 형식, header 상태 전이, provenance 요구는 [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md)를 기준으로 삼는다.

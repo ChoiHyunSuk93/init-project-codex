@@ -11,6 +11,7 @@ Use [`rule/rules/language-policy.md`](language-policy.md) for the exact language
 The main agent owns classification, plan approval, implementation integration, and handoff decisions.
 The main agent may autonomously invoke subagents when needed.
 For document analysis, prefer parallel `explorer` calls when the questions are independent.
+Omit the optional `model` and `model_reasoning_effort` fields from `.codex/agents/*.toml` so planner, generator, and evaluator inherit both settings from the parent agent.
 The coordinator may wait as long as needed for subagent output, but it must close completed or no-longer-needed threads immediately after integrating their outputs.
 If stale sessions or thread limits block more delegation, cleanup is required before continuing.
 Use [`rule/rules/planning-roadmap.md`](planning-roadmap.md) as the authority for project requirements and phase gates.

@@ -31,6 +31,7 @@
 - `rule/rules/planning-roadmap.md`가 overview, roadmap, phase checklist, phase gate의 authoritative rule이어야 한다.
 - 템플릿 산출물과 `scripts/materialize_repo.sh`의 direct-generation 경로는 같은 구조와 문구를 생성해야 한다.
 - 생성되는 starter local skill과 agent metadata는 새 phase-gate 구조를 참조해야 한다.
+- 생성되는 planner, generator, evaluator agent 설정은 `model`과 `model_reasoning_effort`를 명시하지 않고 부모 agent의 선택을 상속해야 한다.
 - `docs/implementation/`의 기존 브리핑은 과거 구현 이력으로 보존해야 하며, 최신화나 동기화 대상은 README, 오버뷰, 로드맵, guide, rule 같은 현재 상태 문서로 제한해야 한다.
 
 ## 비범위
@@ -44,6 +45,7 @@
 
 - source of truth는 `hs-init-project/` 아래의 skill 본문, templates, references, scripts다.
 - 템플릿만 수정하면 existing-project direct-generation 결과가 어긋날 수 있으므로 `scripts/materialize_repo.sh`도 함께 반영한다.
+- agent 역할별 지침과 필요한 sandbox 설정은 유지하되, 모델과 reasoning 설정은 agent 파일에서 override하지 않는다.
 - 실제 entrypoint와 control document 참조는 Markdown link를 사용하고, placeholder나 아직 생성되지 않은 경로는 literal로 유지한다.
 - 생성 문서 본문은 선택된 언어를 따르지만 filename, directory, config key는 안정적인 영어 경로를 유지한다.
 
