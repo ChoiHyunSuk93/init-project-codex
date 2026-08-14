@@ -23,12 +23,12 @@ Update this index in the same change whenever a rule is added, removed, renamed,
 ### documentation
 - Path: [`rule/rules/documentation.md`](rules/documentation.md)
 - Scope: repository-wide documentation
-- Summary: Define document authority, language, stable paths, and current-state versus history boundaries.
+- Summary: Define document authority, language, guides, work records, and verified implementation history boundaries.
 
 ### agent-workflow
 - Path: [`rule/rules/agent-workflow.md`](rules/agent-workflow.md)
 - Scope: repository-wide workflow
-- Summary: Define the intent gate, work classification, optional delegation, and integration responsibility.
+- Summary: Define the intent gate, work classification, optional delegation, cycle provenance, and integration responsibility.
 
 ## Local Rules
 

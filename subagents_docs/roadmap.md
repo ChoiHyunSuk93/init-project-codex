@@ -72,3 +72,20 @@
 - `Verification`: skill validation, shell syntax, validation suite, fresh/existing target matrix, generated-output assertions, `git diff --check`
 - `Cycle`: [`subagents_docs/cycles/33-minimal-cross-agent-rule-harness.md`](cycles/33-minimal-cross-agent-rule-harness.md)
 - `Notes`: [`cycle 33`](cycles/33-minimal-cross-agent-rule-harness.md)의 독립 평가가 최신 working tree와 30개 E2E check를 재검증해 `PASS`했다. 과거 phase와 implementation briefing은 당시 설계 이력으로 보존하며, 새 기본 생성 계약은 Phase 4와 cycle 33을 기준으로 한다.
+
+## Phase 5 - Documentation And Existing-Project Semantic Retrofit
+
+- `Status`: `PASS`
+- `Goal`: 모든 초기화에서 사람이 읽는 `docs/` 진입점과 adaptive 작업 기록 계층을 만들고, 기존 코드가 있는 프로젝트는 실제 소스와 자동화 구성을 분석한 결과가 생성 문서에 반영된 상태에서만 초기화를 완료한다.
+- `Scope`: skill instructions/reference/metadata, KO/EN documentation 및 `subagents_docs` assets, materializer inventory/conflict handling, semantic completion validator, E2E validation suite, current README/overview/roadmap docs
+- `Non-goals`: generated custom agent/starter skill/config 복구, 모든 작은 작업의 cycle 강제, 임의 stack 또는 제품 기능 추측, release/tag 생성, installed skill 갱신
+- `Required Checklist`:
+  - [x] `docs/guide/README.md`와 `docs/implementation/AGENTS.md`가 fresh/existing 및 KO/EN 생성물에 포함된다.
+  - [x] `subagents_docs/AGENTS.md`와 `subagents_docs/roadmap.md`가 생성되고, 중간 이상 변경 또는 work-sharing은 append-only cycle로, 검증 완료 결과는 새 implementation briefing으로 누적하도록 계약한다.
+  - [x] existing-project workflow가 실제 source entrypoint, 주요 module, manifest/config, build/run/test 명령, 기존 문서를 읽고 관찰된 사실을 문서에 반영하도록 강제한다.
+  - [x] 디렉터리 목록이나 미해결 template placeholder만 남긴 상태를 semantic completion으로 인정하지 않는다.
+  - [x] completion validator가 필수 문서 누락과 unresolved marker를 실패시키고, 실제 분석을 반영한 대표 existing fixture를 통과시킨다.
+  - [x] `SKILL.md`, references, `agents/openai.yaml`, README와 validation suite가 같은 계약을 설명하고 검증한다.
+- `Verification`: skill quick validation, `sh -n`, Python compile, scaffold E2E matrix, semantic incomplete/pass fixtures, generated Markdown links/index, YAML parse, `git diff --check`
+- `Cycle`: [`subagents_docs/cycles/34-documentation-semantic-retrofit.md`](cycles/34-documentation-semantic-retrofit.md)
+- `Notes`: [`cycle 34`](cycles/34-documentation-semantic-retrofit.md)의 `Evaluator v1`이 skill validation, fresh/existing KO/EN target matrix, raw semantic failure, evidence-based existing completion, preservation/atomic safety와 diff 검사를 `PASS`했다. Phase 4의 고정 custom agent 제거 원칙은 유지하면서 `docs/`, adaptive work record와 factual completion gate를 새 current contract로 복구했다.

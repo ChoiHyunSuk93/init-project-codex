@@ -2,7 +2,7 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
-`hs-init-project` is an open-source Codex skill for adding a minimal, cross-agent project contract to a new or existing repository.
+`hs-init-project` is an open-source Codex skill for adding an evidence-based project contract, documentation entrypoints, and adaptive work records to a new or existing repository.
 
 ## Purpose
 
@@ -12,9 +12,11 @@ The generated baseline stays small and product-neutral:
 - optional root `CLAUDE.md` for Claude Code
 - root [`PROJECT_OVERVIEW.md`](PROJECT_OVERVIEW.md) for project purpose, constraints, and open questions
 - [`rule/index.md`](rule/index.md) plus five focused rules for structure, development, testing, documentation, and agent workflow
+- `docs/guide/README.md` and `docs/implementation/AGENTS.md` for current user workflows and verified implementation history
+- `subagents_docs/AGENTS.md`, `subagents_docs/roadmap.md`, and on-demand cycles for phase status, handoffs, and verification provenance
 - English or Korean document generation
 
-The baseline does not create project-scoped custom agents, starter skills, `.codex/config.toml`, or empty `subagents_docs/` and `docs/` work-log hierarchies. Add those only when the target project has a concrete need for them.
+The baseline does not create project-scoped custom agents, starter skills, `.codex/config.toml`, stacks, CI, or product features. Existing-project initialization must analyze real source, configuration, tests, commands, and documentation, then replace semantic markers before completion.
 
 ## Repository Layout
 
@@ -26,17 +28,17 @@ The baseline does not create project-scoped custom agents, starter skills, `.cod
 
 ## Installation
 
-The direct `skill-installer` script treats `--ref` literally; it does not give `latest` any special meaning. The examples below pin the `v1.0.0` release that contains the minimal cross-agent harness.
+The direct `skill-installer` script treats `--ref` literally; it does not give `latest` any special meaning. The examples below pin the current documented release, `v2.0.0`.
 
 ### Project-Scoped Installation (Recommended)
 
 Codex's canonical project skill directory is `<project-root>/.agents/skills/`.
 
-Through Codex, request an explicit tag:
+Through Codex, request the current release tag:
 
 ```text
 $skill-installer
-Install hs-init-project from GitHub repository ChoiHyunSuk93/init-project-codex at tag v1.0.0 into <project-root>/.agents/skills.
+Install hs-init-project from GitHub repository ChoiHyunSuk93/init-project-codex at v2.0.0 into <project-root>/.agents/skills.
 ```
 
 Direct installer script:
@@ -49,11 +51,11 @@ mkdir -p .agents/skills
 python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo ChoiHyunSuk93/init-project-codex \
   --path hs-init-project \
-  --ref v1.0.0 \
+  --ref v2.0.0 \
   --dest "$PWD/.agents/skills"
 ```
 
-This creates `<project-root>/.agents/skills/hs-init-project/`. Replace `v1.0.0` with another existing release tag when needed.
+This creates `<project-root>/.agents/skills/hs-init-project/` from the current documented release.
 
 ### Global Installation
 
@@ -65,16 +67,16 @@ CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo ChoiHyunSuk93/init-project-codex \
   --path hs-init-project \
-  --ref v1.0.0
+  --ref v2.0.0
 ```
 
-An explicitly tagged URL works as well:
+An explicit ref URL works as well:
 
 ```bash
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 
 python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
-  --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/v1.0.0/hs-init-project
+  --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/v2.0.0/hs-init-project
 ```
 
 Restart Codex after installation if it is already running.
@@ -121,6 +123,9 @@ AGENTS.md
 CLAUDE.md                         # target claude or both only
 README.md                         # controlled by --readme-mode
 PROJECT_OVERVIEW.md
+docs/
+  guide/README.md
+  implementation/AGENTS.md
 rule/
   index.md
   rules/
@@ -129,12 +134,18 @@ rule/
     testing-standards.md
     documentation.md
     agent-workflow.md
+subagents_docs/
+  AGENTS.md
+  roadmap.md
+  cycles/
 ```
 
 - `AGENTS.md` points agents to the shared contract and rule index.
 - `CLAUDE.md` imports `AGENTS.md` and contains only Claude Code-specific routing.
 - `PROJECT_OVERVIEW.md` records durable project context without inventing stack or product decisions.
 - `rule/index.md` is the authoritative navigation point for the five rules.
+- `docs/guide/` holds current human-followable workflows and `docs/implementation/` accumulates verified user-facing history.
+- `subagents_docs/` tracks phase gates and, when work merits it, append-only main-agent/subagent cycle provenance.
 
 ## Usage
 
@@ -158,10 +169,19 @@ sh hs-init-project/scripts/materialize_repo.sh \
 
 Remove `--dry-run` after reviewing the planned output.
 
+Materialization creates the deterministic baseline. The invoking agent must then analyze the actual repository, replace every `HS_INIT_SEMANTIC_TODO` marker with observed or user-confirmed facts, and run:
+
+```bash
+python3 hs-init-project/scripts/validate_materialized_repo.py \
+  --root <project-root> \
+  --project-mode existing
+```
+
 - `--target codex|claude|both` selects product entrypoints while keeping one shared rule set.
 - `--project-mode fresh|existing` distinguishes a new repository from a safe additive retrofit.
 - `--readme-mode create|merge|preserve` creates a README, updates only the managed section, or leaves the existing README untouched.
 - `--language en|ko` selects the generated document language.
+- Existing-project completion requires real repository-relative evidence in `PROJECT_OVERVIEW.md`; a directory-only inventory is not sufficient.
 
 ## Development
 

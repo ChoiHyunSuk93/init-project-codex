@@ -23,12 +23,12 @@
 ### documentation
 - Path: [`rule/rules/documentation.md`](rules/documentation.md)
 - Scope: repository-wide documentation
-- Summary: 문서 권한, 언어, 경로, 현재 상태와 이력의 경계를 정의한다.
+- Summary: 문서 권한, 언어, guide, 작업 기록과 검증 완료 구현 이력의 경계를 정의한다.
 
 ### agent-workflow
 - Path: [`rule/rules/agent-workflow.md`](rules/agent-workflow.md)
 - Scope: repository-wide workflow
-- Summary: intent gate, 작업 분류, 선택적 delegation과 통합 책임을 정의한다.
+- Summary: intent gate, 작업 분류, 선택적 delegation, cycle provenance와 통합 책임을 정의한다.
 
 ## 로컬 규칙
 

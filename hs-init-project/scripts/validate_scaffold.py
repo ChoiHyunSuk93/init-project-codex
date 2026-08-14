@@ -27,6 +27,7 @@ SCRIPT_PATH = Path(__file__).resolve()
 SKILL_DIR = SCRIPT_PATH.parent.parent
 REPO_ROOT = SKILL_DIR.parent
 MATERIALIZER = SKILL_DIR / "scripts" / "materialize_repo.sh"
+COMPLETION_VALIDATOR = SKILL_DIR / "scripts" / "validate_materialized_repo.py"
 
 TARGETS = ("codex", "claude", "both")
 LANGUAGES = ("en", "ko")
@@ -43,8 +44,6 @@ PROHIBITED_PATHS = (
     ".codex/agents",
     ".codex/skills",
     ".codex/config.toml",
-    "subagents_docs",
-    "docs",
 )
 
 MARKDOWN_LINK_RE = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
@@ -147,6 +146,10 @@ def expected_fresh_files(target: str) -> set[str]:
         "README.md",
         "PROJECT_OVERVIEW.md",
         "rule/index.md",
+        "docs/guide/README.md",
+        "docs/implementation/AGENTS.md",
+        "subagents_docs/AGENTS.md",
+        "subagents_docs/roadmap.md",
     }
     files.update(f"rule/rules/{name}" for name in RULE_FILES)
     if target in {"claude", "both"}:
@@ -372,6 +375,11 @@ def validate_generated_tree(root: Path, target: str, *, exact_inventory: bool) -
     validate_no_legacy_outputs(root)
     validate_rule_index(root)
     validate_markdown_links(root)
+    require((root / "docs/guide/README.md").is_file(), "missing generated guide entrypoint")
+    require((root / "docs/implementation/AGENTS.md").is_file(), "missing generated implementation record policy")
+    require((root / "subagents_docs/AGENTS.md").is_file(), "missing generated work-record policy")
+    require((root / "subagents_docs/roadmap.md").is_file(), "missing generated roadmap")
+    require((root / "subagents_docs/cycles").is_dir(), "missing generated cycle directory")
     if exact_inventory:
         actual = relative_files(root)
         expected = expected_fresh_files(target)
@@ -381,7 +389,133 @@ def validate_generated_tree(root: Path, target: str, *, exact_inventory: bool) -
 def seed_existing_project(root: Path, readme: str) -> None:
     (root / "src").mkdir(parents=True)
     (root / "src/keep.txt").write_text("existing source sentinel\n", encoding="utf-8")
+    (root / "tests").mkdir(parents=True)
+    (root / "tests/test_keep.py").write_text(
+        "import unittest\nfrom pathlib import Path\n\n"
+        "class ExistingSourceTest(unittest.TestCase):\n"
+        "    def test_source_sentinel_exists(self):\n"
+        "        self.assertTrue(Path('src/keep.txt').is_file())\n",
+        encoding="utf-8",
+    )
+    (root / "scripts").mkdir(parents=True)
+    (root / "scripts/test.sh").write_text(
+        "#!/bin/sh\nset -eu\npython3 -m unittest discover -s tests\n",
+        encoding="utf-8",
+    )
+    (root / "pyproject.toml").write_text(
+        "[project]\nname = \"observed-project\"\nversion = \"0.1.0\"\n",
+        encoding="utf-8",
+    )
     (root / "README.md").write_text(readme, encoding="utf-8")
+
+
+def complete_semantic_fixture(root: Path) -> None:
+    (root / "PROJECT_OVERVIEW.md").write_text(
+        """# Project Overview
+
+## Purpose
+
+- Preserve and expose an existing source sentinel through a documented project harness.
+
+## Users Or Operators
+
+- Repository maintainers and coding agents.
+
+## Core Flows
+
+- Maintainers inspect `src/keep.txt`, then run the verification entrypoint before accepting changes.
+
+## Requirements
+
+- Preserve existing source and document the observed project structure.
+
+## Non-Goals
+
+- No runtime feature or deployment automation is added during initialization.
+
+## Structure And Constraints
+
+- `src/` is the observed source area and `tests/` is the observed verification area.
+
+## Verification Entrypoints
+
+- `sh scripts/test.sh` is the verification command defined by the observed repository script.
+
+## Observed Evidence
+
+<!-- hs-init-project:evidence:start -->
+- `src/keep.txt`: existing source content preserved by materialization.
+- `pyproject.toml`: observed project metadata.
+- `scripts/test.sh`: confirmed verification entrypoint.
+<!-- hs-init-project:evidence:end -->
+
+## Open Questions
+
+- None for the initialization fixture.
+""",
+        encoding="utf-8",
+    )
+
+    for relative in (
+        "rule/rules/project-structure.md",
+        "rule/rules/development-standards.md",
+        "rule/rules/testing-standards.md",
+        "rule/rules/documentation.md",
+        "docs/guide/README.md",
+    ):
+        path = root / relative
+        content = path.read_text(encoding="utf-8")
+        path.write_text(content.replace("HS_INIT_SEMANTIC_TODO", "Observed from src/keep.txt, tests/test_keep.py, scripts/test.sh, and pyproject.toml"), encoding="utf-8")
+
+    (root / "subagents_docs/roadmap.md").write_text(
+        """# Project Roadmap
+
+This roadmap derives from [`PROJECT_OVERVIEW.md`](../PROJECT_OVERVIEW.md).
+
+## Phase 1 - Existing Project Harness
+
+- `Status`: `PASS`
+- `Goal`: Preserve the existing project and complete its evidence-based documentation.
+- `Scope`: Harness, documentation, and work-record entrypoints.
+- `Non-goals`: Runtime feature changes.
+- `Required Checklist`:
+  - [x] Existing source is preserved and documented.
+- `Verification`: semantic completion validator passes.
+- `Cycle`: `omitted`
+- `Notes`: Small direct validation fixture.
+""",
+        encoding="utf-8",
+    )
+
+
+def validate_semantic_completion_gate(temp_root: Path, reporter: Reporter) -> None:
+    root = temp_root / "semantic-completion"
+    root.mkdir()
+    seed_existing_project(root, "# Existing Project\n")
+    run(
+        materialize_command(
+            root,
+            language="en",
+            target="both",
+            project_mode="existing",
+            readme_mode="preserve",
+        )
+    )
+
+    incomplete = run(
+        [sys.executable, str(COMPLETION_VALIDATOR), "--root", str(root), "--project-mode", "existing"],
+        expect_success=False,
+    )
+    require("unresolved semantic marker" in incomplete.stdout, "raw template scaffold did not fail the semantic completion gate")
+    reporter.pass_check("raw existing scaffold is semantically incomplete")
+
+    complete_semantic_fixture(root)
+    run(["sh", "scripts/test.sh"], cwd=root)
+    completed = run(
+        [sys.executable, str(COMPLETION_VALIDATOR), "--root", str(root), "--project-mode", "existing"]
+    )
+    reporter.detail(completed.stdout.strip())
+    reporter.pass_check("evidence-based existing semantic retrofit")
 
 
 def validate_fresh_matrix(temp_root: Path, reporter: Reporter) -> None:
@@ -596,6 +730,7 @@ def validate_explicit_preserve_wins(temp_root: Path, reporter: Reporter) -> None
 
 def validate_cli_contract(reporter: Reporter) -> None:
     require(MATERIALIZER.is_file(), f"missing materializer: {MATERIALIZER}")
+    require(COMPLETION_VALIDATOR.is_file(), f"missing completion validator: {COMPLETION_VALIDATOR}")
     run(["sh", "-n", str(MATERIALIZER)])
     reporter.pass_check("materializer shell syntax")
 
@@ -612,6 +747,11 @@ def validate_cli_contract(reporter: Reporter) -> None:
     ):
         require(option in help_result.stdout, f"materializer --help is missing {option}")
     reporter.pass_check("materializer CLI contract")
+
+    validator_help = run([sys.executable, str(COMPLETION_VALIDATOR), "--help"])
+    for option in ("--root", "--project-mode"):
+        require(option in validator_help.stdout, f"completion validator --help is missing {option}")
+    reporter.pass_check("completion validator CLI contract")
 
 
 def validate_bundle(reporter: Reporter) -> None:
@@ -632,6 +772,8 @@ def validate_bundle(reporter: Reporter) -> None:
     reporter.pass_check("installer documentation ref consistency")
     validate_markdown_links(SKILL_DIR / "references")
     reporter.pass_check("skill reference Markdown links")
+    run([sys.executable, "-m", "py_compile", str(COMPLETION_VALIDATOR), str(SCRIPT_PATH)])
+    reporter.pass_check("Python validator compile")
 
 
 def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
@@ -652,6 +794,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         validate_fresh_matrix(temp_root, reporter)
         validate_existing_preserve_matrix(temp_root, reporter)
         validate_existing_merge_matrix(temp_root, reporter)
+        validate_semantic_completion_gate(temp_root, reporter)
         validate_unexpected_overwrite(temp_root, reporter)
         validate_invalid_merge_markers(temp_root, reporter)
         validate_symlink_guard(temp_root, reporter)

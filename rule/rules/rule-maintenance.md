@@ -29,6 +29,6 @@ authoritative rule 문서를 어떻게 만들고, 인덱싱하고, 바꾸고, �
 
 ## Starter Rule 유지
 
-- 신규 저장소에서는 starter rule에 placeholder가 있을 수 있지만, 실제 구조나 관례가 분명해지면 관찰된 값으로 교체한다.
+- 초기 materialization의 starter rule에는 semantic marker가 있을 수 있지만, 초기화 완료 전에는 관찰된 구조·관례 또는 명시적인 미확정 설명으로 교체한다.
 - 기준 문서가 있는 규칙은 [`AGENTS.md`](../../AGENTS.md), guide 문서, 구현 기록에 복사본처럼 흩어 두지 않는다.
 - local scope 규칙을 도입하면 [`rule/index.md`](../index.md)에 local 항목으로 추가하고, 특별한 요청이 없다면 `rule/rules/` 아래에 둔다.
