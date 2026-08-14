@@ -2,51 +2,41 @@
 
 [English](README.md) | [한국어](README.ko.md)
 
-`hs-init-project` is an open-source Codex skill for bootstrapping or retrofitting a repository with a Codex-oriented working structure.
+`hs-init-project` is an open-source Codex skill for adding a minimal, cross-agent project contract to a new or existing repository.
 
 ## Purpose
 
-The skill is meant for two cases:
+The generated baseline stays small and product-neutral:
 
-1. initializing a near-empty repository
-2. adding Codex structure to an existing repository without rewriting unrelated project files
+- root [`AGENTS.md`](AGENTS.md) as the shared agent entrypoint
+- optional root `CLAUDE.md` for Claude Code
+- root [`PROJECT_OVERVIEW.md`](PROJECT_OVERVIEW.md) for project purpose, constraints, and open questions
+- [`rule/index.md`](rule/index.md) plus five focused rules for structure, development, testing, documentation, and agent workflow
+- English or Korean document generation
 
-It focuses on a small, explicit baseline:
-
-- root [`AGENTS.md`](AGENTS.md)
-- root `rule/` with [`rule/index.md`](rule/index.md) and indexed rule documents under `rule/rules/*.md`
-- [`subagents_docs/AGENTS.md`](subagents_docs/AGENTS.md) plus `subagents_docs/` working docs for planner / generator / evaluator
-- [`docs/guide/README.md`](docs/guide/README.md)
-- [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md) plus user-facing final briefing history
-- language-aware document generation
+The baseline does not create project-scoped custom agents, starter skills, `.codex/config.toml`, or empty `subagents_docs/` and `docs/` work-log hierarchies. Add those only when the target project has a concrete need for them.
 
 ## Repository Layout
 
 - [`hs-init-project/SKILL.md`](hs-init-project/SKILL.md): skill behavior and workflow
 - [`hs-init-project/agents/openai.yaml`](hs-init-project/agents/openai.yaml): skill metadata
-- [`hs-init-project/references/`](hs-init-project/references/): detailed supporting rules for the skill
-- [`hs-init-project/assets/`](hs-init-project/assets/): internal templates used by the skill
-- [`hs-init-project/scripts/`](hs-init-project/scripts/): deterministic helper scripts used by the skill
-
-When this README points to a real entrypoint or control document, keep that reference as a Markdown link.
-Leave placeholders, wildcards, and not-yet-created paths as plain path literals.
+- [`hs-init-project/references/`](hs-init-project/references/): detailed supporting guidance
+- [`hs-init-project/assets/`](hs-init-project/assets/): generated-file templates
+- [`hs-init-project/scripts/`](hs-init-project/scripts/): deterministic materialization, update, and validation helpers
 
 ## Installation
 
-Install the skill with the built-in `skill-installer` helper.
-Prefer a tagged release over `main` so later updates can follow GitHub releases.
-The direct installer script supports `--ref latest` and resolves the newest version tag in the repository at install time.
+The direct `skill-installer` script treats `--ref` literally; it does not give `latest` any special meaning. The examples below pin the `v1.0.0` release that contains the minimal cross-agent harness.
 
 ### Project-Scoped Installation (Recommended)
 
-Use this when you want the skill only for the current repository.
-Install it into `<project-root>/.codex/skills/`.
+Codex's canonical project skill directory is `<project-root>/.agents/skills/`.
 
-Through Codex:
+Through Codex, request an explicit tag:
 
 ```text
 $skill-installer
-Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hs-init-project at the latest version into <project-root>/.codex/skills.
+Install hs-init-project from GitHub repository ChoiHyunSuk93/init-project-codex at tag v1.0.0 into <project-root>/.agents/skills.
 ```
 
 Direct installer script:
@@ -54,35 +44,20 @@ Direct installer script:
 ```bash
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 
-mkdir -p .codex/skills
+mkdir -p .agents/skills
 
 python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo ChoiHyunSuk93/init-project-codex \
   --path hs-init-project \
-  --ref latest \
-  --dest "$PWD/.codex/skills"
+  --ref v1.0.0 \
+  --dest "$PWD/.agents/skills"
 ```
 
-If you want to pin a specific release instead, replace `latest` with a tag such as `vX.Y.Z`.
-
-This creates:
-
-```text
-<project-root>/.codex/skills/hs-init-project/
-```
+This creates `<project-root>/.agents/skills/hs-init-project/`. Replace `v1.0.0` with another existing release tag when needed.
 
 ### Global Installation
 
-Use this when you want the skill available across repositories.
-
-Through Codex:
-
-```text
-$skill-installer
-Install the skill from GitHub repo ChoiHyunSuk93/init-project-codex path hs-init-project at the latest version.
-```
-
-Direct installer script:
+Omitting `--dest` installs into the installer's global Codex skill directory:
 
 ```bash
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
@@ -90,32 +65,29 @@ CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
   --repo ChoiHyunSuk93/init-project-codex \
   --path hs-init-project \
-  --ref latest
+  --ref v1.0.0
 ```
 
-You can also install it by URL:
+An explicitly tagged URL works as well:
 
 ```bash
 CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 
 python3 "$CODEX_HOME/skills/.system/skill-installer/scripts/install-skill-from-github.py" \
-  --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/latest/hs-init-project
+  --url https://github.com/ChoiHyunSuk93/init-project-codex/tree/v1.0.0/hs-init-project
 ```
 
-If Codex is already running, restart it after installation so the new skill is picked up.
+Restart Codex after installation if it is already running.
 
-### Updating An Existing Installation
+### Updating an Existing Installation
 
-Use the bundled updater to replace the installed skill directory in place.
-For the updater, `--ref latest` resolves the latest GitHub release tag, not the `main` branch.
-This differs from the direct installer, where `--ref latest` resolves the newest version tag in the repository.
-If your installed copy predates this updater, reinstall once from a tagged release and use the updater after that.
+The bundled updater, unlike the direct installer, intentionally supports `--ref latest` and resolves it to the latest GitHub Release tag.
 
 Project-scoped installation:
 
 ```bash
-python3 ./.codex/skills/hs-init-project/scripts/update-skill-release.py --ref latest
-python3 ./.codex/skills/hs-init-project/scripts/update-skill-release.py --ref vX.Y.Z
+python3 ./.agents/skills/hs-init-project/scripts/update-skill-release.py --ref latest
+python3 ./.agents/skills/hs-init-project/scripts/update-skill-release.py --ref vX.Y.Z
 ```
 
 Global installation:
@@ -127,131 +99,73 @@ python3 "$CODEX_HOME/skills/hs-init-project/scripts/update-skill-release.py" --r
 python3 "$CODEX_HOME/skills/hs-init-project/scripts/update-skill-release.py" --ref vX.Y.Z
 ```
 
-The updater records the installed release source so later updates can continue from the same repo and skill path. Restart Codex after updating if it is already running.
+If an installed copy predates the updater, reinstall it once from an explicit tag. Restart Codex after updating if it is already running.
 
 ### Maintainer Release Flow
 
-Push the next semantic version tag for the intended release.
+Push the next semantic version tag for the intended release:
 
 ```bash
 git tag vX.Y.Z
 git push origin vX.Y.Z
 ```
 
-The repository includes `.github/workflows/release.yml`, which validates the skill bundle and creates a GitHub Release for tags matching `v*`.
-At least one GitHub release tag must exist before `--ref latest` can resolve successfully.
-Detailed versioning rules live in [CONTRIBUTING.md](CONTRIBUTING.md).
+The repository's release workflow validates the skill bundle and creates a GitHub Release for tags matching `v*`. Detailed versioning rules live in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Generated Structure
 
-The skill creates or updates this baseline structure:
+The exact entrypoints depend on `--target`; the shared baseline is:
 
 ```text
 AGENTS.md
-README.md
+CLAUDE.md                         # target claude or both only
+README.md                         # controlled by --readme-mode
 PROJECT_OVERVIEW.md
-.codex/
-  config.toml
-  agents/
-    planner.toml
-    generator.toml
-    evaluator.toml
-  skills/
-    change-analysis/
-      SKILL.md
-      agents/
-        openai.yaml
-    code-implementation/
-      SKILL.md
-      agents/
-        openai.yaml
-    test-debug/
-      SKILL.md
-      agents/
-        openai.yaml
-    docs-sync/
-      SKILL.md
-      agents/
-        openai.yaml
-    quality-review/
-      SKILL.md
-      agents/
-        openai.yaml
 rule/
   index.md
   rules/
-    project-structure.md         # top-level structure and directory roles
-    instruction-model.md         # authority order, thin-root use, and non-duplication
-    rule-maintenance.md          # rule file lifecycle and rule-index alignment
-    documentation-boundaries.md  # boundaries between rules, guides, and implementation records
-    readme-maintenance.md        # root README creation and maintenance rules
-    development-standards.md     # baseline implementation quality and convention rules
-    testing-standards.md         # test-layer selection and verification expectations
-    runtime-boundaries.md        # runtime versus non-runtime boundary rules
-    implementation-records.md    # implementation record placement and naming rules
-    subagent-orchestration.md    # adaptive harness selection, delegation, and evaluator loop rules
-    subagents-docs.md            # cycle-doc entry conditions and working-doc ownership
-    planning-roadmap.md          # project overview, roadmap phase gate, and checklist rules
-subagents_docs/
-  AGENTS.md
-  roadmap.md
-  cycles/
-    [NN-plan-slug].md
-docs/
-  guide/
-    README.md
-    [focused guide documents]   # existing-project mode when observed user-facing workflows justify them
-  implementation/
-    AGENTS.md
-    [category]/
-      [short final cycle briefings]
+    project-structure.md
+    development-standards.md
+    testing-standards.md
+    documentation.md
+    agent-workflow.md
 ```
 
-- [`AGENTS.md`](AGENTS.md): thin repository-wide Codex guidance
-- root [`README.md`](README.md): durable human-facing repository summary
-- root [`PROJECT_OVERVIEW.md`](PROJECT_OVERVIEW.md): durable requirements specification for project purpose, core flows, constraints, and open questions
-- `.codex/config.toml`: project-scoped agent runtime settings that are generated alongside `.codex/agents/*.toml`
-- `.codex/agents/`: project-scoped planner / generator / evaluator definitions
-- `.codex/skills/`: starter local skills for common development workflows such as change analysis, implementation, test/debug, docs sync, and quality review
-- `rule/`: authoritative execution rules for Codex, with [`rule/index.md`](rule/index.md) as the index and `rule/rules/*.md` as the detailed rule set
-- `subagents_docs/`: planner, generator, and evaluator working documents, with [`subagents_docs/AGENTS.md`](subagents_docs/AGENTS.md) as the control file, [`subagents_docs/roadmap.md`](subagents_docs/roadmap.md) as the phase roadmap, and new plan cycles tracked as one append-only document per phase under `subagents_docs/cycles/`
-- `docs/guide/`: human-facing navigation and guide documents, with [`docs/guide/README.md`](docs/guide/README.md) as the default entry point
-- `docs/implementation/`: user-facing short final briefings inside concern-based categories after a plan cycle passes, with [`docs/implementation/AGENTS.md`](docs/implementation/AGENTS.md) as the placement rule
-- In existing-project mode, additional guide documents are created only when observed user-facing workflows provide durable reader-facing material.
-
-Generated repositories use [`PROJECT_OVERVIEW.md`](PROJECT_OVERVIEW.md) as the requirements baseline and derive [`subagents_docs/roadmap.md`](subagents_docs/roadmap.md) from it before implementation begins. The roadmap splits work into phases, keeps required completion checklists, records verification methods, and blocks dependent next phases until the previous phase reaches `PASS`. Fresh projects build the overview from the initial user requirements; existing projects inspect the current structure, docs, source root, and tooling before writing or refining the overview and roadmap.
-
-Generated repositories use an adaptive harness rather than one fixed pipeline. Small changes can go through `main/generator -> evaluator`. Medium changes use `main(plan+implementation) -> evaluator`. Large but clear changes use main-led decomposition with delegated implementation slices and a separate evaluator. Large ambiguous changes start with parallel `explorer` analysis, may use planner assistance, then continue through a main-approved plan, delegated implementation, and separate evaluation. When a shared working record is needed, keep one append-only cycle document per roadmap phase under `subagents_docs/cycles/` with `Planner vN` / `Generator vN` / `Evaluator vN` sections and the header defined by [`rule/rules/cycle-document-contract.md`](rule/rules/cycle-document-contract.md). Generated `.codex/agents/*.toml` omit `model` and `model_reasoning_effort` so both settings inherit from the parent agent. `subagents_docs/` working documents follow the selected language, and generated repositories include `.codex/config.toml`, `.codex/agents/*.toml`, and process-oriented starter local skills under `.codex/skills/`. In existing-project mode, inspection results are used to make starter skills and selected README/rule/guide outputs more specific to the observed runtime, test, and docs signals.
+- `AGENTS.md` points agents to the shared contract and rule index.
+- `CLAUDE.md` imports `AGENTS.md` and contains only Claude Code-specific routing.
+- `PROJECT_OVERVIEW.md` records durable project context without inventing stack or product decisions.
+- `rule/index.md` is the authoritative navigation point for the five rules.
 
 ## Usage
 
-Use the skill when you want Codex to initialize or retrofit repository structure.
-The command alone is enough to start; you can add a very short intent phrase if needed.
-
-Examples:
+Invoke the skill conversationally:
 
 ```text
 $hs-init-project
 ```
 
-```text
-Set up the initial project structure for this repository.
+For deterministic or automated materialization, use the helper's explicit contract:
+
+```bash
+sh hs-init-project/scripts/materialize_repo.sh \
+  --root . \
+  --language ko \
+  --target both \
+  --project-mode existing \
+  --readme-mode preserve \
+  --dry-run
 ```
 
-If no language choice is already fixed in the request or session, the skill asks for the language in plain text before it starts initialization.
-After language is fixed, it decides whether the repository should be handled as a fresh initialization or an additive retrofit.
+Remove `--dry-run` after reviewing the planned output.
+
+- `--target codex|claude|both` selects product entrypoints while keeping one shared rule set.
+- `--project-mode fresh|existing` distinguishes a new repository from a safe additive retrofit.
+- `--readme-mode create|merge|preserve` creates a README, updates only the managed section, or leaves the existing README untouched.
+- `--language en|ko` selects the generated document language.
 
 ## Development
 
-This repository develops the skill itself, not a sample application.
-
-When changing the skill:
-
-- keep `SKILL.md` thin
-- move stable detail into `references/`
-- keep reusable templates in `assets/`
-- prefer deterministic generation through `scripts/` when repeated output becomes stable
-- keep release-tag installation and update instructions current
+This repository develops the skill itself, not a sample application. Keep `SKILL.md` concise, stable details in `references/`, reusable output templates in `assets/`, and deterministic behavior in `scripts/`. Keep installation and generated-structure documentation aligned with the released behavior.
 
 ## Contributing
 

@@ -7,7 +7,7 @@
 
 - 각 phase는 `Status`, `Goal`, `Scope`, `Non-goals`, `Required Checklist`, `Verification`, `Cycle`, `Notes`를 유지한다.
 - 구현 cycle은 한 phase 또는 명확한 phase section에 연결한다.
-- evaluator가 `FAIL`을 기록하면 해당 phase의 checklist와 notes를 갱신하고 같은 phase에서 다시 순환한다.
+- 필요한 검증이 `FAIL`이면 해당 phase의 checklist와 notes를 갱신하고 같은 phase에서 다시 순환한다.
 - phase가 `PASS`가 되면 검수 근거와 연결 cycle을 이 문서에 반영한 뒤 다음 phase로 넘어간다.
 
 ## Phase 1 - Overview/Roadmap Gate Baseline
@@ -55,3 +55,20 @@
 - `Verification`: skill quick validation, `sh -n`, current/template TOML parse, fresh Korean materialize smoke, existing English materialize smoke, living-source `rg` assertion, `git diff --check`
 - `Cycle`: [`subagents_docs/cycles/32-inherit-agent-model-reasoning.md`](cycles/32-inherit-agent-model-reasoning.md)
 - `Notes`: [`Evaluator v1`](cycles/32-inherit-agent-model-reasoning.md)이 current/template TOML, fresh Korean, existing English, living-source drift, diff scope를 재검증해 `PASS`했다. 현재 Codex manual은 custom agent 파일에서 생략한 `model`과 `model_reasoning_effort`가 부모 session에서 상속된다고 명시한다. 기존 구현 브리핑과 완료 cycle은 과거 기록으로 유지한다.
+
+## Phase 4 - Minimal Cross-Agent Rule Harness
+
+- `Status`: `PASS`
+- `Goal`: 범용 custom agent와 starter skill을 제거하고 Codex와 Claude Code가 공유할 수 있는 최소 규약 하네스와 안전한 materializer를 제공한다.
+- `Scope`: skill instructions/metadata, generated assets, materializer, install docs, validation suite, release workflow
+- `Non-goals`: 생성 대상 프로젝트의 도메인 agent/skill, 제품 기능, package/stack, 실제 release/tag 생성, installed global skill 갱신
+- `Required Checklist`:
+  - [x] 기본 생성물에 custom agent, starter skill, `.codex/config.toml`, 빈 roadmap/cycle/implementation 계층이 없다.
+  - [x] generated rule은 project structure, development, testing, documentation, agent workflow의 다섯 관심사로 제한된다.
+  - [x] `codex`, `claude`, `both` target이 공통 규약과 얇은 진입점을 생성한다.
+  - [x] existing-project mode가 기존 README와 충돌 파일을 명시적 정책 없이 덮어쓰지 않는다.
+  - [x] materializer의 문서 본문 source가 assets template로 단일화된다.
+  - [x] KO/EN, fresh/existing, target matrix와 metadata/link/index 검증이 PR/release CI에 연결된다.
+- `Verification`: skill validation, shell syntax, validation suite, fresh/existing target matrix, generated-output assertions, `git diff --check`
+- `Cycle`: [`subagents_docs/cycles/33-minimal-cross-agent-rule-harness.md`](cycles/33-minimal-cross-agent-rule-harness.md)
+- `Notes`: [`cycle 33`](cycles/33-minimal-cross-agent-rule-harness.md)의 독립 평가가 최신 working tree와 30개 E2E check를 재검증해 `PASS`했다. 과거 phase와 implementation briefing은 당시 설계 이력으로 보존하며, 새 기본 생성 계약은 Phase 4와 cycle 33을 기준으로 한다.

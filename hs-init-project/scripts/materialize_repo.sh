@@ -1,2642 +1,434 @@
-#!/usr/bin/env sh
+#!/bin/sh
+
 set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-SKILL_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+ASSET_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/../assets" && pwd)
+
+ROOT=""
+LANGUAGE=""
+TARGET="codex"
+PROJECT_MODE=""
+README_MODE=""
+SOURCE_ROOT_DIR=""
+OVERWRITE=0
+DRY_RUN=0
+INSPECT=0
+PRESERVE_PATHS=""
 
 usage() {
   cat <<'EOF'
-Usage: materialize_repo.sh TARGET_DIR --language <1|2|English|Korean(한국어)|en|ko> [options]
+Usage:
+  materialize_repo.sh --root PATH --inspect
+  materialize_repo.sh --root PATH --language en|ko [options]
 
 Options:
-  --inspect
-  --confirm-existing-docs
-  --confirm-existing-rule
-  --source-root-dir <dir>
-  --non-runtime-dirs <comma-separated dirs>
-  --readme-mode <fresh|existing|skip>
-  --overwrite
+  --root PATH                    Target repository root.
+  --language en|ko               Generated document language.
+  --target codex|claude|both     Agent entrypoint target. Default: codex.
+  --project-mode fresh|existing  Repository operating mode. Inferred when omitted.
+  --readme-mode create|merge|preserve
+                                 README policy. Defaults to create for fresh and
+                                 preserve for existing repositories.
+  --source-root-dir PATH         Optional observed source-area hint.
+  --preserve PATH                Protect an exact repository-relative path.
+                                 Repeat for more paths.
+  --overwrite                    Replace conflicting selected harness files.
+                                 Never overrides --preserve.
+  --inspect                      Print observed structure and planned conflicts.
+  --dry-run                      Print the complete write plan without changing files.
+  -h, --help                     Show this help.
 EOF
 }
 
 die() {
-  printf '[ERROR] %s\n' "$1" >&2
-  exit 1
+  printf 'error: %s\n' "$*" >&2
+  exit 2
 }
 
-normalize_language() {
-  value=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
-  case "$value" in
-    1|english|en)
-      printf 'en\n'
-      ;;
-    2|korean|'korean(한국어)'|한국어|ko)
-      printf 'ko\n'
-      ;;
-    *)
-      return 1
-      ;;
-  esac
+require_value() {
+  [ "$#" -ge 2 ] || die "missing value for $1"
 }
-
-normalize_dirs() {
-  raw=${1-}
-  if [ -z "$raw" ]; then
-    return 0
-  fi
-
-  printf '%s' "$raw" \
-    | tr ',' '\n' \
-    | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' \
-    | awk '
-        NF {
-          if ($0 !~ /\/$/) {
-            $0 = $0 "/"
-          }
-          if (!seen[$0]++) {
-            print
-          }
-        }
-      '
-}
-
-normalize_single_dir() {
-  raw=${1-}
-  if [ -z "$raw" ]; then
-    return 0
-  fi
-
-  normalized=$(normalize_dirs "$raw")
-  count=$(printf '%s\n' "$normalized" | sed '/^$/d' | wc -l | tr -d ' ')
-  if [ "$count" -gt 1 ]; then
-    return 1
-  fi
-  printf '%s\n' "$normalized"
-}
-
-merge_non_runtime_dirs() {
-  {
-    printf '.codex/\n'
-    printf 'rule/\n'
-    printf 'docs/\n'
-    printf 'subagents_docs/\n'
-    printf '%s\n' "${1-}"
-  } | sed '/^$/d' | awk '!seen[$0]++'
-}
-
-render_bullets() {
-  input=${1-}
-  if [ -z "$input" ]; then
-    return 0
-  fi
-
-  printf '%s\n' "$input" | while IFS= read -r line; do
-    [ -n "$line" ] || continue
-    printf -- '- `%s`\n' "$line"
-  done
-}
-
-build_working_principles() {
-  language=$1
-
-  if [ "$language" = "ko" ]; then
-    cat <<'EOF'
-## 작업 대원칙
-
-### 구현 전 사고
-
-- 구현 전에 가정, 불확실성, 가능한 해석, 주요 절충점을 명시한다.
-- 요구가 불명확하면 조용히 해석을 고르지 말고 무엇이 혼란스러운지 밝히고 질문한다.
-- 더 단순한 접근이 있거나 요청 자체에 조정이 필요하면 구현 전에 말한다.
-
-### 단순성 우선
-
-- 요청받은 문제를 해결하는 최소 변경만 작성한다.
-- 요청받지 않은 기능, 단일 사용처를 위한 추상화, 불필요한 유연성이나 설정 가능성을 추가하지 않는다.
-- 현실적으로 발생하지 않는 시나리오를 위한 오류 처리나 방어 코드를 넣지 않는다.
-- 같은 요구를 훨씬 적은 코드로 해결할 수 있다면 더 단순하게 다시 쓴다.
-
-### 외과적 변경
-
-- 변경한 모든 줄은 사용자 요청과 직접 연결되어야 한다.
-- 인접 코드, 주석, 포맷을 임의로 개선하거나 고장 나지 않은 코드를 리팩터링하지 않는다.
-- 기존 스타일을 따른다. 선호하는 방식이 달라도 현재 코드베이스의 관례를 우선한다.
-- 변경으로 인해 새로 생긴 unused import, 변수, 함수, dead code만 정리한다.
-- 기존에 있던 무관한 dead code는 삭제하지 말고 필요하면 별도로 언급한다.
-
-### 목표 기반 실행
-
-- 작업을 검증 가능한 성공 기준으로 바꾼다.
-- 버그 수정은 재현 검증 후 통과, 검증 추가는 실패 입력 테스트 후 통과, 리팩터링은 전후 검증 통과처럼 확인 가능한 목표로 둔다.
-- 여러 단계 작업은 각 단계와 검증 방법을 짧게 적는다.
-- 검증되거나 명확한 차단 요인이 확인될 때까지 반복한다.
-EOF
-    return 0
-  fi
-
-  cat <<'EOF'
-## Working Principles
-
-### Think Before Coding
-
-- State assumptions, uncertainty, possible interpretations, and meaningful tradeoffs before implementation.
-- If a requirement is unclear, do not silently choose an interpretation. Name the confusion and ask.
-- If a simpler approach exists or the request should be adjusted, say so before implementing.
-
-### Simplicity First
-
-- Write the minimum change that solves the requested problem.
-- Do not add unrequested features, single-use abstractions, or unnecessary flexibility or configurability.
-- Do not add error handling or defensive code for scenarios that cannot realistically happen.
-- If the same requirement can be solved with much less code, rewrite it more simply.
-
-### Surgical Changes
-
-- Every changed line must trace directly to the user's request.
-- Do not casually improve adjacent code, comments, or formatting, and do not refactor code that is not broken.
-- Match the existing style even when you would prefer a different one.
-- Remove only unused imports, variables, functions, or dead code introduced by your change.
-- Mention unrelated pre-existing dead code when useful, but do not delete it without being asked.
-
-### Goal-Driven Execution
-
-- Convert each task into verifiable success criteria.
-- For bug fixes, reproduce then pass; for added validation, test invalid inputs then pass; for refactors, verify before and after.
-- For multi-step work, state each step and its verification method briefly.
-- Iterate until verification passes or a clear blocker is identified.
-EOF
-}
-
-build_code_implementation_principles() {
-  language=$1
-
-  if [ "$language" = "ko" ]; then
-    cat <<'EOF'
-## 필수 코드 구현 원칙
-
-아래 원칙은 모든 코드 구현의 필수 기준이다. 프로젝트별 관례나 local rule은 더 구체화할 수 있지만 약화할 수 없다. 충돌하는 구현은 기능 동작 여부와 관계없이 잘못된 구현으로 간주한다.
-
-1. 기존 구조 우선: 구현 전 기존 구조, 패턴, 공통 모듈을 먼저 확인하고 기존 아키텍처를 확장한다. 같은 문제에 새 패턴을 추가하거나 혼재된 구조를 만들지 않는다.
-2. 재사용 우선(DRY): 동일하거나 유사한 로직과 비즈니스 규칙은 단일 책임 위치(Single Source of Truth)에서 관리하고 공통 모듈, 함수, 클래스, 컴포넌트로 재사용한다.
-3. 책임 분리(Single Responsibility): 파일, 모듈, 클래스, 함수는 하나의 명확한 책임만 가진다. UI, 비즈니스 로직, 데이터 접근, 조회, 검증, 저장, 변환, 알림 책임을 한 단위에 섞지 않는다.
-4. 하드코딩 금지: 반복 값은 상수로, 환경별 값은 설정이나 환경 변수로, 정책값은 단일 정의 위치로 분리한다. 매직 넘버, 반복 문자열, URL, 경로, API endpoint, 임계값을 하드코딩하지 않는다.
-5. Fail Fast: 기대 동작이 실패하면 충분한 진단 정보와 함께 즉시 오류를 노출한다. 조용한 fallback, 예외 무시, 기본값 반환으로 실패를 숨기는 우회 로직을 금지한다.
-6. YAGNI: 현재 요구사항을 충족하는 범위까지만 구현한다. 실제 사용 사례가 없는 기능, 옵션, 설정, 인터페이스, 확장 포인트, 미래 대비 추상화를 추가하지 않는다.
-7. 명시성: 이름만 보고 역할과 의도를 이해할 수 있어야 하며 동작은 명시적으로 표현한다. `util`, `helper`, `common`, `temp`, `data`, `value` 같은 모호한 이름과 암묵적 상태 변경을 피한다.
-8. 테스트 가능성: 핵심 비즈니스 로직은 독립적으로 테스트 가능해야 하며 외부 의존성은 주입 가능해야 한다. 함수 내부에서 DB, API, 파일 시스템 의존성을 직접 생성하는 강결합을 피한다.
-9. 관측 가능성: 주요 처리 흐름과 오류 원인은 추적 가능해야 한다. 빈 `catch`, 원인 없는 에러 메시지, 디버깅 불가능한 예외 처리를 금지한다.
-
-구현 우선순위는 기존 구조, 재사용, 책임 분리, 하드코딩 금지, Fail Fast, YAGNI, 명시성, 테스트 가능성, 관측 가능성 순서로 둔다.
-EOF
-    return 0
-  fi
-
-  cat <<'EOF'
-## Required Code Implementation Principles
-
-These principles are mandatory for all code implementation. Project-specific conventions and local rules may make them more concrete, but must not weaken them. Conflicting implementations are incorrect even if the feature appears to work.
-
-1. Existing structure first: Before implementing, inspect existing structure, patterns, and shared modules, then extend the existing architecture. Do not add new patterns for the same problem or create mixed architecture.
-2. Reuse first (DRY): Manage identical or similar logic and business rules in a single source of truth, reused through shared modules, functions, classes, or components.
-3. Responsibility separation (Single Responsibility): Each file, module, class, and function has one clear responsibility. Do not mix UI, business logic, data access, retrieval, validation, persistence, transformation, and notification in one unit.
-4. No hardcoding: Put repeated values in constants, environment-specific values in configuration or environment variables, and policy values in a single definition point. Do not hardcode magic numbers, repeated strings, URLs, paths, API endpoints, or thresholds.
-5. Fail fast: When expected behavior fails, expose an error immediately with enough diagnostic information. Do not hide failures with silent fallback, ignored exceptions, default returns, or bypass logic.
-6. YAGNI: Implement only the current requirement. Do not add unused features, options, settings, interfaces, extension points, or speculative abstractions.
-7. Explicitness: Names must reveal role and intent, and behavior must be explicit. Avoid vague names such as `util`, `helper`, `common`, `temp`, `data`, and `value`, and avoid implicit state changes.
-8. Testability: Core business logic must be independently testable and external dependencies injectable. Avoid tightly coupling functions to DB, API, or filesystem dependency creation.
-9. Observability: Major processing flows and failure causes must be traceable. Empty `catch` blocks, error messages without cause information, and undebuggable exception handling are prohibited.
-
-Implementation priority is: existing structure, reuse, responsibility separation, no hardcoding, fail fast, YAGNI, explicitness, testability, observability.
-EOF
-}
-
-list_top_level_dirs() {
-  target_dir=$1
-  find "$target_dir" -mindepth 1 -maxdepth 1 -type d ! -name '.git' \
-    | while IFS= read -r path; do
-        printf '%s/\n' "$(basename "$path")"
-      done \
-    | sort
-}
-
-list_top_level_files() {
-  target_dir=$1
-  find "$target_dir" -mindepth 1 -maxdepth 1 -type f ! -name 'README.md' \
-    | while IFS= read -r path; do
-        printf '%s\n' "$(basename "$path")"
-      done \
-    | sort
-}
-
-detect_tooling_files() {
-  files=${1-}
-  if [ -z "$files" ]; then
-    return 0
-  fi
-
-  printf '%s\n' "$files" | while IFS= read -r name; do
-    case "$name" in
-      .editorconfig|.prettierrc|.prettierrc.json|.prettierrc.js|.prettierrc.cjs|\
-      .eslintrc|.eslintrc.js|.eslintrc.cjs|.eslintrc.json|.eslintignore|\
-      package.json|package-lock.json|pnpm-lock.yaml|yarn.lock|tsconfig.json|\
-      pyproject.toml|requirements.txt|poetry.lock|Pipfile|Pipfile.lock|\
-      go.mod|go.sum|Cargo.toml|Cargo.lock|pom.xml|build.gradle|build.gradle.kts|\
-      settings.gradle|settings.gradle.kts|gradle.properties|composer.json|composer.lock|\
-      Makefile|justfile|ruff.toml|tox.ini|.eslintrc*|.prettierrc*)
-        printf '%s\n' "$name"
-        ;;
-    esac
-  done | awk '!seen[$0]++'
-}
-
-detect_test_dirs() {
-  dirs=${1-}
-  if [ -z "$dirs" ]; then
-    return 0
-  fi
-
-  printf '%s\n' "$dirs" | while IFS= read -r name; do
-    case "$name" in
-      test/|tests/|spec/|specs/|e2e/|cypress/|playwright/)
-        printf '%s\n' "$name"
-        ;;
-    esac
-  done | awk '!seen[$0]++'
-}
-
-detect_test_tooling_files() {
-  files=${1-}
-  if [ -z "$files" ]; then
-    return 0
-  fi
-
-  printf '%s\n' "$files" | while IFS= read -r name; do
-    case "$name" in
-      playwright.config.js|playwright.config.ts|playwright.config.mjs|playwright.config.cjs|\
-      cypress.config.js|cypress.config.ts|cypress.config.mjs|cypress.config.cjs|\
-      jest.config.js|jest.config.ts|jest.config.mjs|jest.config.cjs|\
-      vitest.config.js|vitest.config.ts|vitest.config.mjs|vitest.config.cjs|\
-      pytest.ini|tox.ini|playwright.config.*|cypress.config.*|jest.config.*|vitest.config.*)
-        printf '%s\n' "$name"
-        ;;
-    esac
-  done | awk '!seen[$0]++'
-}
-
-detect_runtime_candidates() {
-  dirs=${1-}
-  if [ -z "$dirs" ]; then
-    return 0
-  fi
-
-  printf '%s\n' "$dirs" | while IFS= read -r name; do
-    base_name=$(printf '%s' "$name" | sed 's:/*$::')
-    case "$base_name" in
-      src|source|app|apps|backend|frontend|web|www|site|sites|client|clients|server|servers|api|apis|service|services|worker|workers|package|packages|pkg|cmd|internal|lib|libs)
-        printf '%s/\n' "$base_name"
-        ;;
-    esac
-  done | awk '!seen[$0]++'
-}
-
-list_docs_children() {
-  target_dir=$1
-  if [ ! -d "$target_dir/docs" ]; then
-    return 0
-  fi
-
-  find "$target_dir/docs" -mindepth 1 -maxdepth 1 | while IFS= read -r path; do
-    if [ -d "$path" ]; then
-      printf '%s/\n' "$(basename "$path")"
-    else
-      printf '%s\n' "$(basename "$path")"
-    fi
-  done | sort
-}
-
-docs_tree_requires_confirmation() {
-  docs_children=${1-}
-  if [ -z "$docs_children" ]; then
-    return 1
-  fi
-
-  printf '%s\n' "$docs_children" | awk '
-    NF {
-      if ($0 != "guide/" && $0 != "implementation/") {
-        found = 1
-      }
-    }
-    END {
-      exit(found ? 0 : 1)
-    }
-  '
-}
-
-list_rule_entries() {
-  target_dir=$1
-  rule_dir=$target_dir/rule
-
-  if [ ! -d "$rule_dir" ]; then
-    return 0
-  fi
-
-  find "$rule_dir" -mindepth 1 -maxdepth 3 | while IFS= read -r path; do
-    relative_path=${path#"$rule_dir"/}
-    if [ -d "$path" ]; then
-      printf '%s/\n' "${relative_path%/}"
-    else
-      printf '%s\n' "$relative_path"
-    fi
-  done | sort
-}
-
-rule_tree_requires_confirmation() {
-  rule_entries=${1-}
-  if [ -z "$rule_entries" ]; then
-    return 1
-  fi
-
-  printf '%s\n' "$rule_entries" | awk '
-    BEGIN {
-      allow["index.md"] = 1
-      allow["rules/"] = 1
-      allow["rules/project-structure.md"] = 1
-      allow["rules/instruction-model.md"] = 1
-      allow["rules/rule-maintenance.md"] = 1
-      allow["rules/documentation-boundaries.md"] = 1
-      allow["rules/cycle-document-contract.md"] = 1
-      allow["rules/language-policy.md"] = 1
-      allow["rules/readme-maintenance.md"] = 1
-      allow["rules/development-standards.md"] = 1
-      allow["rules/testing-standards.md"] = 1
-      allow["rules/runtime-boundaries.md"] = 1
-      allow["rules/implementation-records.md"] = 1
-      allow["rules/subagent-orchestration.md"] = 1
-      allow["rules/subagents-docs.md"] = 1
-      allow["rules/planning-roadmap.md"] = 1
-    }
-    NF {
-      if (!allow[$0]) {
-        found = 1
-      }
-    }
-    END {
-      exit(found ? 0 : 1)
-    }
-  '
-}
-
-list_planned_outputs() {
-  readme_mode=$1
-
-  if [ "$readme_mode" != "skip" ]; then
-    printf 'README.md\n'
-  fi
-
-  cat <<'EOF'
-AGENTS.md
-PROJECT_OVERVIEW.md
-.codex/config.toml
-.codex/agents/evaluator.toml
-.codex/agents/generator.toml
-.codex/agents/planner.toml
-docs/guide/README.md
-docs/implementation/AGENTS.md
-.codex/skills/change-analysis/SKILL.md
-.codex/skills/change-analysis/agents/openai.yaml
-.codex/skills/code-implementation/SKILL.md
-.codex/skills/code-implementation/agents/openai.yaml
-.codex/skills/test-debug/SKILL.md
-.codex/skills/test-debug/agents/openai.yaml
-.codex/skills/docs-sync/SKILL.md
-.codex/skills/docs-sync/agents/openai.yaml
-.codex/skills/quality-review/SKILL.md
-.codex/skills/quality-review/agents/openai.yaml
-subagents_docs/AGENTS.md
-subagents_docs/roadmap.md
-rule/index.md
-rule/rules/instruction-model.md
-rule/rules/rule-maintenance.md
-rule/rules/documentation-boundaries.md
-rule/rules/cycle-document-contract.md
-rule/rules/language-policy.md
-rule/rules/readme-maintenance.md
-rule/rules/implementation-records.md
-rule/rules/development-standards.md
-rule/rules/testing-standards.md
-rule/rules/project-structure.md
-rule/rules/runtime-boundaries.md
-rule/rules/subagent-orchestration.md
-rule/rules/subagents-docs.md
-rule/rules/planning-roadmap.md
-EOF
-}
-
-detect_conflicting_outputs() {
-  target_dir=$1
-  readme_mode=$2
-
-  list_planned_outputs "$readme_mode" | while IFS= read -r relative_path; do
-    [ -n "$relative_path" ] || continue
-    if [ -e "$target_dir/$relative_path" ]; then
-      printf '%s\n' "$relative_path"
-    fi
-  done
-}
-
-print_inspection_summary() {
-  language=$1
-  readme_mode=$2
-  runtime_candidates=$3
-  docs_children=$4
-  rule_entries=$5
-  conflicting_outputs=$6
-  runtime_needs_input=$7
-  docs_needs_input=$8
-  rule_needs_input=$9
-  overwrite_needs_input=${10}
-
-  needs_input=0
-  if [ "$runtime_needs_input" -eq 1 ] || [ "$docs_needs_input" -eq 1 ] || [ "$rule_needs_input" -eq 1 ] || [ "$overwrite_needs_input" -eq 1 ]; then
-    needs_input=1
-  fi
-
-  if [ "$language" = "ko" ]; then
-    printf '[INSPECT]\n'
-    if [ "$needs_input" -eq 1 ]; then
-      printf -- '- 상태: 사용자 답변 필요\n'
-    else
-      printf -- '- 상태: 적용 가능\n'
-    fi
-    printf -- '- 모드: %s\n' "$readme_mode"
-
-    if [ -n "$runtime_candidates" ]; then
-      printf -- '- 감지한 source root 후보:\n'
-      render_bullets "$runtime_candidates"
-    fi
-
-    if [ -n "$docs_children" ]; then
-      printf -- '- 기존 docs/ 항목:\n'
-      render_bullets "$docs_children"
-    fi
-
-    if [ -n "$rule_entries" ]; then
-      printf -- '- 기존 rule/ 항목:\n'
-      render_bullets "$rule_entries"
-    fi
-
-    if [ -n "$conflicting_outputs" ]; then
-      printf -- '- 이미 존재하는 생성 대상 파일:\n'
-      render_bullets "$conflicting_outputs"
-    fi
-
-    if [ "$needs_input" -eq 1 ]; then
-      question_index=1
-      printf '\n## 사용자에게 물을 내용\n'
-      if [ "$runtime_needs_input" -eq 1 ]; then
-        if [ -n "$runtime_candidates" ]; then
-          printf '%s. 다음 후보 중 어떤 하나를 단일 source root로 취급할지, 또는 별도 source root를 도입할지 확인해 달라고 묻는다.\n' "$question_index"
-          render_bullets "$runtime_candidates"
-        else
-          printf '%s. 어떤 디렉토리를 단일 source root로, 어떤 디렉토리를 non-runtime으로 볼지 묻는다.\n' "$question_index"
-        fi
-        question_index=$((question_index + 1))
-      fi
-      if [ "$docs_needs_input" -eq 1 ]; then
-        printf '%s. 기존 `docs/` 내용을 유지한 채 `docs/guide/`와 `docs/implementation/`을 추가해도 되는지, 그리고 건드리지 말아야 할 기존 docs 경로가 있는지 묻는다.\n' "$question_index"
-        question_index=$((question_index + 1))
-      fi
-      if [ "$rule_needs_input" -eq 1 ]; then
-        printf '%s. 기존 `rule/` 내용을 유지한 채 `rule/index.md`와 `rule/rules/` 아래 누락된 starter rule만 추가해도 되는지, 그리고 건드리지 말아야 할 기존 rule 경로가 있는지 묻는다.\n' "$question_index"
-        question_index=$((question_index + 1))
-      fi
-      if [ "$overwrite_needs_input" -eq 1 ]; then
-        printf '%s. 이미 존재하는 제어 파일을 현재 내용 기준으로 갱신해도 되는지 묻는다.\n' "$question_index"
-      fi
-    fi
-    return 0
-  fi
-
-  printf '[INSPECT]\n'
-  if [ "$needs_input" -eq 1 ]; then
-    printf -- '- Status: needs user input\n'
-  else
-    printf -- '- Status: ready to apply\n'
-  fi
-  printf -- '- Mode: %s\n' "$readme_mode"
-
-  if [ -n "$runtime_candidates" ]; then
-    printf -- '- Detected source-root candidates:\n'
-    render_bullets "$runtime_candidates"
-  fi
-
-  if [ -n "$docs_children" ]; then
-    printf -- '- Existing docs/ entries:\n'
-    render_bullets "$docs_children"
-  fi
-
-  if [ -n "$rule_entries" ]; then
-    printf -- '- Existing rule/ entries:\n'
-    render_bullets "$rule_entries"
-  fi
-
-  if [ -n "$conflicting_outputs" ]; then
-    printf -- '- Existing generated-target files:\n'
-    render_bullets "$conflicting_outputs"
-  fi
-
-  if [ "$needs_input" -eq 1 ]; then
-    question_index=1
-    printf '\n## Ask The User\n'
-    if [ "$runtime_needs_input" -eq 1 ]; then
-      if [ -n "$runtime_candidates" ]; then
-        printf '%s. Confirm which single directory should be treated as the source root, or whether a new source root should be introduced in guidance.\n' "$question_index"
-        render_bullets "$runtime_candidates"
-      else
-        printf '%s. Ask which directory should be treated as the single source root and which directories should be treated as non-runtime.\n' "$question_index"
-      fi
-      question_index=$((question_index + 1))
-    fi
-    if [ "$docs_needs_input" -eq 1 ]; then
-      printf '%s. Ask whether it is acceptable to keep the current `docs/` tree and add `docs/guide/` and `docs/implementation/` alongside it, and whether any existing docs paths must stay untouched.\n' "$question_index"
-      question_index=$((question_index + 1))
-    fi
-    if [ "$rule_needs_input" -eq 1 ]; then
-      printf '%s. Ask whether it is acceptable to keep the current `rule/` tree and add only the missing starter rules under `rule/index.md` and `rule/rules/`, and whether any existing rule paths must stay untouched.\n' "$question_index"
-      question_index=$((question_index + 1))
-    fi
-    if [ "$overwrite_needs_input" -eq 1 ]; then
-      printf '%s. Ask whether the existing control files may be updated in place.\n' "$question_index"
-    fi
-  fi
-}
-
-ensure_can_write() {
-  destination=$1
-  if [ -e "$destination" ] && [ "$OVERWRITE" -ne 1 ]; then
-    die "Refusing to overwrite existing file without --overwrite: $destination"
-  fi
-}
-
-write_text() {
-  destination=$1
-  content=$2
-  ensure_can_write "$destination"
-  mkdir -p "$(dirname "$destination")"
-  printf '%s\n' "$content" > "$destination"
-}
-
-copy_template() {
-  relative_path=$1
-  destination=$2
-  ensure_can_write "$destination"
-  mkdir -p "$(dirname "$destination")"
-  cp "$SKILL_DIR/$relative_path" "$destination"
-}
-
-make_runtime_body() {
-  language=$1
-  runtime_dirs=$2
-
-  if [ "$language" = "ko" ]; then
-    if [ -n "$runtime_dirs" ]; then
-      printf '%s\n\n' '프로젝트 루트 아래 구현체를 모으는 단일 source root 디렉토리를 여기에 적는다.'
-      render_bullets "$runtime_dirs"
-      return 0
-    fi
-
-    cat <<'EOF'
-아직 확정된 source root 디렉토리가 없다.
-
-예시 placeholder:
-
-- `[source-root-directory]`
-EOF
-    return 0
-  fi
-
-  if [ -n "$runtime_dirs" ]; then
-    printf '%s\n\n' 'List the single source-root directory that groups implementation areas under the project root.'
-    render_bullets "$runtime_dirs"
-    return 0
-  fi
-
-  cat <<'EOF'
-No source-root directory is defined yet.
-
-Example placeholder:
-
-- `[source-root-directory]`
-EOF
-}
-
-make_non_runtime_body() {
-  language=$1
-  non_runtime_dirs=$2
-  merged_non_runtime_dirs=$(merge_non_runtime_dirs "$non_runtime_dirs")
-
-  if [ "$language" = "ko" ]; then
-    printf '%s\n\n' 'non-runtime으로 취급하는 디렉토리를 여기에 적는다.'
-    render_bullets "$merged_non_runtime_dirs"
-    return 0
-  fi
-
-  printf '%s\n\n' 'List the directories treated as non-runtime here.'
-  render_bullets "$merged_non_runtime_dirs"
-}
-
-build_existing_guide_readme() {
-  language=$1
-  docs_children=$2
-
-  if [ "$language" = "ko" ]; then
-    if [ -n "$docs_children" ]; then
-      existing_docs_block=$(render_bullets "$docs_children")
-    else
-      existing_docs_block='기존 top-level docs 항목은 관찰되지 않았다.'
-    fi
-
-    cat <<EOF
-# 안내 문서 디렉토리
-
-이 디렉토리는 사람이 실제로 따라야 하는 사용자 가이드를 위한 공간이다.
-이 \`README.md\`는 이 디렉토리의 기본 진입점이자 안내 문서 인덱스 역할을 한다.
-
-## 현재 상태
-
-- 초기화 단계에서는 이 \`README.md\`를 기본 생성한다.
-- 실행 가이드, 배포 가이드, 테스트 실행 가이드, 디자인 요청 가이드처럼 실제 사용자가 따라야 하는 워크플로가 확인되면 관련 문서를 추가한다.
-
-## 초기화 시점에 관찰된 기존 docs 신호
-
-$existing_docs_block
-
-## 문서 운영 원칙
-
-- 실제 사용자 워크플로가 분명해질 때만 이 인덱스에 관련 guide 문서를 추가한다.
-- 문서 수가 늘어나면 이 \`README.md\`를 인덱스로 유지하고, 세부 내용은 개별 문서로 분리한다.
-- 저장소 구조 요약, 구현 상세, 규칙 복사본은 이 디렉토리에 두지 않는다.
-- 독자가 따라야 할 안내만 두고, 실행 규칙은 root [\`AGENTS.md\`](../../AGENTS.md), [\`rule/index.md\`](../../rule/index.md), 그리고 \`rule/rules/\` 아래 문서를 기준으로 본다.
-EOF
-    return 0
-  fi
-
-  if [ -n "$docs_children" ]; then
-    existing_docs_block=$(render_bullets "$docs_children")
-  else
-    existing_docs_block='No existing top-level docs entries were observed.'
-  fi
-
-  cat <<EOF
-# Guide Directory
-
-Use this directory for user-facing workflow guides.
-This \`README.md\` acts as the entry point and index for the guide set.
-
-## Current State
-
-- This \`README.md\` is the default guide file created at initialization time.
-- Add focused documents only when readers need a real workflow guide, such as running, deploying, testing, operations, or request intake.
-
-## Existing Docs Signals Observed At Initialization
-
-$existing_docs_block
-
-## Documentation Maintenance
-
-- Add guide documents to this index only when a real user-facing workflow needs to be documented.
-- Keep this \`README.md\` as the guide entry point and move detail into focused documents.
-- Do not use this directory for repository maps, implementation details, or copied rule text.
-- Keep reader guidance here and keep execution rules anchored to root [\`AGENTS.md\`](../../AGENTS.md), [\`rule/index.md\`](../../rule/index.md), and the documents under \`rule/rules/\`.
-EOF
-}
-
-build_existing_readme() {
-  language=$1
-  target_dir=$2
-  runtime_dirs=$3
-  non_runtime_dirs=$4
-  observed_dirs=$5
-  observed_files=$6
-  project_name=$(basename "$target_dir")
-  merged_non_runtime_dirs=$(merge_non_runtime_dirs "$non_runtime_dirs")
-
-  if [ "$language" = "ko" ]; then
-    if [ -n "$runtime_dirs" ]; then
-      runtime_block=$(render_bullets "$runtime_dirs")
-    else
-      runtime_block='아직 확정된 source root가 없다.'
-    fi
-
-    non_runtime_block=$(render_bullets "$merged_non_runtime_dirs")
-
-    if [ -n "$observed_dirs" ]; then
-      observed_dir_block=$(render_bullets "$observed_dirs")
-    else
-      observed_dir_block='관찰된 최상위 디렉토리가 아직 없다.'
-    fi
-
-    if [ -n "$observed_files" ]; then
-      observed_file_block=$(render_bullets "$observed_files")
-    else
-      observed_file_block='관찰된 주요 최상위 파일이 아직 없다.'
-    fi
-
-    cat <<EOF
-# $project_name
-
-짧은 설명 placeholder. 이 문장을 프로젝트 한 줄 소개로 교체한다.
-
-## 목적
-
-이 저장소는 Codex 작업 구조를 추가하기 전에 이미 프로젝트 내용을 가지고 있었다.
-프로젝트의 실제 목적과 서비스 설명이 분명해지면 이 섹션을 관찰된 사실에 맞게 갱신한다.
-
-## 관찰된 프로젝트 영역
-
-초기화 시점에 관찰된 최상위 디렉토리:
-
-$observed_dir_block
-
-초기화 시점에 관찰된 주요 최상위 파일:
-
-$observed_file_block
-
-## Source Root
-
-$runtime_block
-
-## Non-Runtime 영역
-
-$non_runtime_block
-
-## README 운영
-
-이 README는 오래 유지되는 프로젝트 설명과 탐색 정보를 요약하는 문서로 유지한다.
-세부 참고 문서가 늘어나면 자세한 내용은 [\`docs/guide/README.md\`](docs/guide/README.md)를 시작점으로 두는 \`docs/guide/\`로 옮기고, 여기서는 [\`AGENTS.md\`](AGENTS.md), [\`PROJECT_OVERVIEW.md\`](PROJECT_OVERVIEW.md), [\`rule/index.md\`](rule/index.md), [\`subagents_docs/roadmap.md\`](subagents_docs/roadmap.md), [\`docs/guide/README.md\`](docs/guide/README.md), [\`docs/implementation/AGENTS.md\`](docs/implementation/AGENTS.md) 같은 핵심 진입점만 연결한다.
-실제 진입점 문서나 제어문서를 가리킬 때는 Markdown 링크를 사용하고, placeholder나 아직 생성되지 않은 경로는 path literal로 남긴다.
-EOF
-    return 0
-  fi
-
-  if [ -n "$runtime_dirs" ]; then
-    runtime_block=$(render_bullets "$runtime_dirs")
-  else
-    runtime_block='The source root is not confirmed yet.'
-  fi
-
-  non_runtime_block=$(render_bullets "$merged_non_runtime_dirs")
-
-  if [ -n "$observed_dirs" ]; then
-    observed_dir_block=$(render_bullets "$observed_dirs")
-  else
-    observed_dir_block='No top-level directories were observed yet.'
-  fi
-
-  if [ -n "$observed_files" ]; then
-    observed_file_block=$(render_bullets "$observed_files")
-  else
-    observed_file_block='No significant top-level files were observed yet.'
-  fi
-
-  cat <<EOF
-# $project_name
-
-Short description placeholder. Replace this sentence with a concise summary of the project.
-
-## Purpose
-
-This repository already contained project content before the Codex working structure was added.
-Refine this section with the actual product or service description as the observed project purpose becomes clearer.
-
-## Observed Project Areas
-
-Top-level directories observed during initialization:
-
-$observed_dir_block
-
-Top-level files observed during initialization:
-
-$observed_file_block
-
-## Source Root
-
-$runtime_block
-
-## Non-Runtime Areas
-
-$non_runtime_block
-
-## README Maintenance
-
-Keep this README focused on durable project-facing facts and navigation.
-As deeper reference material grows, move it into \`docs/guide/\` with [\`docs/guide/README.md\`](docs/guide/README.md) as the guide entry point, and keep links to key control documents such as [\`AGENTS.md\`](AGENTS.md), [\`PROJECT_OVERVIEW.md\`](PROJECT_OVERVIEW.md), [\`rule/index.md\`](rule/index.md), [\`subagents_docs/roadmap.md\`](subagents_docs/roadmap.md), [\`docs/guide/README.md\`](docs/guide/README.md), and [\`docs/implementation/AGENTS.md\`](docs/implementation/AGENTS.md) high-signal here.
-Use Markdown links for real entrypoint or control documents, and leave placeholders or not-yet-created paths as plain literals.
-EOF
-}
-
-build_existing_project_overview() {
-  language=$1
-  target_dir=$2
-  runtime_dirs=$3
-  observed_dirs=$4
-  observed_files=$5
-  observed_tooling_files=$6
-  observed_test_dirs=$7
-  project_name=$(basename "$target_dir")
-
-  if [ "$language" = "ko" ]; then
-    if [ -n "$runtime_dirs" ]; then
-      runtime_block=$(render_bullets "$runtime_dirs")
-    else
-      runtime_block='아직 확정된 source root가 없다.'
-    fi
-
-    if [ -n "$observed_dirs" ]; then
-      observed_dir_block=$(render_bullets "$observed_dirs")
-    else
-      observed_dir_block='관찰된 최상위 디렉토리가 아직 없다.'
-    fi
-
-    if [ -n "$observed_files" ]; then
-      observed_file_block=$(render_bullets "$observed_files")
-    else
-      observed_file_block='관찰된 주요 최상위 파일이 아직 없다.'
-    fi
-
-    if [ -n "$observed_tooling_files" ]; then
-      tooling_block=$(render_bullets "$observed_tooling_files")
-    else
-      tooling_block='관찰된 build/test/tooling 파일이 아직 없다.'
-    fi
-
-    if [ -n "$observed_test_dirs" ]; then
-      test_block=$(render_bullets "$observed_test_dirs")
-    else
-      test_block='관찰된 테스트 디렉토리가 아직 없다.'
-    fi
-
-    cat <<EOF
-# 프로젝트 오버뷰
-
-이 문서는 \`$project_name\`의 프로젝트 전체 흐름을 관통하는 요구사항 명세서다.
-구현 계획과 phase 로드맵은 이 문서를 기준으로 작성한다.
-
-## 목적
-
-- 기존 프로젝트 구조를 관찰한 뒤 Codex 작업 구조를 추가한 상태다.
-- 실제 제품 목적과 사용자 관점 목표가 더 분명해지면 이 섹션을 관찰된 사실로 갱신한다.
-
-## 관찰된 Source Root
-
-$runtime_block
-
-## 관찰된 프로젝트 영역
-
-초기화 시점에 관찰된 최상위 디렉토리:
-
-$observed_dir_block
-
-초기화 시점에 관찰된 주요 최상위 파일:
-
-$observed_file_block
-
-## 관찰된 자동화 신호
-
-Build/test/tooling 파일:
-
-$tooling_block
-
-테스트 디렉토리:
-
-$test_block
-
-## 핵심 흐름
-
-- 현재 초기화 단계에서는 실제 사용자 흐름이 아직 확정되지 않았다.
-- 기존 문서나 사용자 요청에서 핵심 흐름이 확인되면 여기에 반영한다.
-
-## 요구사항
-
-- 기존 프로젝트를 훼손하지 않고 Codex 작업 구조를 추가한다.
-- 구현 작업은 이 오버뷰를 기준으로 phase 로드맵에 세분화한다.
-
-## 비범위
-
-- 관찰되지 않은 기능, 스택, 사용자 흐름을 임의로 확정하지 않는다.
-
-## 제약과 결정
-
-- source root와 non-runtime 경계는 [\`rule/rules/runtime-boundaries.md\`](rule/rules/runtime-boundaries.md)를 따른다.
-- phase 로드맵과 완료 gate는 [\`subagents_docs/roadmap.md\`](subagents_docs/roadmap.md)에서 관리한다.
-
-## 미해결 질문
-
-- 실제 제품 목적과 사용자 흐름이 충분히 문서화되어 있지 않다면 다음 구현 전에 확인한다.
-EOF
-    return 0
-  fi
-
-  if [ -n "$runtime_dirs" ]; then
-    runtime_block=$(render_bullets "$runtime_dirs")
-  else
-    runtime_block='The source root is not confirmed yet.'
-  fi
-
-  if [ -n "$observed_dirs" ]; then
-    observed_dir_block=$(render_bullets "$observed_dirs")
-  else
-    observed_dir_block='No top-level directories were observed yet.'
-  fi
-
-  if [ -n "$observed_files" ]; then
-    observed_file_block=$(render_bullets "$observed_files")
-  else
-    observed_file_block='No significant top-level files were observed yet.'
-  fi
-
-  if [ -n "$observed_tooling_files" ]; then
-    tooling_block=$(render_bullets "$observed_tooling_files")
-  else
-    tooling_block='No build/test/tooling files were observed yet.'
-  fi
-
-  if [ -n "$observed_test_dirs" ]; then
-    test_block=$(render_bullets "$observed_test_dirs")
-  else
-    test_block='No test directories were observed yet.'
-  fi
-
-  cat <<EOF
-# Project Overview
-
-This document is the project-level requirements specification for \`$project_name\`.
-Implementation planning and phase roadmaps are derived from this document.
-
-## Purpose
-
-- This repository already contained project content before the Codex working structure was added.
-- Refine this section with observed product purpose and user-visible goals as they become clearer.
-
-## Observed Source Root
-
-$runtime_block
-
-## Observed Project Areas
-
-Top-level directories observed during initialization:
-
-$observed_dir_block
-
-Top-level files observed during initialization:
-
-$observed_file_block
-
-## Observed Automation Signals
-
-Build/test/tooling files:
-
-$tooling_block
-
-Test directories:
-
-$test_block
-
-## Core Flows
-
-- User flows are not confirmed at initialization time.
-- Add core flows here when existing docs or user requests make them observable.
-
-## Requirements
-
-- Add the Codex working structure without damaging the existing project.
-- Break implementation work into roadmap phases based on this overview.
-
-## Non-Goals
-
-- Do not invent unobserved features, stacks, or user flows.
-
-## Constraints And Decisions
-
-- Source-root and non-runtime boundaries follow [\`rule/rules/runtime-boundaries.md\`](rule/rules/runtime-boundaries.md).
-- Phase roadmap and completion gates are tracked in [\`subagents_docs/roadmap.md\`](subagents_docs/roadmap.md).
-
-## Open Questions
-
-- Confirm the real product purpose and user flows before implementation if they are not documented clearly.
-EOF
-}
-
-build_existing_roadmap() {
-  language=$1
-  runtime_dirs=$2
-  observed_test_dirs=$3
-  observed_tooling_files=$4
-
-  if [ "$language" = "ko" ]; then
-    if [ -n "$runtime_dirs" ]; then
-      runtime_block=$(render_bullets "$runtime_dirs")
-    else
-      runtime_block='아직 확정된 source root가 없다.'
-    fi
-
-    if [ -n "$observed_test_dirs" ]; then
-      test_block=$(render_bullets "$observed_test_dirs")
-    else
-      test_block='관찰된 테스트 디렉토리가 아직 없다.'
-    fi
-
-    if [ -n "$observed_tooling_files" ]; then
-      tooling_block=$(render_bullets "$observed_tooling_files")
-    else
-      tooling_block='관찰된 build/test/tooling 파일이 아직 없다.'
-    fi
-
-    cat <<EOF
-# 프로젝트 로드맵
-
-이 로드맵은 [\`PROJECT_OVERVIEW.md\`](../PROJECT_OVERVIEW.md)를 기준으로 phase를 나누고, 각 phase의 완료기준을 추적한다.
-의존 관계가 있는 다음 phase는 선행 phase가 \`PASS\`가 되기 전에는 시작하지 않는다.
-
-## 운영 규칙
-
-- 각 phase는 \`Status\`, \`Goal\`, \`Scope\`, \`Non-goals\`, \`Required Checklist\`, \`Verification\`, \`Cycle\`, \`Notes\`를 유지한다.
-- 구현 cycle은 한 phase 또는 명확한 phase section에 연결한다.
-- evaluator가 \`FAIL\`을 기록하면 해당 phase의 checklist와 notes를 갱신하고 같은 phase에서 다시 순환한다.
-- phase가 \`PASS\`가 되면 검수 근거와 연결 cycle을 이 문서에 반영한 뒤 다음 phase로 넘어간다.
-
-## 관찰 신호
-
-Source root:
-
-$runtime_block
-
-테스트 디렉토리:
-
-$test_block
-
-Build/test/tooling 파일:
-
-$tooling_block
-
-## Phase 0 - Existing Project Baseline
-
-- \`Status\`: \`pending\`
-- \`Goal\`: 기존 프로젝트 구조를 기준으로 오버뷰와 phase 로드맵을 정리한다.
-- \`Scope\`: 구조 관찰, 요구사항 기준 정리, phase 분해, 완료 체크리스트 정의
-- \`Non-goals\`: 제품 구현 또는 기존 구조 재해석
-- \`Required Checklist\`:
-  - [ ] [\`PROJECT_OVERVIEW.md\`](../PROJECT_OVERVIEW.md)가 관찰된 프로젝트 구조와 현재 요청을 반영한다.
-  - [ ] source root와 non-runtime 경계가 rule 문서에 반영되어 있다.
-  - [ ] 후속 phase의 목표, 포함/제외 범위, 완료 체크리스트, 검증 방법이 정리되어 있다.
-  - [ ] 의존 phase와 병렬 가능한 phase가 구분되어 있다.
-- \`Verification\`: 문서 검토, 구조 관찰 결과 대조, phase gate 확인
-- \`Cycle\`: \`subagents_docs/cycles/[NN-phase-slug].md\`
-- \`Notes\`: 실제 구현 요구사항이 들어오면 Phase 1 이후 항목을 추가한다.
-EOF
-    return 0
-  fi
-
-  if [ -n "$runtime_dirs" ]; then
-    runtime_block=$(render_bullets "$runtime_dirs")
-  else
-    runtime_block='The source root is not confirmed yet.'
-  fi
-
-  if [ -n "$observed_test_dirs" ]; then
-    test_block=$(render_bullets "$observed_test_dirs")
-  else
-    test_block='No test directories were observed yet.'
-  fi
-
-  if [ -n "$observed_tooling_files" ]; then
-    tooling_block=$(render_bullets "$observed_tooling_files")
-  else
-    tooling_block='No build/test/tooling files were observed yet.'
-  fi
-
-  cat <<EOF
-# Project Roadmap
-
-This roadmap derives phases from [\`PROJECT_OVERVIEW.md\`](../PROJECT_OVERVIEW.md) and tracks completion criteria for each phase.
-A dependent next phase must not start until the previous phase reaches \`PASS\`.
-
-## Operating Rules
-
-- Each phase keeps \`Status\`, \`Goal\`, \`Scope\`, \`Non-goals\`, \`Required Checklist\`, \`Verification\`, \`Cycle\`, and \`Notes\`.
-- Each implementation cycle links to one phase or clear phase section.
-- When evaluator records \`FAIL\`, update that phase's checklist and notes, then repeat within the same phase.
-- When a phase reaches \`PASS\`, record the evaluation evidence and linked cycle here before moving to the next phase.
-
-## Observed Signals
-
-Source root:
-
-$runtime_block
-
-Test directories:
-
-$test_block
-
-Build/test/tooling files:
-
-$tooling_block
-
-## Phase 0 - Existing Project Baseline
-
-- \`Status\`: \`pending\`
-- \`Goal\`: Capture the existing project structure in the overview and phase roadmap.
-- \`Scope\`: structure observation, requirements baseline, phase breakdown, completion checklist definition
-- \`Non-goals\`: product implementation or reinterpretation of existing structure
-- \`Required Checklist\`:
-  - [ ] [\`PROJECT_OVERVIEW.md\`](../PROJECT_OVERVIEW.md) reflects observed project structure and the current request.
-  - [ ] Source-root and non-runtime boundaries are reflected in rule documents.
-  - [ ] Later phases have goals, included/excluded scope, completion checklists, and verification methods.
-  - [ ] Dependent phases and parallel-safe phases are explicit.
-- \`Verification\`: document review, comparison with observed structure, phase-gate check
-- \`Cycle\`: \`subagents_docs/cycles/[NN-phase-slug].md\`
-- \`Notes\`: Add Phase 1 and later items when implementation requirements are concrete.
-EOF
-}
-
-build_change_analysis_skill() {
-  language=$1
-  skill_mode=$2
-  runtime_dirs=$3
-  observed_dirs=$4
-  docs_children=$5
-
-  if [ "$skill_mode" = "existing" ]; then
-    if [ "$language" = "ko" ]; then
-      if [ -n "$runtime_dirs" ]; then
-        runtime_block=$(render_bullets "$runtime_dirs")
-      else
-        runtime_block='- 아직 확정된 source root가 없다.'
-      fi
-
-      if [ -n "$observed_dirs" ]; then
-        observed_dir_block=$(render_bullets "$observed_dirs")
-      else
-        observed_dir_block='- 관찰된 최상위 디렉토리가 아직 없다.'
-      fi
-
-      if [ -n "$docs_children" ]; then
-        docs_block=$(render_bullets "$docs_children")
-      else
-        docs_block='- 관찰된 top-level docs 신호가 아직 없다.'
-      fi
-
-      cat <<EOF
----
-name: change-analysis
-description: 요구사항 해석, 영향 범위 파악, acceptance criteria 정리, non-goal과 위험 식별 같은 변경 분석 작업에 사용한다. 구현이 확정되지 않은 상태에서는 이 skill을 우선 사용한다.
----
-
-# Change Analysis
-
-작성 전에 [\`rule/index.md\`](../../../rule/index.md), [\`rule/rules/instruction-model.md\`](../../../rule/rules/instruction-model.md), [\`rule/rules/subagent-orchestration.md\`](../../../rule/rules/subagent-orchestration.md), [\`rule/rules/planning-roadmap.md\`](../../../rule/rules/planning-roadmap.md), [\`rule/rules/cycle-document-contract.md\`](../../../rule/rules/cycle-document-contract.md), [\`rule/rules/language-policy.md\`](../../../rule/rules/language-policy.md)를 읽는다.
-
-이 저장소는 기존 프로젝트를 관찰한 뒤 Codex 구조를 얹은 상태다. 변경 분석은 아래 관찰 신호부터 시작한다.
-
-## 관찰된 source root
-
-$runtime_block
-
-## 관찰된 최상위 구조
-
-$observed_dir_block
-
-## 관찰된 docs 신호
-
-$docs_block
-
-- 영향 범위, acceptance criteria, non-goal, 위험 요소를 위 관찰 영역 기준으로 정리한다.
-- 작업을 \`small\`, \`medium\`, \`large-clear\`, \`large-ambiguous\`로 분류한 뒤 하네스 경로를 고른다.
-- 독립적인 문서 분석 질문은 병렬 \`explorer\` 호출을 우선 고려한다.
-- 기존 docs/rule 신호가 있으면 generic placeholder보다 우선 참조한다.
-- 구현 자체를 대신하지 않고, 관련 근거는 cycle 문서와 rule 문서에 참조형으로 남긴다.
-EOF
-      return 0
-    fi
-
-    if [ -n "$runtime_dirs" ]; then
-      runtime_block=$(render_bullets "$runtime_dirs")
-    else
-        runtime_block='- The source root is not confirmed yet.'
-    fi
-
-    if [ -n "$observed_dirs" ]; then
-      observed_dir_block=$(render_bullets "$observed_dirs")
-    else
-      observed_dir_block='- No top-level directories were observed yet.'
-    fi
-
-    if [ -n "$docs_children" ]; then
-      docs_block=$(render_bullets "$docs_children")
-    else
-      docs_block='- No top-level docs signals were observed yet.'
-    fi
-
-    cat <<EOF
----
-name: change-analysis
-description: Use for change analysis work such as interpreting requests, mapping impact scope, defining acceptance criteria, and identifying non-goals and risks before implementation is locked in.
----
-
-# Change Analysis
-
-Read [\`rule/index.md\`](../../../rule/index.md), [\`rule/rules/instruction-model.md\`](../../../rule/rules/instruction-model.md), [\`rule/rules/subagent-orchestration.md\`](../../../rule/rules/subagent-orchestration.md), [\`rule/rules/planning-roadmap.md\`](../../../rule/rules/planning-roadmap.md), [\`rule/rules/cycle-document-contract.md\`](../../../rule/rules/cycle-document-contract.md), and [\`rule/rules/language-policy.md\`](../../../rule/rules/language-policy.md) before writing.
-
-This repository was inspected before the Codex structure was added. Start change analysis from these observed signals.
-
-## Observed Source Root
-
-$runtime_block
-
-## Observed Top-Level Structure
-
-$observed_dir_block
-
-## Observed Docs Signals
-
-$docs_block
-
-- Define impact scope, acceptance criteria, non-goals, and risks from the observed areas first.
-- Classify the work as \`small\`, \`medium\`, \`large-clear\`, or \`large-ambiguous\` before choosing the harness path.
-- Prefer parallel \`explorer\` calls for independent document-analysis questions.
-- Prefer observed docs and rule signals over generic placeholders when they already exist.
-- Do not use this as an implementation shortcut; keep rationale referenced through cycle and rule documents.
-EOF
-    return 0
-  fi
-
-  copy_template_body=$SKILL_DIR/assets/.codex/skills/change-analysis/SKILL.$language.md
-  cat "$copy_template_body"
-}
-
-build_code_implementation_skill() {
-  language=$1
-  skill_mode=$2
-  runtime_dirs=$3
-  tooling_files=$4
-
-  if [ "$skill_mode" = "existing" ]; then
-    if [ "$language" = "ko" ]; then
-      if [ -n "$runtime_dirs" ]; then
-        runtime_block=$(render_bullets "$runtime_dirs")
-      else
-        runtime_block='- 아직 확정된 source root가 없다.'
-      fi
-
-      if [ -n "$tooling_files" ]; then
-        tooling_block=$(render_bullets "$tooling_files")
-      else
-        tooling_block='- 관찰된 top-level 툴링 또는 설정 파일이 아직 없다.'
-      fi
-
-      cat <<EOF
----
-name: code-implementation
-description: 승인된 변경 계획을 기준으로 코드, 설정, 스크립트, 템플릿을 수정하고 집중된 검증을 수행하는 구현 작업에 사용한다.
----
-
-# Code Implementation
-
-편집 전에 [\`rule/index.md\`](../../../rule/index.md), [\`rule/rules/instruction-model.md\`](../../../rule/rules/instruction-model.md), [\`rule/rules/subagent-orchestration.md\`](../../../rule/rules/subagent-orchestration.md), [\`rule/rules/planning-roadmap.md\`](../../../rule/rules/planning-roadmap.md), [\`rule/rules/cycle-document-contract.md\`](../../../rule/rules/cycle-document-contract.md), [\`rule/rules/language-policy.md\`](../../../rule/rules/language-policy.md)를 읽는다.
-
-이 저장소는 기존 프로젝트 신호를 관찰한 상태이므로 구현은 아래 영역과 툴링부터 우선 고려한다.
-
-## 관찰된 source root
-
-$runtime_block
-
-## 관찰된 툴링 또는 설정 파일
-
-$tooling_block
-
-- 승인된 변경 계획 기준으로 위 source root를 우선 수정 대상으로 본다.
-- 관찰된 툴링과 설정 파일이 있으면 그 신호에 맞춰 검증과 편집 범위를 맞춘다.
-- user-facing 문서와 working record를 섞지 않고, 구현 근거는 cycle 문서와 rule 문서를 참조형으로 남긴다.
-EOF
-      return 0
-    fi
-
-    if [ -n "$runtime_dirs" ]; then
-      runtime_block=$(render_bullets "$runtime_dirs")
-    else
-      runtime_block='- The source root is not confirmed yet.'
-    fi
-
-    if [ -n "$tooling_files" ]; then
-      tooling_block=$(render_bullets "$tooling_files")
-    else
-      tooling_block='- No top-level tooling or config files were observed yet.'
-    fi
-
-    cat <<EOF
----
-name: code-implementation
-description: Use for implementation work that updates code, config, scripts, or templates from an approved change plan and pairs the edits with focused verification.
----
-
-# Code Implementation
-
-Read [\`rule/index.md\`](../../../rule/index.md), [\`rule/rules/instruction-model.md\`](../../../rule/rules/instruction-model.md), [\`rule/rules/subagent-orchestration.md\`](../../../rule/rules/subagent-orchestration.md), [\`rule/rules/planning-roadmap.md\`](../../../rule/rules/planning-roadmap.md), [\`rule/rules/cycle-document-contract.md\`](../../../rule/rules/cycle-document-contract.md), and [\`rule/rules/language-policy.md\`](../../../rule/rules/language-policy.md) before editing.
-
-This repository was inspected before the Codex structure was added, so implementation should start from the observed source root and tooling signals below.
-
-## Observed Source Root
-
-$runtime_block
-
-## Observed Tooling Or Config Files
-
-$tooling_block
-
-- Apply the approved plan to the observed source root first.
-- Let observed tooling and config files shape the editing and verification path when they exist.
-- Keep user-facing docs separate from working records and leave rationale referenced through cycle and rule documents.
-EOF
-    return 0
-  fi
-
-  copy_template_body=$SKILL_DIR/assets/.codex/skills/code-implementation/SKILL.$language.md
-  cat "$copy_template_body"
-}
-
-build_test_debug_skill() {
-  language=$1
-  skill_mode=$2
-  test_dirs=$3
-  test_tooling_files=$4
-
-  if [ "$skill_mode" = "existing" ]; then
-    if [ "$language" = "ko" ]; then
-      if [ -n "$test_dirs" ]; then
-        test_dir_block=$(render_bullets "$test_dirs")
-      else
-        test_dir_block='- 관찰된 테스트 디렉토리가 아직 없다.'
-      fi
-
-      if [ -n "$test_tooling_files" ]; then
-        test_tooling_block=$(render_bullets "$test_tooling_files")
-      else
-        test_tooling_block='- 관찰된 테스트 설정 파일이 아직 없다.'
-      fi
-
-      cat <<EOF
----
-name: test-debug
-description: 버그 재현, 원인 축소, 테스트 추가/수정, 검증 자동화, 수동 검증 정리 같은 테스트와 디버깅 작업에 사용한다.
----
-
-# Test Debug
-
-작성 전에 [\`rule/index.md\`](../../../rule/index.md), [\`rule/rules/testing-standards.md\`](../../../rule/rules/testing-standards.md), [\`rule/rules/planning-roadmap.md\`](../../../rule/rules/planning-roadmap.md), [\`rule/rules/instruction-model.md\`](../../../rule/rules/instruction-model.md), [\`rule/rules/language-policy.md\`](../../../rule/rules/language-policy.md)를 읽는다.
-
-이 저장소에서는 아래 테스트 신호를 우선 기준으로 테스트와 디버깅 경로를 잡는다.
-
-## 관찰된 테스트 디렉토리
-
-$test_dir_block
-
-## 관찰된 테스트 설정 파일
-
-$test_tooling_block
-
-- 버그 재현과 원인 축소는 위 테스트 구조와 설정 신호를 먼저 활용한다.
-- 변경에 맞는 가장 작은 자동화 테스트 계층을 우선 선택한다.
-- 자동화 경로가 불명확하면 수동 검증 공백을 명시하고 관련 rule 문서를 참조형으로 남긴다.
-EOF
-      return 0
-    fi
-
-    if [ -n "$test_dirs" ]; then
-      test_dir_block=$(render_bullets "$test_dirs")
-    else
-      test_dir_block='- No dedicated test directories were observed yet.'
-    fi
-
-    if [ -n "$test_tooling_files" ]; then
-      test_tooling_block=$(render_bullets "$test_tooling_files")
-    else
-      test_tooling_block='- No test config files were observed yet.'
-    fi
-
-    cat <<EOF
----
-name: test-debug
-description: Use for testing and debugging work such as reproducing bugs, narrowing causes, adding or updating tests, automating verification, and documenting manual checks.
----
-
-# Test Debug
-
-Read [\`rule/index.md\`](../../../rule/index.md), [\`rule/rules/testing-standards.md\`](../../../rule/rules/testing-standards.md), [\`rule/rules/planning-roadmap.md\`](../../../rule/rules/planning-roadmap.md), [\`rule/rules/instruction-model.md\`](../../../rule/rules/instruction-model.md), and [\`rule/rules/language-policy.md\`](../../../rule/rules/language-policy.md) before writing.
-
-Use the observed test signals below as the first guide for testing and debugging work in this repository.
-
-## Observed Test Directories
-
-$test_dir_block
-
-## Observed Test Config Files
-
-$test_tooling_block
-
-- Start reproduction and diagnosis from the observed test structure and configs.
-- Prefer the smallest relevant automated test layer for the change.
-- If automation is still unclear, record the manual verification gap and anchor it to the relevant rule documents.
-EOF
-    return 0
-  fi
-
-  copy_template_body=$SKILL_DIR/assets/.codex/skills/test-debug/SKILL.$language.md
-  cat "$copy_template_body"
-}
-
-build_docs_sync_skill() {
-  language=$1
-  skill_mode=$2
-  docs_children=$3
-  observed_files=$4
-
-  if [ "$skill_mode" = "existing" ]; then
-    if [ "$language" = "ko" ]; then
-      if [ -n "$docs_children" ]; then
-        docs_block=$(render_bullets "$docs_children")
-      else
-        docs_block='- 관찰된 top-level docs 항목이 아직 없다.'
-      fi
-
-      if [ -n "$observed_files" ]; then
-        observed_file_block=$(render_bullets "$observed_files")
-      else
-        observed_file_block='- 관찰된 주요 최상위 파일이 아직 없다.'
-      fi
-
-      cat <<EOF
----
-name: docs-sync
-description: 코드나 규칙 변경에 맞춰 README, guide, rule, roadmap 같은 현재 상태 문서를 동기화하는 문서 정리 작업에 사용한다.
----
-
-# Docs Sync
-
-작성 전에 [\`rule/index.md\`](../../../rule/index.md), [\`rule/rules/documentation-boundaries.md\`](../../../rule/rules/documentation-boundaries.md), [\`rule/rules/readme-maintenance.md\`](../../../rule/rules/readme-maintenance.md), [\`rule/rules/planning-roadmap.md\`](../../../rule/rules/planning-roadmap.md), [\`rule/rules/language-policy.md\`](../../../rule/rules/language-policy.md)를 읽는다.
-
-이 저장소는 기존 문서 신호를 가진 상태에서 초기화되므로 문서 동기화는 아래 관찰값부터 시작한다.
-
-## 관찰된 docs 항목
-
-$docs_block
-
-## 관찰된 주요 최상위 파일
-
-$observed_file_block
-
-- 기존 README와 docs 구조가 의미 있으면 generic 재서술보다 우선 보존·보강한다.
-- README, guide, rule, roadmap 같은 현재 상태 문서와 구현 이력 문서의 경계를 유지한다.
-- 기존 \`docs/implementation/\` 브리핑은 과거 구현 이력이므로 현재 변경사항 동기화 대상으로 탐색하거나 수정하지 않는다.
-- 실제로 바뀐 사용자 영향과 운영 사실만 반영하고, stable rule text는 참조형으로 연결한다.
-EOF
-      return 0
-    fi
-
-    if [ -n "$docs_children" ]; then
-      docs_block=$(render_bullets "$docs_children")
-    else
-      docs_block='- No top-level docs entries were observed yet.'
-    fi
-
-    if [ -n "$observed_files" ]; then
-      observed_file_block=$(render_bullets "$observed_files")
-    else
-      observed_file_block='- No significant top-level files were observed yet.'
-    fi
-
-    cat <<EOF
----
-name: docs-sync
-description: Use for documentation-sync work that keeps current-state docs such as README, guides, rules, and roadmaps aligned with code or policy changes.
----
-
-# Docs Sync
-
-Read [\`rule/index.md\`](../../../rule/index.md), [\`rule/rules/documentation-boundaries.md\`](../../../rule/rules/documentation-boundaries.md), [\`rule/rules/readme-maintenance.md\`](../../../rule/rules/readme-maintenance.md), [\`rule/rules/planning-roadmap.md\`](../../../rule/rules/planning-roadmap.md), and [\`rule/rules/language-policy.md\`](../../../rule/rules/language-policy.md) before writing.
-
-This repository was initialized on top of existing docs signals, so documentation sync should start from the observed entries below.
-
-## Observed Docs Entries
-
-$docs_block
-
-## Observed Top-Level Files
-
-$observed_file_block
-
-- Prefer preserving and extending meaningful existing README or docs structure over generic rewrites.
-- Keep the boundary between current-state docs such as README, guides, rules, and roadmaps and historical implementation records.
-- Existing \`docs/implementation/\` briefings are historical records; do not search or update them for current-change synchronization.
-- Reflect only real user-impact or operating facts that changed and reference stable rules instead of copying them.
-EOF
-    return 0
-  fi
-
-  copy_template_body=$SKILL_DIR/assets/.codex/skills/docs-sync/SKILL.$language.md
-  cat "$copy_template_body"
-}
-
-build_quality_review_skill() {
-  language=$1
-  skill_mode=$2
-  runtime_dirs=$3
-  test_dirs=$4
-  docs_children=$5
-
-  if [ "$skill_mode" = "existing" ]; then
-    if [ "$language" = "ko" ]; then
-      if [ -n "$runtime_dirs" ]; then
-        runtime_block=$(render_bullets "$runtime_dirs")
-      else
-        runtime_block='- 아직 확정된 source root가 없다.'
-      fi
-
-      if [ -n "$test_dirs" ]; then
-        test_dir_block=$(render_bullets "$test_dirs")
-      else
-        test_dir_block='- 관찰된 테스트 디렉토리가 아직 없다.'
-      fi
-
-      if [ -n "$docs_children" ]; then
-        docs_block=$(render_bullets "$docs_children")
-      else
-        docs_block='- 관찰된 top-level docs 항목이 아직 없다.'
-      fi
-
-      cat <<EOF
----
-name: quality-review
-description: 변경 결과를 acceptance criteria와 기대 동작에 대조해 검토하고, 회귀 위험과 남은 공백을 정리하는 품질 검토 작업에 사용한다.
----
-
-# Quality Review
-
-평가 전에 [\`rule/index.md\`](../../../rule/index.md), [\`rule/rules/subagent-orchestration.md\`](../../../rule/rules/subagent-orchestration.md), [\`rule/rules/planning-roadmap.md\`](../../../rule/rules/planning-roadmap.md), [\`rule/rules/testing-standards.md\`](../../../rule/rules/testing-standards.md), [\`rule/rules/language-policy.md\`](../../../rule/rules/language-policy.md)를 읽는다.
-
-이 저장소의 품질 검토는 아래 구조 신호를 기준으로 관찰 범위를 잡는다.
-
-## 관찰된 source root
-
-$runtime_block
-
-## 관찰된 테스트 디렉토리
-
-$test_dir_block
-
-## 관찰된 docs 항목
-
-$docs_block
-
-- acceptance criteria와 기대 동작을 위 구조 신호에 대조해 검토한다.
-- 회귀 위험과 남은 공백을 구분해 기록한다.
-- 제품 파일은 수정하지 않고, 관찰과 판단 근거를 관련 rule과 검증 기록에 참조형으로 남긴다.
-EOF
-      return 0
-    fi
-
-    if [ -n "$runtime_dirs" ]; then
-      runtime_block=$(render_bullets "$runtime_dirs")
-    else
-      runtime_block='- The source root is not confirmed yet.'
-    fi
-
-    if [ -n "$test_dirs" ]; then
-      test_dir_block=$(render_bullets "$test_dirs")
-    else
-      test_dir_block='- No dedicated test directories were observed yet.'
-    fi
-
-    if [ -n "$docs_children" ]; then
-      docs_block=$(render_bullets "$docs_children")
-    else
-      docs_block='- No top-level docs entries were observed yet.'
-    fi
-
-    cat <<EOF
----
-name: quality-review
-description: Use for quality review work that checks implemented results against acceptance criteria and expected behavior, then records regression risks and remaining gaps.
----
-
-# Quality Review
-
-Read [\`rule/index.md\`](../../../rule/index.md), [\`rule/rules/subagent-orchestration.md\`](../../../rule/rules/subagent-orchestration.md), [\`rule/rules/planning-roadmap.md\`](../../../rule/rules/planning-roadmap.md), [\`rule/rules/testing-standards.md\`](../../../rule/rules/testing-standards.md), and [\`rule/rules/language-policy.md\`](../../../rule/rules/language-policy.md) before reviewing.
-
-Use the observed structure below to scope quality review and acceptance checks.
-
-## Observed Source Root
-
-$runtime_block
-
-## Observed Test Directories
-
-$test_dir_block
-
-## Observed Docs Entries
-
-$docs_block
-
-- Compare implemented results against acceptance criteria and expected behavior through these observed source-root, test, and docs surfaces.
-- Separate regression risks from remaining gaps.
-- Do not modify product files; leave the review grounded in relevant rules and verification records.
-EOF
-    return 0
-  fi
-
-  copy_template_body=$SKILL_DIR/assets/.codex/skills/quality-review/SKILL.$language.md
-  cat "$copy_template_body"
-}
-
-build_development_standards() {
-  language=$1
-  runtime_dirs=$2
-  non_runtime_dirs=$3
-  standards_mode=$4
-  observed_dirs=$5
-  observed_files=$6
-  tooling_files=$7
-  merged_non_runtime_dirs=$(merge_non_runtime_dirs "$non_runtime_dirs")
-  working_principles=$(build_working_principles "$language")
-  code_implementation_principles=$(build_code_implementation_principles "$language")
-
-  if [ "$standards_mode" = "existing" ]; then
-    if [ "$language" = "ko" ]; then
-      if [ -n "$observed_dirs" ]; then
-        observed_dir_block=$(render_bullets "$observed_dirs")
-      else
-        observed_dir_block='관찰된 최상위 디렉토리가 아직 없다.'
-      fi
-
-      if [ -n "$observed_files" ]; then
-        observed_file_block=$(render_bullets "$observed_files")
-      else
-        observed_file_block='관찰된 주요 최상위 파일이 아직 없다.'
-      fi
-
-      if [ -n "$tooling_files" ]; then
-        tooling_block=$(render_bullets "$tooling_files")
-      else
-        tooling_block='관찰된 top-level 툴링 또는 설정 파일이 아직 없다.'
-      fi
-
-      if [ -n "$runtime_dirs" ]; then
-        runtime_block=$(render_bullets "$runtime_dirs")
-      else
-        runtime_block='아직 확정된 source root가 없다.'
-      fi
-
-      non_runtime_block=$(render_bullets "$merged_non_runtime_dirs")
-
-      cat <<EOF
-# 개발 표준 규칙
-
-## 목적
-
-관찰된 프로젝트 구조를 바탕으로 이 저장소의 구현 품질 기준을 규정한다.
-
-## 관찰된 프로젝트 신호
-
-초기화 시점에 관찰된 최상위 디렉토리:
-
-$observed_dir_block
-
-초기화 시점에 관찰된 주요 최상위 파일:
-
-$observed_file_block
-
-초기화 시점에 관찰된 툴링 또는 설정 파일:
-
-$tooling_block
-
-## 구조 기반 규정
-
-관찰된 source root:
-
-$runtime_block
-
-관찰된 non-runtime 영역:
-
-$non_runtime_block
-
-- 위 구조와 툴링 신호를 기준으로 프로젝트별 구현 규칙을 구체화한다.
-- 저장소에 이미 있는 naming pattern, 디렉토리 역할, 검증 경로를 일반 기본값보다 우선한다.
-- 특정 영역에 더 강한 규칙이 보이면 local rule로 더 좁게 분리한다.
-
-$working_principles
-
-$code_implementation_principles
-
-## 기본 품질 기대치
-
-- 가능하면 함수, 모듈, 파일이 하나의 분명한 책임에 집중하도록 유지한다.
-- 과도하게 압축된 영리한 표현보다 읽기 쉬운 제어 흐름을 우선한다.
-- 오류는 올바른 경계에서 처리하고, 조용히 실패하는 동작은 피한다.
-- 동작이 바뀌면 관련 타입, 스키마, DTO, 인터페이스, 문서도 함께 맞춘다.
-- 변경으로 인해 생긴 dead code, 오래된 주석, 명백한 중복은 정리한다.
-
-## 검증 기대치
-
-- 저장소에 이미 있는 lint, type-check, test, formatting, build 명령이 있으면 그 경로를 우선 사용한다.
-- 자동화된 검증이 아직 명확하지 않다면 최소한의 수동 검증 메모를 남긴다.
-- 프로젝트에 맞는 검증 경로가 더 분명해지면 이 문서에 반영한다.
-EOF
-      return 0
-    fi
-
-    if [ -n "$observed_dirs" ]; then
-      observed_dir_block=$(render_bullets "$observed_dirs")
-    else
-      observed_dir_block='No top-level directories were observed yet.'
-    fi
-
-    if [ -n "$observed_files" ]; then
-      observed_file_block=$(render_bullets "$observed_files")
-    else
-      observed_file_block='No significant top-level files were observed yet.'
-    fi
-
-    if [ -n "$tooling_files" ]; then
-      tooling_block=$(render_bullets "$tooling_files")
-    else
-      tooling_block='No top-level tooling or config files were observed yet.'
-    fi
-
-    if [ -n "$runtime_dirs" ]; then
-      runtime_block=$(render_bullets "$runtime_dirs")
-    else
-      runtime_block='The source root is not confirmed yet.'
-    fi
-
-    non_runtime_block=$(render_bullets "$merged_non_runtime_dirs")
-
-    cat <<EOF
-# Development Standards Rule
-
-## Purpose
-
-Define implementation quality standards from the observed project structure of this repository.
-
-## Observed Project Signals
-
-Top-level directories observed during initialization:
-
-$observed_dir_block
-
-Top-level files observed during initialization:
-
-$observed_file_block
-
-Tooling or config files observed during initialization:
-
-$tooling_block
-
-## Structure-Derived Standards
-
-Observed source root:
-
-$runtime_block
-
-Observed non-runtime areas:
-
-$non_runtime_block
-
-- Use the structure and tooling signals above to refine project-specific implementation standards.
-- Prefer observed naming, directory roles, and verification paths over generic defaults.
-- If stronger area-specific rules become clear, narrow them into local rule documents.
-
-$working_principles
-
-$code_implementation_principles
-
-## Baseline Quality Expectations
-
-- Keep functions, modules, and files focused on a clear responsibility where practical.
-- Prefer readable control flow over clever compression.
-- Handle errors at the correct boundary and avoid silent failure.
-- Update related types, schemas, DTOs, interfaces, and docs together when behavior changes.
-- Remove dead code, stale comments, and obvious duplication introduced by the change.
-
-## Verification Expectations
-
-- Use existing lint, type-check, test, formatting, or build paths when the repository already exposes them.
-- If automated verification is still unclear, leave a concise manual verification note.
-- Update this rule as project-specific verification paths become clearer.
-EOF
-    return 0
-  fi
-
-  if [ "$language" = "ko" ]; then
-    cat <<EOF
-# 개발 표준 규칙
-
-## 목적
-
-이 저장소에서 구현 품질 규칙을 어떻게 정하고 유지하는지 정의한다.
-
-## 신규 저장소
-
-- 이 문서는 아직 provisional한 상태다.
-- 실제 스택, 구조, 툴링 관례가 드러나기 전까지는 최소 기대치만 적용한다.
-- 실제 프로젝트 관례가 드러나면 이 문서의 일반 규칙을 관찰된 규칙으로 교체한다.
-
-$working_principles
-
-$code_implementation_principles
-
-## 현재 최소 기대치
-
-- 명확한 이름을 사용한다.
-- 함수, 모듈, 파일의 책임을 가능한 한 분명하게 유지한다.
-- 읽기 쉬운 제어 흐름을 우선한다.
-- 오류는 올바른 경계에서 처리한다.
-- 코드, 문서, 검증 결과가 실제 구현과 어긋나지 않게 유지한다.
-
-## 향후 구체화
-
-- 언어, 프레임워크, build/test/lint/formatting 경로가 정해지면 그 관례를 이 문서에 반영한다.
-- 특정 영역에 더 강한 규칙이 생기면 local rule 문서로 더 좁게 분리한다.
-- 일반 기본값을 최종 프로젝트 표준처럼 남겨 두지 않는다.
-EOF
-    return 0
-  fi
-
-  cat <<EOF
-# Development Standards Rule
-
-## Purpose
-
-Define how implementation quality standards are established and maintained in this repository.
-
-## Fresh Repository State
-
-- This document is provisional until real stack, structure, and tooling conventions become concrete.
-- Until then, apply only minimal baseline expectations.
-- Replace generic guidance with observed project-specific standards as they emerge.
-
-$working_principles
-
-$code_implementation_principles
-
-## Current Minimal Expectations
-
-- Use clear names.
-- Keep functions, modules, and files focused on a clear responsibility where practical.
-- Prefer readable control flow.
-- Handle errors at the correct boundary.
-- Keep code, docs, and verification aligned with the actual implementation.
-
-## Future Refinement
-
-- Record real language, framework, build, test, lint, and formatting conventions here once they become known.
-- Narrow stronger area-specific standards into local rule documents when needed.
-- Do not leave generic defaults in place once real project conventions are clear.
-EOF
-}
-
-build_testing_standards() {
-  language=$1
-  standards_mode=$2
-  test_dirs=$3
-  test_tooling_files=$4
-
-  if [ "$standards_mode" = "existing" ]; then
-    if [ "$language" = "ko" ]; then
-      if [ -n "$test_dirs" ]; then
-        test_dir_block=$(render_bullets "$test_dirs")
-      else
-        test_dir_block='관찰된 전용 테스트 디렉토리가 아직 없다.'
-      fi
-
-      if [ -n "$test_tooling_files" ]; then
-        test_tooling_block=$(render_bullets "$test_tooling_files")
-      else
-        test_tooling_block='관찰된 테스트 설정 파일이 아직 없다.'
-      fi
-
-      cat <<EOF
-# 테스트 표준 규칙
-
-## 목적
-
-관찰된 테스트 구조를 바탕으로 이 저장소의 단위 테스트, E2E 테스트, 검증 규칙을 규정한다.
-
-## 관찰된 테스트 신호
-
-초기화 시점에 관찰된 테스트 디렉토리:
-
-$test_dir_block
-
-초기화 시점에 관찰된 테스트 설정 파일:
-
-$test_tooling_block
-
-## 구조 기반 규정
-
-- 저장소에 이미 있는 테스트 디렉토리 구조, 이름 규칙, 설정 파일을 일반 기본값보다 우선한다.
-- 저장소가 단위 테스트와 E2E 테스트를 분리하고 있다면 그 구분을 유지하고 이 문서에 반영한다.
-- 특정 영역에 더 강한 테스트 규칙이 있으면 local rule로 더 좁게 분리한다.
-
-## 기본 기대치
-
-- 모든 함수나 기능마다 기계적으로 테스트를 만들지 않는다.
-- 동작이 바뀌더라도 아래 판단 기준에 부합할 때 가장 관련 있는 최소 자동화 테스트 계층을 추가하거나 수정한다.
-- 단위 테스트가 더 적합한 변경을 E2E 테스트만으로 대체하지 않는다.
-- 사용자 핵심 흐름이나 경계를 넘는 동작이 바뀌면 E2E 수준 검증 필요 여부를 함께 판단한다.
-- 자동화 테스트 경로가 아직 불분명하면 수동 검증 메모를 남기고, 경로가 구체화되면 이 문서를 갱신한다.
-
-## 테스트 작성 판단 기준
-
-- 테스트는 의미 있는 동작, 업무 규칙, 권한/보안, 데이터 무결성, 금액/수량 계산, 상태 전이, 실패 처리, 외부 연동, 고위험 회귀를 보호할 때 작성한다.
-- 테스트는 구현 세부가 아니라 관찰 가능한 동작을 검증한다.
-- 테스트를 추가하기 전에 다음 질문을 확인한다.
-  - 어떤 회귀를 막는가?
-  - 어떤 업무 또는 사용자 리스크를 줄이는가?
-  - 타입, lint, 프레임워크 동작, 데이터베이스 제약으로 이미 보장되는가?
-  - 합당한 리팩터링 뒤에도 유지될 테스트인가?
-
-## 선호하는 테스트
-
-- 업무 불변식 테스트
-- 권한과 보안 테스트
-- 금액, 수량, 상태 전이 테스트
-- 경계값과 실패 처리 테스트
-- 외부 시스템 통합 테스트
-
-## 피하는 테스트
-
-- 단순 CRUD passthrough, getter/setter, DTO shape만 확인하는 테스트
-- 프레임워크 기본 동작, 라이브러리 동작, 타입 시스템 또는 데이터베이스가 이미 보장하는 동작 테스트
-- private helper나 내부 호출 순서처럼 구현 세부에 고정된 테스트
-- 실제 동작을 검증하지 못하는 mock-heavy 테스트
-- 행동 가치가 없는 snapshot 테스트
-- coverage 수치만 올리는 assertion
-
-## 구현 기록의 검증 섹션
-
-- 새 구현 기록에는 단위 테스트, E2E 테스트, 수동 검증, 미실행 또는 남은 공백을 구분해 적는다.
-- 테스트를 실행하지 않았거나 추가하지 않았다면 이유를 기록한다.
-EOF
-      return 0
-    fi
-
-    if [ -n "$test_dirs" ]; then
-      test_dir_block=$(render_bullets "$test_dirs")
-    else
-      test_dir_block='No dedicated test directories were observed yet.'
-    fi
-
-    if [ -n "$test_tooling_files" ]; then
-      test_tooling_block=$(render_bullets "$test_tooling_files")
-    else
-      test_tooling_block='No test config files were observed yet.'
-    fi
-
-    cat <<EOF
-# Testing Standards Rule
-
-## Purpose
-
-Define unit-test, end-to-end-test, and verification rules from the observed test structure of this repository.
-
-## Observed Test Signals
-
-Test directories observed during initialization:
-
-$test_dir_block
-
-Test config files observed during initialization:
-
-$test_tooling_block
-
-## Structure-Derived Standards
-
-- Prefer existing test directory layout, naming, and config files over generic defaults.
-- If the repository already separates unit tests and end-to-end tests, preserve and document that separation here.
-- If stronger area-specific testing rules exist, narrow them into local rule documents.
-
-## Baseline Expectations
-
-- Do not create tests mechanically for every function or feature.
-- For behavior changes, add or update the smallest relevant automated test layer only when the test meets the decision criteria below.
-- Do not replace focused unit tests with end-to-end tests alone when a narrower test is the better fit.
-- Re-evaluate whether end-to-end coverage is needed when user-critical or cross-boundary flows change.
-- If automated test paths are still unclear, leave a concise manual verification note and update this rule as the paths become concrete.
-
-## Test Authoring Decision Criteria
-
-- Write tests when they protect meaningful behavior, business rules, permission/security behavior, data integrity, money/count calculations, state transitions, failure handling, external integrations, or high-risk regressions.
-- Tests should verify observable behavior, not implementation details.
-- Before adding a test, check:
-  - What regression does this prevent?
-  - What business or user risk does it reduce?
-  - Is this already guaranteed by types, linting, framework behavior, or the database?
-  - Will this test survive a valid refactor?
-
-## Prefer
-
-- Business invariant tests
-- Permission and security tests
-- Money, count, and state transition tests
-- Boundary and failure-handling tests
-- Integration tests for external systems
-
-## Avoid
-
-- Tests for simple CRUD passthroughs, getters/setters, or DTO shape alone
-- Tests for framework defaults, library behavior, or behavior already guaranteed by the type system or database
-- Tests coupled to private helpers, internal call order, or other implementation details
-- Mock-heavy tests with no real behavior
-- Snapshots without behavioral value
-- Assertions written only to increase coverage
-
-## Implementation Record Verification
-
-- Record unit tests, end-to-end tests, manual checks, and remaining gaps separately in new implementation records.
-- In a role-separated harness, evaluator owns the strongest feasible user-surface/end-to-end validation, including direct checks through browser UI, app simulator/runtime, game runtime/scene, CLI entrypoints, or API request/response flows when those are the representative surfaces.
-- If the representative user surface could not be exercised directly, explain why, what environment is missing, what substitute validation was used, and what gap remains.
-- Explain why tests were not added or run when that happens.
-EOF
-    return 0
-  fi
-
-  if [ "$language" = "ko" ]; then
-    cat <<'EOF'
-# 테스트 표준 규칙
-
-## 목적
-
-이 저장소에서 단위 테스트, E2E 테스트, 검증 기대치를 어떻게 정하고 유지하는지 정의한다.
-
-## 신규 저장소
-
-- 이 문서는 provisional한 규칙으로 시작한다.
-- 실제 스택이 정해지기 전에는 특정 test framework를 미리 가정하지 않는다.
-- 단위 테스트는 가능한 경우 고립된 로직과 edge case를 검증하는 데 우선 사용한다.
-- E2E 테스트는 사용자 핵심 흐름이나 경계를 넘는 동작이 실제로 생긴 뒤 필요한 경우에 사용한다.
-
-## 현재 최소 기대치
-
-- 모든 함수나 기능마다 기계적으로 테스트를 만들지 않는다.
-- 동작이 바뀌더라도 아래 판단 기준에 부합할 때 가능한 범위에서 가장 작은 관련 테스트 계층을 추가하거나 수정한다.
-- 단위 테스트가 더 적합한 변경을 E2E 테스트만으로 대체하지 않는다.
-- 자동화 테스트 경로가 아직 없다면 수동 검증 메모를 남긴다.
-- 역할 분리 하네스를 따를 때 generator는 단위 수준 검증을 우선하고, evaluator는 대표 사용자 surface 직접 검증을 포함한 strongest feasible user-surface/E2E 검증을 맡는다.
-- 대표 사용자 surface가 있으면 evaluator는 브라우저, 시뮬레이터, 런타임, CLI, API 호출처럼 해당 프로젝트 타입의 실제 진입점을 가능한 한 직접 검증한다.
-- 대표 사용자 surface를 직접 실행하지 못했다면 이유, 누락된 환경, 대체 검증 한계와 남은 공백을 검증 기록에 남긴다.
-
-## 테스트 작성 판단 기준
-
-- 테스트는 의미 있는 동작, 업무 규칙, 권한/보안, 데이터 무결성, 금액/수량 계산, 상태 전이, 실패 처리, 외부 연동, 고위험 회귀를 보호할 때 작성한다.
-- 테스트는 구현 세부가 아니라 관찰 가능한 동작을 검증한다.
-- 테스트를 추가하기 전에 다음 질문을 확인한다.
-  - 어떤 회귀를 막는가?
-  - 어떤 업무 또는 사용자 리스크를 줄이는가?
-  - 타입, lint, 프레임워크 동작, 데이터베이스 제약으로 이미 보장되는가?
-  - 합당한 리팩터링 뒤에도 유지될 테스트인가?
-
-## 선호하는 테스트
-
-- 업무 불변식 테스트
-- 권한과 보안 테스트
-- 금액, 수량, 상태 전이 테스트
-- 경계값과 실패 처리 테스트
-- 외부 시스템 통합 테스트
-
-## 피하는 테스트
-
-- 단순 CRUD passthrough, getter/setter, DTO shape만 확인하는 테스트
-- 프레임워크 기본 동작, 라이브러리 동작, 타입 시스템 또는 데이터베이스가 이미 보장하는 동작 테스트
-- private helper나 내부 호출 순서처럼 구현 세부에 고정된 테스트
-- 실제 동작을 검증하지 못하는 mock-heavy 테스트
-- 행동 가치가 없는 snapshot 테스트
-- coverage 수치만 올리는 assertion
-
-## 향후 구체화
-
-- 실제 test 디렉토리, 명령, framework가 정해지면 이 문서에 반영한다.
-- 새 구현 기록의 `검증` 섹션에는 단위 테스트, E2E 테스트, 수동 검증, 남은 공백을 구분해 적는다.
-EOF
-    return 0
-  fi
-
-  cat <<'EOF'
-# Testing Standards Rule
-
-## Purpose
-
-Define how unit tests, end-to-end tests, and verification expectations are established and maintained in this repository.
-
-## Fresh Repository State
-
-- This document is provisional until real test paths, commands, and frameworks become concrete.
-- Do not assume a specific test framework before the real stack becomes known.
-- Use unit tests for isolated logic where practical.
-- Use end-to-end tests for user-critical or cross-boundary flows once those flows exist.
-
-## Current Minimal Expectations
-
-- Do not create tests mechanically for every function or feature.
-- For behavior changes, add or update the smallest relevant test layer only when the test meets the decision criteria below.
-- Do not replace focused unit tests with end-to-end tests alone when a narrower test is the better fit.
-- Leave a concise manual verification note if no automated test path exists yet.
-
-## Test Authoring Decision Criteria
-
-- Write tests when they protect meaningful behavior, business rules, permission/security behavior, data integrity, money/count calculations, state transitions, failure handling, external integrations, or high-risk regressions.
-- Tests should verify observable behavior, not implementation details.
-- Before adding a test, check:
-  - What regression does this prevent?
-  - What business or user risk does it reduce?
-  - Is this already guaranteed by types, linting, framework behavior, or the database?
-  - Will this test survive a valid refactor?
-
-## Prefer
-
-- Business invariant tests
-- Permission and security tests
-- Money, count, and state transition tests
-- Boundary and failure-handling tests
-- Integration tests for external systems
-
-## Avoid
-
-- Tests for simple CRUD passthroughs, getters/setters, or DTO shape alone
-- Tests for framework defaults, library behavior, or behavior already guaranteed by the type system or database
-- Tests coupled to private helpers, internal call order, or other implementation details
-- Mock-heavy tests with no real behavior
-- Snapshots without behavioral value
-- Assertions written only to increase coverage
-
-## Future Refinement
-
-- Record real test directories, commands, and frameworks here once they become known.
-- In new implementation records, separate unit tests, end-to-end tests, manual checks, and remaining gaps in `Verification`.
-EOF
-}
-
-build_project_structure() {
-  language=$1
-  runtime_dirs=$2
-  non_runtime_dirs=$3
-  runtime_body=$(make_runtime_body "$language" "$runtime_dirs")
-  non_runtime_body=$(make_non_runtime_body "$language" "$non_runtime_dirs")
-
-  if [ "$language" = "ko" ]; then
-    cat <<EOF
-# 프로젝트 구조 규칙
-
-## 목적
-
-이 저장소의 최상위 디렉토리 모델을 정의하고, 각 주요 영역의 역할을 분명하게 한다.
-
-## 최상위 영역
-
-- [\`AGENTS.md\`](../../AGENTS.md): 저장소 전역 orchestration 지침
-- [\`PROJECT_OVERVIEW.md\`](../../PROJECT_OVERVIEW.md): 프로젝트 전체 요구사항과 핵심 흐름의 기준 문서
-- \`.codex/\`: 프로젝트 스코프 Codex 설정, subagent 정의, starter local skill 세트
-- \`rule/\`: authoritative Codex 실행 규칙. 탐색 시작점은 [\`rule/index.md\`](../index.md)다.
-- \`subagents_docs/\`: planner, generator, evaluator의 작업 문서 영역. 기본 진입점은 [\`subagents_docs/AGENTS.md\`](../../subagents_docs/AGENTS.md), phase 로드맵은 [\`subagents_docs/roadmap.md\`](../../subagents_docs/roadmap.md)다.
-- \`docs/guide/\`: 사람이 읽는 안내 문서. 기본 진입점은 [\`docs/guide/README.md\`](../../docs/guide/README.md)다.
-- \`docs/implementation/\`: 관심사 기반 카테고리 안에 사람이 읽는 최종 구현 브리핑을 두는 문서 영역. 제어 파일은 [\`docs/implementation/AGENTS.md\`](../../docs/implementation/AGENTS.md)다.
-
-## Source Root 영역
-
-$runtime_body
-
-## Non-Runtime 영역
-
-$non_runtime_body
-
-## 변경 규칙
-
-- source root와 non-runtime 경계는 명시적으로 유지한다.
-- 프로젝트 루트 바로 아래에 여러 runtime 디렉토리를 흩뿌리지 말고, 구현체는 단일 source root 아래에 둔다.
-- 실제 디렉토리 구조가 확정되면 placeholder 항목을 관찰된 경로로 교체한다.
-- 최상위 구조가 바뀌면 [\`rule/rules/project-structure.md\`](project-structure.md)에 그 구조를 실제 값으로 반영한다.
-- 요구사항 흐름이나 phase 구조가 바뀌면 [\`PROJECT_OVERVIEW.md\`](../../PROJECT_OVERVIEW.md)와 [\`subagents_docs/roadmap.md\`](../../subagents_docs/roadmap.md)도 함께 갱신한다.
-- 확립된 최상위 영역을 이동하거나 이름 변경할 때는 [\`rule/index.md\`](../index.md)와 관련 \`rule/rules/*.md\` 문서도 함께 갱신한다.
-- local 구조가 복잡해지면 scope를 분명하게 해주는 곳에만 local instruction 파일을 추가한다.
-EOF
-    return 0
-  fi
-
-  cat <<EOF
-# Project Structure Rule
-
-## Purpose
-
-Define the top-level directory model for this repository and make the role of each major area explicit.
-
-## Top-Level Areas
-
-- [\`AGENTS.md\`](../../AGENTS.md): repository-wide orchestration guidance
-- [\`PROJECT_OVERVIEW.md\`](../../PROJECT_OVERVIEW.md): project-wide requirements and core-flow authority
-- \`.codex/\`: project-scoped Codex configuration, subagent definitions, and starter local skills
-- \`rule/\`: authoritative Codex execution rules, with [\`rule/index.md\`](../index.md) as the discovery entry point
-- \`subagents_docs/\`: planner, generator, and evaluator working documents, with [\`subagents_docs/AGENTS.md\`](../../subagents_docs/AGENTS.md) as the control file and [\`subagents_docs/roadmap.md\`](../../subagents_docs/roadmap.md) as the phase roadmap
-- \`docs/guide/\`: human-facing guidance, with [\`docs/guide/README.md\`](../../docs/guide/README.md) as the default entry point
-- \`docs/implementation/\`: human-facing final implementation briefings inside concern-based categories, with [\`docs/implementation/AGENTS.md\`](../../docs/implementation/AGENTS.md) as the control file
-
-## Source Root Area
-
-$runtime_body
-
-## Non-Runtime Areas
-
-$non_runtime_body
-
-## Change Rules
-
-- Keep source-root and non-runtime boundaries explicit.
-- Do not spread multiple top-level runtime directories directly under the project root; keep implementation areas under one source root.
-- Replace placeholder entries with observed paths once the real directory structure becomes known.
-- Reflect actual top-level structure changes in [\`rule/rules/project-structure.md\`](project-structure.md).
-- When requirements flow or phase structure changes, update [\`PROJECT_OVERVIEW.md\`](../../PROJECT_OVERVIEW.md) and [\`subagents_docs/roadmap.md\`](../../subagents_docs/roadmap.md) in the same work.
-- Do not move or rename established top-level areas without updating [\`rule/index.md\`](../index.md) and related \`rule/rules/*.md\` documents.
-- When local structure becomes complex, add local instruction files only where they improve scope clarity.
-EOF
-}
-
-build_runtime_boundaries() {
-  language=$1
-  runtime_dirs=$2
-  non_runtime_dirs=$3
-  runtime_body=$(make_runtime_body "$language" "$runtime_dirs")
-  non_runtime_body=$(make_non_runtime_body "$language" "$non_runtime_dirs")
-
-  if [ "$language" = "ko" ]; then
-    cat <<EOF
-# Runtime 경계 규칙
-
-## 목적
-
-이 저장소에서 단일 source root와 non-runtime 영역을 어떻게 나누는지 정의한다.
-
-## Source Root 디렉토리
-
-$runtime_body
-
-## Non-Runtime 디렉토리
-
-$non_runtime_body
-
-## 모호성 처리
-
-- 기존 저장소에서 경계가 불분명하면 구조를 바꾸기 전에 먼저 확인한다.
-- 프로젝트 루트 아래에 여러 runtime 디렉토리를 직접 두는 기본 규칙은 허용하지 않는다. 구현체는 단일 source root 아래에 둔다.
-- source root 후보가 여러 개로 보이면 어떤 하나를 source root로 볼지 먼저 확인한다.
-- 가능하면 충돌하는 새 모델을 만들기보다, 이미 의미 있게 형성된 기존 구조에 맞춘다.
-- source root와 non-runtime 경계가 실제로 드러나면 placeholder 항목을 관찰된 디렉토리로 교체한다.
-- 경계가 바뀌면 [\`rule/rules/runtime-boundaries.md\`](runtime-boundaries.md)와 필요한 관련 \`rule/rules/*.md\` 문서를 함께 갱신한다.
-EOF
-    return 0
-  fi
-
-  cat <<EOF
-# Runtime Boundaries Rule
-
-## Purpose
-
-Define how a single source root and non-runtime areas are separated in this repository.
-
-## Source Root Directory
-
-$runtime_body
-
-## Non-Runtime Directories
-
-$non_runtime_body
-
-## Ambiguity Handling
-
-- If the boundary is unclear in an existing repository, confirm it before making structural changes.
-- Do not spread multiple top-level runtime directories directly under the project root; keep implementation areas under one source root.
-- If several likely source-root candidates exist, confirm which single directory should be treated as the source root.
-- Align to meaningful existing structure when possible instead of inventing a conflicting model.
-- Replace placeholder entries with observed directories once source-root and non-runtime boundaries become clear.
-- When the boundary changes, update [\`rule/rules/runtime-boundaries.md\`](runtime-boundaries.md) and any related \`rule/rules/*.md\` documents in the same change.
-EOF
-}
-
-build_subagents_docs_rule() {
-  language=$1
-
-  if [ "$language" = "ko" ]; then
-    cat <<'EOF'
-# Subagents Docs 규칙
-
-## 목적
-
-`subagents_docs/`를 cycle-backed implementation work에서 메인 에이전트와 subagent가 공유하는 작업 문서 영역으로 정의한다.
-
-## 범위
-
-- `subagents_docs/`는 subagent working area다.
-- `docs/guide/`와 `docs/implementation/`는 사람이 읽는 문서 영역이다.
-- subagent 작업 기록은 `subagents_docs/`에만 둔다.
-- `subagents_docs/` 작업 문서는 선택된 언어 설정을 따른다.
-- `subagents_docs/roadmap.md`는 `PROJECT_OVERVIEW.md` 기준의 phase 로드맵과 완료 체크리스트를 관리한다.
-- 메인 에이전트는 작업 분류, 계획 승인, 구현 통합, handoff 결정을 담당한다.
-- 메인 에이전트는 필요할 때 subagent를 자율적으로 호출할 수 있고, 독립적인 분석 질문은 병렬 `explorer` 호출을 우선 고려한다.
-
-## 디렉토리 역할
-
-- `subagents_docs/roadmap.md`: phase와 완료 체크리스트를 관리하는 작업 로드맵
-- `subagents_docs/cycles/`: planner, generator, evaluator가 함께 참조하는 phase별 단일 working document
-
-## 문서 계약
-
-- exact cycle 문서 경로, header 상태 전이, append-only section, provenance는 [\`rule/rules/cycle-document-contract.md\`](cycle-document-contract.md)를 기준으로 한다.
-- 문서 본문 언어와 path 표기 규칙은 [\`rule/rules/language-policy.md\`](language-policy.md)를 기준으로 한다.
-- overview, roadmap, phase gate는 [\`rule/rules/planning-roadmap.md\`](planning-roadmap.md)를 기준으로 한다.
-
-## 순환 규칙
-
-- 작은 직접 변경은 cycle 문서를 생략할 수 있다.
-- 구현 cycle은 `subagents_docs/roadmap.md`의 한 phase 또는 phase section에 연결한다.
-- 의존 관계가 있는 다음 phase는 선행 phase가 `PASS`가 되고 필수 체크리스트가 충족되기 전에는 시작하지 않는다.
-- 중간 변경은 `main(plan+implementation) -> evaluator`로 진행한다.
-- 큰 변경이지만 비교적 명확하면 `main-led decomposition + delegated implementation + evaluator`로 진행한다.
-- 큰 변경이면서 모호하면 병렬 `explorer` 분석, 필요 시 planner assist, main-approved plan, delegated implementation, evaluator 순으로 진행한다.
-- evaluator는 generator가 만든 구현 결과를 해당 plan과 acceptance criteria 기준으로 대표 사용자 surface 직접 검증을 포함한 strongest feasible 검증으로 평가한다.
-- evaluator가 구현 결과에서 부족한 점이나 blocker를 확인하면 해당 phase의 checklist와 notes를 갱신하고, `FAIL`이면 외부 입력이 정말 필요한 경우가 아니면 같은 phase에서 다시 계획, 구현, 평가한다.
-- 여러 계획이 독립이면 병렬로 돌릴 수 있지만, 의존성이 있으면 순차로 처리한다.
-- 문서 분석 단계에서는 독립적인 질문을 explorer 병렬 호출로 나누고, implementation cycle 진입 전까지는 evaluation handoff를 열지 않는다.
-
-## 문서 경계
-
-- `subagents_docs/`에는 작업용 문서만 둔다.
-- 신규 working record는 `subagents_docs/cycles/`에 쓴다.
-- 사용자-facing 최종 브리핑은 evaluator pass 이후 [\`docs/implementation/AGENTS.md\`](../../docs/implementation/AGENTS.md)를 기준으로 `docs/implementation/`의 관심사 카테고리 안에 새 문서로 짧고 읽기 쉽게 남긴다.
-- plan-only 상태나 generator-only 상태를 근거로 [\`docs/implementation/AGENTS.md\`](../../docs/implementation/AGENTS.md) 아래 최종 브리핑을 만들거나 갱신하지 않는다.
-- 기존 `docs/implementation/` 브리핑은 과거 구현 이력으로 보존하고, 현재 변경사항 동기화 대상으로 탐색하거나 수정하지 않는다.
-- 역할별 소유 문서를 섞어 쓰지 않는다.
-- top-level `docs/implementation/briefings/` 디렉토리는 만들지 않는다.
-EOF
-    return 0
-  fi
-
-  cat <<'EOF'
-# Subagents Docs Rule
-
-## Purpose
-
-Define `subagents_docs/` as the working-document area used by the main agent and subagents for cycle-backed implementation work.
-
-## Scope
-
-- `subagents_docs/` is the subagent working area.
-- `docs/guide/` and `docs/implementation/` are human-facing documentation areas.
-- Subagent working records stay only under `subagents_docs/`.
-- `subagents_docs/` working documents follow the selected language.
-- `subagents_docs/roadmap.md` tracks phases and completion checklists derived from `PROJECT_OVERVIEW.md`.
-- The main agent owns task classification, plan approval, implementation integration, and handoff decisions.
-- The main agent may autonomously invoke subagents when needed and should prefer parallel `explorer` calls for independent analysis questions.
-
-## Directory Roles
-
-- `subagents_docs/roadmap.md`: working roadmap for phases and completion checklists
-- `subagents_docs/cycles/`: one append-only working document per phase
-
-## Document Contract
-
-- Use [\`rule/rules/cycle-document-contract.md\`](cycle-document-contract.md) for exact cycle file path, header transitions, append-only sections, provenance, and dirty-worktree rules.
-- Use [\`rule/rules/language-policy.md\`](language-policy.md) for document language and stable filename/path rules.
-- Use [\`rule/rules/planning-roadmap.md\`](planning-roadmap.md) for overview, roadmap, and phase gates.
-
-## Cycle Rules
-
-- Small direct changes may skip the cycle document.
-- Each implementation cycle links to one phase or phase section in `subagents_docs/roadmap.md`.
-- A dependent next phase must not start until the previous phase is `PASS` and its required checklist is satisfied.
-- Medium changes use `main(plan+implementation) -> evaluator`.
-- Large-clear changes use `main-led decomposition + delegated implementation + evaluator`.
-- Large-ambiguous changes use `parallel explorer analysis + planner assist if needed + main-approved plan + delegated implementation + evaluator`.
-- Evaluator reviews the implemented result against that plan and its acceptance criteria with the strongest feasible validation by directly exercising the representative user surface when one exists.
-- If a representative user surface exists, evaluator should prioritize direct checks through browser UI, app simulator/runtime, game runtime/scene, CLI entrypoints, or API request/response flows.
-- If direct user-surface validation is unavailable, evaluator must record why, what environment is missing, what substitute validation was used, and why any critical unverified surface cannot be soft-passed.
-- If evaluator finds failures or blockers in the implemented result, update that phase's checklist and notes, then repeat planning, implementation, and evaluation in the same phase unless the blocker truly needs external input.
-- Independent plans may run in parallel, while dependent plans must run sequentially.
-- Document-analysis work should use parallel explorers when the questions are independent.
-
-## Document Boundary
-
-- Keep working documents only under `subagents_docs/`.
-- Leave a new short, human-facing final briefing under a concern-based category in [\`docs/implementation/AGENTS.md\`](../../docs/implementation/AGENTS.md) only after evaluator pass.
-- Do not create or update final briefings from a plan-only or generator-only state under [\`docs/implementation/AGENTS.md\`](../../docs/implementation/AGENTS.md).
-- Preserve existing `docs/implementation/` briefings as historical records instead of searching or updating them for current-change synchronization.
-- Do not mix role-owned working documents into user-facing documentation.
-- Do not create a top-level `docs/implementation/briefings/` directory.
-EOF
-}
-
-TARGET_DIR=""
-LANGUAGE_RAW=""
-SOURCE_ROOT_DIR_RAW=""
-NON_RUNTIME_DIRS_RAW=""
-README_MODE="fresh"
-INSPECT_ONLY=0
-CONFIRM_EXISTING_DOCS=0
-CONFIRM_EXISTING_RULE=0
-OVERWRITE=0
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    --inspect)
-      INSPECT_ONLY=1
-      shift
-      ;;
-    --confirm-existing-docs)
-      CONFIRM_EXISTING_DOCS=1
-      shift
-      ;;
-    --confirm-existing-rule)
-      CONFIRM_EXISTING_RULE=1
-      shift
+    --root)
+      require_value "$@"
+      ROOT=$2
+      shift 2
       ;;
     --language)
-      [ "$#" -ge 2 ] || die "--language requires a value"
-      LANGUAGE_RAW=$2
+      require_value "$@"
+      LANGUAGE=$2
       shift 2
       ;;
-    --source-root-dir)
-      [ "$#" -ge 2 ] || die "--source-root-dir requires a value"
-      SOURCE_ROOT_DIR_RAW=$2
+    --target)
+      require_value "$@"
+      TARGET=$2
       shift 2
       ;;
-    --runtime-dirs)
-      [ "$#" -ge 2 ] || die "--runtime-dirs requires a value"
-      SOURCE_ROOT_DIR_RAW=$2
-      shift 2
-      ;;
-    --non-runtime-dirs)
-      [ "$#" -ge 2 ] || die "--non-runtime-dirs requires a value"
-      NON_RUNTIME_DIRS_RAW=$2
+    --project-mode)
+      require_value "$@"
+      PROJECT_MODE=$2
       shift 2
       ;;
     --readme-mode)
-      [ "$#" -ge 2 ] || die "--readme-mode requires a value"
+      require_value "$@"
       README_MODE=$2
+      shift 2
+      ;;
+    --source-root-dir)
+      require_value "$@"
+      SOURCE_ROOT_DIR=$2
+      shift 2
+      ;;
+    --preserve)
+      require_value "$@"
+      case "$2" in
+        /*|../*|*/../*|*/..|..)
+          die "--preserve must be a safe repository-relative path: $2"
+          ;;
+      esac
+      PRESERVE_PATHS="${PRESERVE_PATHS}
+$2"
       shift 2
       ;;
     --overwrite)
       OVERWRITE=1
       shift
       ;;
+    --inspect)
+      INSPECT=1
+      shift
+      ;;
+    --dry-run)
+      DRY_RUN=1
+      shift
+      ;;
     -h|--help)
       usage
       exit 0
       ;;
-    --*)
-      die "Unknown option: $1"
-      ;;
     *)
-      if [ -z "$TARGET_DIR" ]; then
-        TARGET_DIR=$1
-        shift
-      else
-        die "Unexpected argument: $1"
-      fi
+      die "unknown argument: $1"
       ;;
   esac
 done
 
-[ -n "$TARGET_DIR" ] || die "Target directory is required"
-[ -n "$LANGUAGE_RAW" ] || die "--language is required"
-[ -d "$TARGET_DIR" ] || die "Target directory does not exist: $TARGET_DIR"
+[ -n "$ROOT" ] || die "--root is required"
 
-case "$README_MODE" in
-  fresh|existing|skip)
-    ;;
-  *)
-    die "Unsupported --readme-mode: $README_MODE"
+case "$TARGET" in
+  codex|claude|both) ;;
+  *) die "--target must be codex, claude, or both" ;;
+esac
+
+if [ -n "$PROJECT_MODE" ]; then
+  case "$PROJECT_MODE" in
+    fresh|existing) ;;
+    *) die "--project-mode must be fresh or existing" ;;
+  esac
+fi
+
+if [ -n "$README_MODE" ]; then
+  case "$README_MODE" in
+    create|merge|preserve) ;;
+    *) die "--readme-mode must be create, merge, or preserve" ;;
+  esac
+fi
+
+if [ ! -e "$ROOT" ]; then
+  [ "$PROJECT_MODE" != "existing" ] || die "existing repository root does not exist: $ROOT"
+  if [ "$DRY_RUN" -eq 0 ] && [ "$INSPECT" -eq 0 ]; then
+    mkdir -p "$ROOT"
+  fi
+fi
+
+if [ -d "$ROOT" ]; then
+  ROOT=$(CDPATH= cd -- "$ROOT" && pwd)
+else
+  case "$ROOT" in
+    /*) ;;
+    *) ROOT="$(pwd)/$ROOT" ;;
+  esac
+fi
+
+has_meaningful_content() {
+  [ -d "$ROOT" ] || return 1
+  find "$ROOT" -mindepth 1 -maxdepth 1 ! -name .git ! -name .DS_Store -print -quit 2>/dev/null | grep -q .
+}
+
+if [ -z "$PROJECT_MODE" ]; then
+  if has_meaningful_content; then
+    PROJECT_MODE=existing
+  else
+    PROJECT_MODE=fresh
+  fi
+fi
+
+if [ -z "$README_MODE" ]; then
+  if [ "$PROJECT_MODE" = existing ]; then
+    README_MODE=preserve
+  else
+    README_MODE=create
+  fi
+fi
+
+is_preserved() {
+  rel=$1
+  printf '%s\n' "$PRESERVE_PATHS" | grep -F -x -- "$rel" >/dev/null 2>&1
+}
+
+is_safe_destination() {
+  rel=$1
+  destination="$ROOT/$rel"
+
+  [ ! -L "$destination" ] || return 1
+  if [ -e "$destination" ] && [ ! -f "$destination" ]; then
+    return 1
+  fi
+
+  parent=$(dirname "$destination")
+  while [ "$parent" != "$ROOT" ]; do
+    [ ! -L "$parent" ] || return 1
+    if [ -e "$parent" ] && [ ! -d "$parent" ]; then
+      return 1
+    fi
+    next_parent=$(dirname "$parent")
+    [ "$next_parent" != "$parent" ] || return 1
+    parent=$next_parent
+  done
+  return 0
+}
+
+has_valid_merge_markers() {
+  readme=$1
+  start_count=$(grep -c '^<!-- hs-init-project:start -->$' "$readme" 2>/dev/null || true)
+  end_count=$(grep -c '^<!-- hs-init-project:end -->$' "$readme" 2>/dev/null || true)
+
+  if [ "$start_count" -eq 0 ] && [ "$end_count" -eq 0 ]; then
+    return 0
+  fi
+  [ "$start_count" -eq 1 ] && [ "$end_count" -eq 1 ] || return 1
+
+  start_line=$(grep -n '^<!-- hs-init-project:start -->$' "$readme" | cut -d: -f1)
+  end_line=$(grep -n '^<!-- hs-init-project:end -->$' "$readme" | cut -d: -f1)
+  [ "$start_line" -lt "$end_line" ]
+}
+
+print_inspection() {
+  printf 'Root: %s\n' "$ROOT"
+  printf 'Observed mode: %s\n' "$PROJECT_MODE"
+  printf 'Target: %s\n' "$TARGET"
+  printf 'README mode: %s\n' "$README_MODE"
+  if [ -n "$SOURCE_ROOT_DIR" ]; then
+    printf 'Source hint: %s\n' "$SOURCE_ROOT_DIR"
+  fi
+  printf 'Relevant paths:\n'
+  if [ -d "$ROOT" ]; then
+    find "$ROOT" -mindepth 1 -maxdepth 2 \
+      \( -name .git -o -name node_modules -o -name .venv -o -name vendor \) -prune -o \
+      \( -name AGENTS.md -o -name CLAUDE.md -o -name PROJECT_OVERVIEW.md -o -name README.md -o -path '*/rule' -o -path '*/docs' -o -path '*/src' -o -path '*/test' -o -path '*/tests' \) \
+      -print 2>/dev/null | sed "s|^$ROOT/|  - |"
+  fi
+  printf 'Selected output conflicts:\n'
+  for rel in AGENTS.md PROJECT_OVERVIEW.md rule/index.md \
+    rule/rules/project-structure.md rule/rules/development-standards.md \
+    rule/rules/testing-standards.md rule/rules/documentation.md \
+    rule/rules/agent-workflow.md; do
+    if [ -e "$ROOT/$rel" ]; then
+      printf '  - %s\n' "$rel"
+    fi
+  done
+  case "$TARGET" in
+    claude|both)
+      [ ! -e "$ROOT/CLAUDE.md" ] || printf '  - CLAUDE.md\n'
+      ;;
+  esac
+  [ ! -e "$ROOT/README.md" ] || printf '  - README.md (%s)\n' "$README_MODE"
+}
+
+if [ "$INSPECT" -eq 1 ]; then
+  print_inspection
+  exit 0
+fi
+
+case "$LANGUAGE" in
+  en|ko) ;;
+  *) die "--language must be en or ko" ;;
+esac
+
+TMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/hs-init-project.XXXXXX")
+trap 'rm -rf "$TMP_DIR"' EXIT HUP INT TERM
+PLAN_FILE="$TMP_DIR/plan"
+: > "$PLAN_FILE"
+
+add_plan() {
+  rel=$1
+  template=$2
+  [ -f "$template" ] || die "missing asset template: $template"
+  printf '%s|%s\n' "$rel" "$template" >> "$PLAN_FILE"
+}
+
+add_plan AGENTS.md "$ASSET_DIR/AGENTS/root.$LANGUAGE.md"
+add_plan PROJECT_OVERVIEW.md "$ASSET_DIR/PROJECT_OVERVIEW/root.$LANGUAGE.md"
+add_plan rule/index.md "$ASSET_DIR/rule/index.$LANGUAGE.md"
+add_plan rule/rules/project-structure.md "$ASSET_DIR/rule/project-structure.$LANGUAGE.md"
+add_plan rule/rules/development-standards.md "$ASSET_DIR/rule/development-standards.$LANGUAGE.md"
+add_plan rule/rules/testing-standards.md "$ASSET_DIR/rule/testing-standards.$LANGUAGE.md"
+add_plan rule/rules/documentation.md "$ASSET_DIR/rule/documentation.$LANGUAGE.md"
+add_plan rule/rules/agent-workflow.md "$ASSET_DIR/rule/agent-workflow.$LANGUAGE.md"
+
+case "$TARGET" in
+  claude|both)
+    add_plan CLAUDE.md "$ASSET_DIR/CLAUDE/root.$LANGUAGE.md"
     ;;
 esac
 
-LANGUAGE=$(normalize_language "$LANGUAGE_RAW") || die "Unsupported language selection: $LANGUAGE_RAW"
-RUNTIME_DIRS=$(normalize_single_dir "$SOURCE_ROOT_DIR_RAW") || die "--source-root-dir requires a single directory value"
-NON_RUNTIME_DIRS=$(normalize_dirs "$NON_RUNTIME_DIRS_RAW")
-STANDARDS_MODE="fresh"
-if [ "$README_MODE" = "existing" ]; then
-  STANDARDS_MODE="existing"
+if [ "$README_MODE" = create ]; then
+  add_plan README.md "$ASSET_DIR/README/root.$LANGUAGE.md"
 fi
 
-OBSERVED_DIRS=$(list_top_level_dirs "$TARGET_DIR")
-OBSERVED_FILES=$(list_top_level_files "$TARGET_DIR")
-OBSERVED_TOOLING_FILES=$(detect_tooling_files "$OBSERVED_FILES")
-OBSERVED_TEST_DIRS=$(detect_test_dirs "$OBSERVED_DIRS")
-OBSERVED_TEST_TOOLING_FILES=$(detect_test_tooling_files "$OBSERVED_FILES")
-RUNTIME_CANDIDATES=""
-if [ "$README_MODE" = "existing" ] && [ -z "$RUNTIME_DIRS" ]; then
-  RUNTIME_CANDIDATES=$(detect_runtime_candidates "$OBSERVED_DIRS")
-fi
-DOCS_CHILDREN=$(list_docs_children "$TARGET_DIR")
-RULE_ENTRIES=$(list_rule_entries "$TARGET_DIR")
-CONFLICTING_OUTPUTS=$(detect_conflicting_outputs "$TARGET_DIR" "$README_MODE")
+escape_sed_replacement() {
+  printf '%s' "$1" | sed 's/[&|\\]/\\&/g'
+}
 
-RUNTIME_NEEDS_INPUT=0
-if [ "$README_MODE" = "existing" ] && [ -z "$SOURCE_ROOT_DIR_RAW" ] && [ -n "$OBSERVED_DIRS" ]; then
-  RUNTIME_NEEDS_INPUT=1
-fi
+render_template() {
+  template=$1
+  output=$2
+  project_name=$(basename "$ROOT")
+  escaped_name=$(escape_sed_replacement "$project_name")
+  escaped_source=$(escape_sed_replacement "$SOURCE_ROOT_DIR")
+  sed \
+    -e "s|PROJECT_NAME|$escaped_name|g" \
+    -e "s|SOURCE_ROOT_HINT|$escaped_source|g" \
+    "$template" > "$output"
+}
 
-DOCS_NEEDS_INPUT=0
-if [ "$README_MODE" = "existing" ] && [ "$CONFIRM_EXISTING_DOCS" -ne 1 ] && docs_tree_requires_confirmation "$DOCS_CHILDREN"; then
-  DOCS_NEEDS_INPUT=1
-fi
-
-RULE_NEEDS_INPUT=0
-if [ "$README_MODE" = "existing" ] && [ "$CONFIRM_EXISTING_RULE" -ne 1 ] && rule_tree_requires_confirmation "$RULE_ENTRIES"; then
-  RULE_NEEDS_INPUT=1
-fi
-
-OVERWRITE_NEEDS_INPUT=0
-if [ -n "$CONFLICTING_OUTPUTS" ] && [ "$OVERWRITE" -ne 1 ]; then
-  OVERWRITE_NEEDS_INPUT=1
-fi
-
-if [ "$INSPECT_ONLY" -eq 1 ]; then
-  print_inspection_summary "$LANGUAGE" "$README_MODE" "$RUNTIME_CANDIDATES" "$DOCS_CHILDREN" "$RULE_ENTRIES" "$CONFLICTING_OUTPUTS" "$RUNTIME_NEEDS_INPUT" "$DOCS_NEEDS_INPUT" "$RULE_NEEDS_INPUT" "$OVERWRITE_NEEDS_INPUT"
-  exit 0
-fi
-
-if [ "$RUNTIME_NEEDS_INPUT" -eq 1 ] || [ "$DOCS_NEEDS_INPUT" -eq 1 ] || [ "$RULE_NEEDS_INPUT" -eq 1 ] || [ "$OVERWRITE_NEEDS_INPUT" -eq 1 ]; then
-  if [ "$LANGUAGE" = "ko" ]; then
-    printf '[NEEDS_INPUT] 필요한 답변이 정리될 때까지 생성을 잠시 멈춘다.\n'
-  else
-    printf '[NEEDS_INPUT] Generation is paused until the missing answers are resolved.\n'
+conflicts=0
+while IFS='|' read -r rel template; do
+  if is_preserved "$rel"; then
+    printf 'PRESERVE %s\n' "$rel"
+    continue
   fi
-  print_inspection_summary "$LANGUAGE" "$README_MODE" "$RUNTIME_CANDIDATES" "$DOCS_CHILDREN" "$RULE_ENTRIES" "$CONFLICTING_OUTPUTS" "$RUNTIME_NEEDS_INPUT" "$DOCS_NEEDS_INPUT" "$RULE_NEEDS_INPUT" "$OVERWRITE_NEEDS_INPUT"
+  if ! is_safe_destination "$rel"; then
+    printf 'CONFLICT %s (destination or parent is not a regular in-repository path)\n' "$rel" >&2
+    conflicts=$((conflicts + 1))
+    continue
+  fi
+  rendered="$TMP_DIR/rendered"
+  render_template "$template" "$rendered"
+  if [ ! -e "$ROOT/$rel" ]; then
+    printf 'CREATE %s\n' "$rel"
+  elif cmp -s "$rendered" "$ROOT/$rel"; then
+    printf 'UNCHANGED %s\n' "$rel"
+  elif [ "$OVERWRITE" -eq 1 ]; then
+    printf 'UPDATE %s\n' "$rel"
+  else
+    printf 'CONFLICT %s (use --overwrite or --preserve %s)\n' "$rel" "$rel" >&2
+    conflicts=$((conflicts + 1))
+  fi
+done < "$PLAN_FILE"
+
+if [ "$README_MODE" = preserve ]; then
+  printf 'PRESERVE README.md\n'
+elif [ "$README_MODE" = merge ]; then
+  if is_preserved README.md; then
+    printf 'PRESERVE README.md\n'
+  elif ! is_safe_destination README.md; then
+    printf 'CONFLICT README.md (destination or parent is not a regular in-repository path)\n' >&2
+    conflicts=$((conflicts + 1))
+  elif [ -e "$ROOT/README.md" ] && ! has_valid_merge_markers "$ROOT/README.md"; then
+    printf 'CONFLICT README.md (incomplete, duplicate, or out-of-order hs-init-project markers)\n' >&2
+    conflicts=$((conflicts + 1))
+  elif [ -e "$ROOT/README.md" ]; then
+    printf 'MERGE README.md\n'
+  else
+    printf 'CREATE README.md\n'
+  fi
+fi
+
+[ "$conflicts" -eq 0 ] || die "$conflicts unresolved file conflict(s); no files were written"
+
+if [ "$DRY_RUN" -eq 1 ]; then
+  printf 'Dry run complete; no files were written.\n'
   exit 0
 fi
 
-copy_template "assets/AGENTS/root.$LANGUAGE.md" "$TARGET_DIR/AGENTS.md"
-copy_template "assets/docs/implementation/AGENTS.$LANGUAGE.md" "$TARGET_DIR/docs/implementation/AGENTS.md"
-copy_template "assets/rule/index.$LANGUAGE.md" "$TARGET_DIR/rule/index.md"
-copy_template "assets/rule/instruction-model.$LANGUAGE.md" "$TARGET_DIR/rule/rules/instruction-model.md"
-copy_template "assets/rule/rule-maintenance.$LANGUAGE.md" "$TARGET_DIR/rule/rules/rule-maintenance.md"
-copy_template "assets/rule/documentation-boundaries.$LANGUAGE.md" "$TARGET_DIR/rule/rules/documentation-boundaries.md"
-copy_template "assets/rule/cycle-document-contract.$LANGUAGE.md" "$TARGET_DIR/rule/rules/cycle-document-contract.md"
-copy_template "assets/rule/language-policy.$LANGUAGE.md" "$TARGET_DIR/rule/rules/language-policy.md"
-copy_template "assets/rule/readme-maintenance.$LANGUAGE.md" "$TARGET_DIR/rule/rules/readme-maintenance.md"
-copy_template "assets/rule/implementation-records.$LANGUAGE.md" "$TARGET_DIR/rule/rules/implementation-records.md"
-copy_template "assets/rule/subagent-orchestration.$LANGUAGE.md" "$TARGET_DIR/rule/rules/subagent-orchestration.md"
-copy_template "assets/rule/planning-roadmap.$LANGUAGE.md" "$TARGET_DIR/rule/rules/planning-roadmap.md"
-copy_template "assets/.codex/agents/planner.toml" "$TARGET_DIR/.codex/agents/planner.toml"
-copy_template "assets/.codex/agents/generator.toml" "$TARGET_DIR/.codex/agents/generator.toml"
-copy_template "assets/.codex/agents/evaluator.toml" "$TARGET_DIR/.codex/agents/evaluator.toml"
-copy_template "assets/.codex/config.toml" "$TARGET_DIR/.codex/config.toml"
-if [ "$README_MODE" = "existing" ]; then
-  write_text "$TARGET_DIR/.codex/skills/change-analysis/SKILL.md" "$(build_change_analysis_skill "$LANGUAGE" "existing" "$RUNTIME_DIRS" "$OBSERVED_DIRS" "$DOCS_CHILDREN")"
-  write_text "$TARGET_DIR/.codex/skills/code-implementation/SKILL.md" "$(build_code_implementation_skill "$LANGUAGE" "existing" "$RUNTIME_DIRS" "$OBSERVED_TOOLING_FILES")"
-  write_text "$TARGET_DIR/.codex/skills/test-debug/SKILL.md" "$(build_test_debug_skill "$LANGUAGE" "existing" "$OBSERVED_TEST_DIRS" "$OBSERVED_TEST_TOOLING_FILES")"
-  write_text "$TARGET_DIR/.codex/skills/docs-sync/SKILL.md" "$(build_docs_sync_skill "$LANGUAGE" "existing" "$DOCS_CHILDREN" "$OBSERVED_FILES")"
-  write_text "$TARGET_DIR/.codex/skills/quality-review/SKILL.md" "$(build_quality_review_skill "$LANGUAGE" "existing" "$RUNTIME_DIRS" "$OBSERVED_TEST_DIRS" "$DOCS_CHILDREN")"
-else
-  copy_template "assets/.codex/skills/change-analysis/SKILL.$LANGUAGE.md" "$TARGET_DIR/.codex/skills/change-analysis/SKILL.md"
-  copy_template "assets/.codex/skills/code-implementation/SKILL.$LANGUAGE.md" "$TARGET_DIR/.codex/skills/code-implementation/SKILL.md"
-  copy_template "assets/.codex/skills/test-debug/SKILL.$LANGUAGE.md" "$TARGET_DIR/.codex/skills/test-debug/SKILL.md"
-  copy_template "assets/.codex/skills/docs-sync/SKILL.$LANGUAGE.md" "$TARGET_DIR/.codex/skills/docs-sync/SKILL.md"
-  copy_template "assets/.codex/skills/quality-review/SKILL.$LANGUAGE.md" "$TARGET_DIR/.codex/skills/quality-review/SKILL.md"
+while IFS='|' read -r rel template; do
+  is_preserved "$rel" && continue
+  rendered="$TMP_DIR/rendered"
+  render_template "$template" "$rendered"
+  if [ -e "$ROOT/$rel" ] && cmp -s "$rendered" "$ROOT/$rel"; then
+    continue
+  fi
+  mkdir -p "$(dirname "$ROOT/$rel")"
+  cp "$rendered" "$ROOT/$rel"
+done < "$PLAN_FILE"
+
+merge_readme() {
+  template=$1
+  destination=$2
+  rendered="$TMP_DIR/readme-template"
+  section="$TMP_DIR/readme-section"
+  merged="$TMP_DIR/readme-merged"
+  render_template "$template" "$rendered"
+
+  awk '
+    /^<!-- hs-init-project:start -->$/ { capture=1 }
+    capture { print }
+    /^<!-- hs-init-project:end -->$/ { exit }
+  ' "$rendered" > "$section"
+
+  grep -q '^<!-- hs-init-project:start -->$' "$section" || die "README asset is missing the start marker"
+  grep -q '^<!-- hs-init-project:end -->$' "$section" || die "README asset is missing the end marker"
+
+  if [ ! -e "$destination" ]; then
+    cp "$rendered" "$destination"
+    return
+  fi
+
+  start_count=$(grep -c '^<!-- hs-init-project:start -->$' "$destination" || true)
+  end_count=$(grep -c '^<!-- hs-init-project:end -->$' "$destination" || true)
+
+  if [ "$start_count" -eq 0 ] && [ "$end_count" -eq 0 ]; then
+    cp "$destination" "$merged"
+    printf '\n' >> "$merged"
+    cat "$section" >> "$merged"
+    cp "$merged" "$destination"
+    return
+  fi
+
+  [ "$start_count" -eq 1 ] && [ "$end_count" -eq 1 ] || \
+    die "README contains incomplete or duplicate hs-init-project markers"
+
+  awk -v section_file="$section" '
+    BEGIN {
+      replacement=""
+      while ((getline line < section_file) > 0) {
+        replacement = replacement line ORS
+      }
+      close(section_file)
+    }
+    /^<!-- hs-init-project:start -->$/ {
+      printf "%s", replacement
+      inside=1
+      next
+    }
+    inside && /^<!-- hs-init-project:end -->$/ {
+      inside=0
+      next
+    }
+    !inside { print }
+  ' "$destination" > "$merged"
+  cp "$merged" "$destination"
+}
+
+if [ "$README_MODE" = merge ] && ! is_preserved README.md; then
+  merge_readme "$ASSET_DIR/README/root.$LANGUAGE.md" "$ROOT/README.md"
 fi
-copy_template "assets/.codex/skills/change-analysis/agents/openai.$LANGUAGE.yaml" "$TARGET_DIR/.codex/skills/change-analysis/agents/openai.yaml"
-copy_template "assets/.codex/skills/code-implementation/agents/openai.$LANGUAGE.yaml" "$TARGET_DIR/.codex/skills/code-implementation/agents/openai.yaml"
-copy_template "assets/.codex/skills/test-debug/agents/openai.$LANGUAGE.yaml" "$TARGET_DIR/.codex/skills/test-debug/agents/openai.yaml"
-copy_template "assets/.codex/skills/docs-sync/agents/openai.$LANGUAGE.yaml" "$TARGET_DIR/.codex/skills/docs-sync/agents/openai.yaml"
-copy_template "assets/.codex/skills/quality-review/agents/openai.$LANGUAGE.yaml" "$TARGET_DIR/.codex/skills/quality-review/agents/openai.yaml"
-copy_template "assets/subagents_docs/AGENTS.$LANGUAGE.md" "$TARGET_DIR/subagents_docs/AGENTS.md"
-mkdir -p \
-  "$TARGET_DIR/subagents_docs/cycles"
-write_text "$TARGET_DIR/rule/rules/subagents-docs.md" "$(build_subagents_docs_rule "$LANGUAGE")"
 
-if [ "$README_MODE" = "fresh" ]; then
-  copy_template "assets/README/root.$LANGUAGE.md" "$TARGET_DIR/README.md"
-  copy_template "assets/PROJECT_OVERVIEW/root.$LANGUAGE.md" "$TARGET_DIR/PROJECT_OVERVIEW.md"
-  copy_template "assets/subagents_docs/roadmap.$LANGUAGE.md" "$TARGET_DIR/subagents_docs/roadmap.md"
-  copy_template "assets/docs/guide/README.$LANGUAGE.md" "$TARGET_DIR/docs/guide/README.md"
-elif [ "$README_MODE" = "existing" ]; then
-  write_text "$TARGET_DIR/README.md" "$(build_existing_readme "$LANGUAGE" "$TARGET_DIR" "$RUNTIME_DIRS" "$NON_RUNTIME_DIRS" "$OBSERVED_DIRS" "$OBSERVED_FILES")"
-  write_text "$TARGET_DIR/PROJECT_OVERVIEW.md" "$(build_existing_project_overview "$LANGUAGE" "$TARGET_DIR" "$RUNTIME_DIRS" "$OBSERVED_DIRS" "$OBSERVED_FILES" "$OBSERVED_TOOLING_FILES" "$OBSERVED_TEST_DIRS")"
-  write_text "$TARGET_DIR/subagents_docs/roadmap.md" "$(build_existing_roadmap "$LANGUAGE" "$RUNTIME_DIRS" "$OBSERVED_TEST_DIRS" "$OBSERVED_TOOLING_FILES")"
-  write_text "$TARGET_DIR/docs/guide/README.md" "$(build_existing_guide_readme "$LANGUAGE" "$DOCS_CHILDREN")"
-else
-  copy_template "assets/PROJECT_OVERVIEW/root.$LANGUAGE.md" "$TARGET_DIR/PROJECT_OVERVIEW.md"
-  copy_template "assets/subagents_docs/roadmap.$LANGUAGE.md" "$TARGET_DIR/subagents_docs/roadmap.md"
-  copy_template "assets/docs/guide/README.$LANGUAGE.md" "$TARGET_DIR/docs/guide/README.md"
+printf 'Materialized minimal %s harness at %s\n' "$TARGET" "$ROOT"
+printf 'Project mode: %s; README mode: %s; language: %s\n' "$PROJECT_MODE" "$README_MODE" "$LANGUAGE"
+if [ -n "$SOURCE_ROOT_DIR" ]; then
+  printf 'Observed source hint: %s\n' "$SOURCE_ROOT_DIR"
 fi
-
-write_text "$TARGET_DIR/rule/rules/development-standards.md" "$(build_development_standards "$LANGUAGE" "$RUNTIME_DIRS" "$NON_RUNTIME_DIRS" "$STANDARDS_MODE" "$OBSERVED_DIRS" "$OBSERVED_FILES" "$OBSERVED_TOOLING_FILES")"
-write_text "$TARGET_DIR/rule/rules/testing-standards.md" "$(build_testing_standards "$LANGUAGE" "$STANDARDS_MODE" "$OBSERVED_TEST_DIRS" "$OBSERVED_TEST_TOOLING_FILES")"
-write_text "$TARGET_DIR/rule/rules/project-structure.md" "$(build_project_structure "$LANGUAGE" "$RUNTIME_DIRS" "$NON_RUNTIME_DIRS")"
-write_text "$TARGET_DIR/rule/rules/runtime-boundaries.md" "$(build_runtime_boundaries "$LANGUAGE" "$RUNTIME_DIRS" "$NON_RUNTIME_DIRS")"
-
-printf '[OK] Materialized live Codex scaffold files\n'

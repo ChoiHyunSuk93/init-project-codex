@@ -15,6 +15,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Validate release tag
         env:
           TAG_NAME: ${{ github.ref_name }}
@@ -33,10 +38,12 @@ jobs:
           test -f hs-init-project/SKILL.md
           test -f hs-init-project/agents/openai.yaml
           test -f hs-init-project/scripts/materialize_repo.sh
+          test -f hs-init-project/scripts/validate_scaffold.py
           test -f hs-init-project/scripts/update-skill-release.py
+          python3 -m pip install --disable-pip-version-check "pyyaml>=6,<7"
           python3 -m py_compile hs-init-project/scripts/update-skill-release.py
           python3 hs-init-project/scripts/update-skill-release.py --help >/dev/null
-          sh -n hs-init-project/scripts/materialize_repo.sh
+          python3 hs-init-project/scripts/validate_scaffold.py
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2

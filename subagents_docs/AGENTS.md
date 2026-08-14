@@ -1,46 +1,26 @@
 # Subagents Docs
 
-이 디렉토리는 planner, generator, evaluator 역할이 쓰는 작업 문서를 저장한다.
+이 디렉터리는 실제 work-sharing이나 장기 handoff가 필요한 작업의 working document를 저장한다.
 
-## 범위
+## 기준
 
-- [`subagents_docs/roadmap.md`](roadmap.md)는 [`PROJECT_OVERVIEW.md`](../PROJECT_OVERVIEW.md)를 기준으로 phase와 완료 체크리스트를 관리한다.
-- `subagents_docs/cycles/`는 각 roadmap phase 또는 phase section의 활성 단일 working document를 둔다.
-- 이 문서들은 사용자-facing `docs/guide/`, `docs/implementation/`과 분리해서 유지한다.
-- 현재 run에서 선택된 언어로 문서를 작성하되, 기술적인 path literal, identifier, filename은 영어를 유지한다.
-- summary, plan, change, evaluation을 포함한 `subagents_docs/` 문서는 모두 현재 실행 언어를 따른다.
-- 역할 경계와 cycle 순서는 [`rule/rules/subagent-orchestration.md`](../rule/rules/subagent-orchestration.md)를 따른다.
-- overview, roadmap, phase gate는 [`rule/rules/planning-roadmap.md`](../rule/rules/planning-roadmap.md)를 따른다.
-- exact cycle 문서 형식, header, provenance, dirty-worktree 평가는 [`rule/rules/cycle-document-contract.md`](../rule/rules/cycle-document-contract.md)를 따른다.
-- 문서 언어와 안정적인 filename/path 규칙은 [`rule/rules/language-policy.md`](../rule/rules/language-policy.md)를 따른다.
+- roadmap은 [`subagents_docs/roadmap.md`](roadmap.md)에서 관리한다.
+- cycle 문서는 `subagents_docs/cycles/<NN>-<slug>.md`에 둔다.
+- 작업 분류와 delegation 판단은 [`rule/rules/subagent-orchestration.md`](../rule/rules/subagent-orchestration.md)를 따른다.
+- exact cycle 형식은 [`rule/rules/cycle-document-contract.md`](../rule/rules/cycle-document-contract.md)를 따른다.
+- 문서 언어와 path는 [`rule/rules/language-policy.md`](../rule/rules/language-policy.md)를 따른다.
 
-## cycle 규칙
+## Writer 규칙
 
-- small direct change는 cycle 문서를 생략할 수 있다.
-- medium change는 `main(plan+implementation) -> evaluator`로 진행한다.
-- large-clear change는 `main-led decomposition + delegated implementation + evaluator`로 진행한다.
-- large-ambiguous change는 병렬 `explorer` 분석, 필요 시 planner assist, main-approved plan, delegated implementation, evaluator 순으로 진행한다.
-- 메인 에이전트는 필요할 때 subagent를 자율적으로 호출할 수 있고, 문서 분석에서는 독립적인 질문을 병렬 `explorer` 호출로 나누는 것을 우선 고려한다.
-- 분석, 질문, 리뷰, 설명 요청은 명시적 구현 지시가 없으면 implementation cycle로 열지 않는다.
-- 구현 cycle은 `subagents_docs/roadmap.md`의 한 phase 또는 phase section에 연결한다.
-- 의존 관계가 있는 다음 phase는 선행 phase가 `PASS`가 되고 필수 체크리스트가 충족되기 전에는 시작하지 않는다.
-- evaluator는 구현 결과를 대표 사용자 surface 직접 검증을 포함한 strongest feasible 검증으로 평가한다.
-- 평가가 실패하면 같은 plan은 외부 입력이 정말 필요한 blocker가 아닌 한 해당 phase의 checklist와 notes를 갱신하고 적절한 planning depth로 돌아가 pass될 때까지 다시 순환한다.
-- 독립적인 plan은 병렬로 진행할 수 있고, 의존적인 plan은 순서를 지킨다.
-- 각 plan은 필요한 pass 조건이 모두 충족될 때만 완료된다.
+- coordinator가 cycle header, roadmap 상태, 공통 journal의 단일 writer다.
+- delegated subagent는 이 디렉터리의 공통 문서를 직접 수정하지 않고 task result와 검증 근거를 coordinator에게 반환한다.
+- coordinator가 반환 결과를 role section에 통합하고 provenance를 남긴다.
+- 병렬 작업자는 같은 파일을 동시에 수정하지 않는다.
 
-## 문서 계약
+## 사용 범위
 
-- 각 plan은 `subagents_docs/cycles/` 아래 append-only cycle 문서 하나로 관리한다.
-- 상단 상태 블록은 coordinator가 관리하고, planning/implementation/evaluation phase를 실제로 맡은 주체만 자기 섹션을 append한다.
-- planner/generator/evaluator section의 exact 필수 항목은 [`rule/rules/cycle-document-contract.md`](../rule/rules/cycle-document-contract.md)를 따른다.
-- `docs/implementation/`을 cycle working record 대체물로 사용하지 않는다.
-
-## 소유권
-
-- coordinator 또는 delegated planner는 planner 섹션을 소유한다.
-- coordinator 또는 delegated generator는 generator 섹션을 소유한다.
-- evaluator는 evaluator 섹션만 소유한다.
-- planner/generator/evaluator 섹션의 exact required contents는 [`rule/rules/cycle-document-contract.md`](../rule/rules/cycle-document-contract.md)를 따른다.
-- 같은 cycle 문서 안에서도 다른 역할의 섹션을 덮어쓰면 안 된다.
-- coordinator는 completed/unused subagent thread를 결과 반영 직후 즉시 닫고, thread limit blockage를 cleanup 작업으로 처리한다.
+- shared handoff가 없는 small work는 cycle 문서를 생략한다.
+- medium 이상이라도 단일 agent가 짧게 끝낼 수 있으면 cycle을 강제하지 않는다.
+- 분석 전용 요청은 implementation cycle을 열지 않는다.
+- 사용자-facing 문서는 `docs/guide/`와 `docs/implementation/`에 두고 working record와 섞지 않는다.
+- 과거 완료 문서는 이력으로 보존한다.

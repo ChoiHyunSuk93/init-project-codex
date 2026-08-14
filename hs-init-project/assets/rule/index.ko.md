@@ -1,131 +1,35 @@
 # 규칙 인덱스
 
-이 인덱스는 `rule/rules/` 아래의 상세 규칙 문서를 찾는 기준 문서다.
-
-규칙을 추가, 삭제, 이름 변경, 이동할 때는 같은 변경에서 이 파일도 함께 갱신한다.
-여기에 등재되지 않은 규칙 문서는 인덱스에 추가되기 전까지 authoritative하지 않다.
-
-## 인덱스 읽는 방법
-
-- `Path`: 규칙 문서의 기준 경로. 실제 문서가 있으면 Markdown 링크로 둔다.
-- `Scope`: 규칙이 적용되는 수준
-- `Applies to`: 규칙이 적용되는 디렉토리 또는 파일
-- `Authority`: 규칙의 효력 범위가 global인지 local인지
-- `Summary`: 규칙이 통제하는 내용을 짧게 설명한 요약
+이 문서는 `rule/rules/` 아래 기준 규칙의 탐색 시작점이다.
+규칙을 추가, 삭제, 이름 변경, 이동할 때 같은 변경에서 이 인덱스도 갱신한다.
 
 ## 전역 규칙
 
 ### project-structure
 - Path: [`rule/rules/project-structure.md`](rules/project-structure.md)
 - Scope: repository-wide
-- Applies to: all directories
-- Authority: global
-- Summary: 최상위 구조, 디렉토리 역할, root와 local instruction 경계를 정의한다.
-
-### instruction-model
-- Path: [`rule/rules/instruction-model.md`](rules/instruction-model.md)
-- Scope: repository-wide
-- Applies to: `AGENTS.md`, local `AGENTS.md`, `rule/`
-- Authority: global
-- Summary: 얇은 root orchestration, local scope 규칙, 중복 금지 원칙을 정의한다.
-
-### rule-maintenance
-- Path: [`rule/rules/rule-maintenance.md`](rules/rule-maintenance.md)
-- Scope: repository-wide
-- Applies to: `rule/index.md`, `rule/rules/`
-- Authority: global
-- Summary: rule 문서를 어떻게 추가, 인덱싱, 갱신, 이동하고 authoritative 상태로 유지하는지 정의한다.
-
-### documentation-boundaries
-- Path: [`rule/rules/documentation-boundaries.md`](rules/documentation-boundaries.md)
-- Scope: documentation
-- Applies to: `docs/guide/`, `docs/implementation/`, `subagents_docs/`, `rule/`
-- Authority: global
-- Summary: 사람이 읽는 문서, subagent 작업 문서, 구현 이력, authoritative rule 문서의 차이를 정의한다.
-
-### cycle-document-contract
-- Path: [`rule/rules/cycle-document-contract.md`](rules/cycle-document-contract.md)
-- Scope: repository-wide workflow
-- Applies to: `subagents_docs/cycles/`, `.codex/agents/`, cycle-aware docs
-- Authority: global
-- Summary: shared working document를 열었을 때 적용되는 cycle 문서 계약을 정의한다.
-
-### language-policy
-- Path: [`rule/rules/language-policy.md`](rules/language-policy.md)
-- Scope: repository-wide documentation
-- Applies to: `AGENTS.md`, `PROJECT_OVERVIEW.md`, `rule/`, `docs/guide/`, `docs/implementation/`, `subagents_docs/`
-- Authority: global
-- Summary: 생성 문서의 언어 규칙, overview/roadmap 경로, 안정적인 filename/path 불변 조건을 정의한다.
-
-### readme-maintenance
-- Path: [`rule/rules/readme-maintenance.md`](rules/readme-maintenance.md)
-- Scope: documentation
-- Applies to: `README.md`
-- Authority: global
-- Summary: root README를 어떻게 만들고 분석하며 저장소 대표 요약 문서로 유지하는지 정의한다.
-
-### subagent-orchestration
-- Path: [`rule/rules/subagent-orchestration.md`](rules/subagent-orchestration.md)
-- Scope: repository-wide workflow
-- Applies to: `.codex/agents/`, `subagents_docs/`, root coordination
-- Authority: global
-- Summary: adaptive harness 선택, 메인 에이전트 통합 책임, delegation, evaluator 분리 규칙을 정의한다.
-
-### subagents-docs
-- Path: [`rule/rules/subagents-docs.md`](rules/subagents-docs.md)
-- Scope: repository-wide workflow
-- Applies to: `subagents_docs/`
-- Authority: global
-- Summary: `subagents_docs/`를 cycle-backed working area로 정의하고 phase별 소유권 경계를 정한다.
-
-### planning-roadmap
-- Path: [`rule/rules/planning-roadmap.md`](rules/planning-roadmap.md)
-- Scope: repository-wide workflow
-- Applies to: `PROJECT_OVERVIEW.md`, `subagents_docs/roadmap.md`, `subagents_docs/cycles/`
-- Authority: global
-- Summary: 프로젝트 오버뷰, phase 로드맵, phase별 필수 체크리스트와 다음 phase 진입 gate를 정의한다.
-
-## 품질 규칙
+- Summary: 관찰된 저장소 구조와 runtime/non-runtime 경계를 보존한다.
 
 ### development-standards
 - Path: [`rule/rules/development-standards.md`](rules/development-standards.md)
 - Scope: repository-wide
-- Applies to: code, tests, schemas, public interfaces, and related docs
-- Authority: global
-- Summary: 작업 대원칙, 필수 코드 구현 원칙, 기본 구현 품질, 관례 준수, 검증 기대치를 정의한다.
+- Summary: 최소 변경, 재사용, 책임 분리, 실패 처리와 관찰 가능성 기준을 정의한다.
 
 ### testing-standards
 - Path: [`rule/rules/testing-standards.md`](rules/testing-standards.md)
 - Scope: repository-wide
-- Applies to: unit tests, end-to-end tests, verification notes, and related test docs
-- Authority: global
-- Summary: 단위 테스트, E2E 테스트, 검증 기대치를 어떻게 선택하고 갱신하며 기록하는지 정의한다.
+- Summary: 위험에 맞는 테스트와 실제 검증 근거를 선택한다.
 
-## 구조 규칙
+### documentation
+- Path: [`rule/rules/documentation.md`](rules/documentation.md)
+- Scope: repository-wide documentation
+- Summary: 문서 권한, 언어, 경로, 현재 상태와 이력의 경계를 정의한다.
 
-### runtime-boundaries
-- Path: [`rule/rules/runtime-boundaries.md`](rules/runtime-boundaries.md)
-- Scope: structural
-- Applies to: runtime and non-runtime directories
-- Authority: global
-- Summary: 단일 source root와 non-runtime 영역을 어떻게 구분하고 모호한 경계를 어떻게 해소하는지 정의한다.
-
-### implementation-records
-- Path: [`rule/rules/implementation-records.md`](rules/implementation-records.md)
-- Scope: implementation history
-- Applies to: `docs/implementation/`
-- Authority: global
-- Summary: concern-based category 디렉토리, 새 기록 추가 원칙, 순번형 기록 이름 규칙, flat 금지 원칙을 정의한다.
+### agent-workflow
+- Path: [`rule/rules/agent-workflow.md`](rules/agent-workflow.md)
+- Scope: repository-wide workflow
+- Summary: intent gate, 작업 분류, 선택적 delegation과 통합 책임을 정의한다.
 
 ## 로컬 규칙
 
-디렉토리별 규칙 문서가 생기면 여기에 local scope 규칙 항목을 추가한다.
-첫 실제 local rule이 생기면 아래 placeholder 항목은 삭제한다.
-local rule 문서도 특별한 요청이 없다면 `rule/rules/` 아래에 둔다.
-
-### [local-rule-slug]
-- Path: `rule/rules/[local-rule-file].md`
-- Scope: local
-- Applies to: `[directory-or-area]`
-- Authority: local
-- Summary: `[이 local rule의 역할을 짧게 설명한다.]`
+디렉터리별로 더 좁은 규칙이 실제로 필요할 때만 추가하고 여기에 등재한다.

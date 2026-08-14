@@ -23,7 +23,7 @@ root instruction, local instruction, rule 문서가 어떻게 함께 작동하�
 ## 참조 링크 원칙
 
 - 실제로 열 수 있는 진입점 문서와 제어문서를 가리키는 참조는 가능한 한 Markdown 링크로 작성한다.
-- 대표 대상에는 root/local [`AGENTS.md`](../../AGENTS.md), [`README.md`](../../README.md), [`rule/index.md`](../index.md), [`docs/guide/README.md`](../../docs/guide/README.md), [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md), [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md), starter local skill의 `SKILL.md`가 포함된다.
+- 대표 대상에는 root/local [`AGENTS.md`](../../AGENTS.md), [`README.md`](../../README.md), [`rule/index.md`](../index.md), [`docs/guide/README.md`](../../docs/guide/README.md), [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md), [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md)가 포함된다.
 - 링크 대상은 현재 문서 위치 기준 상대 경로로 정확하게 열려야 한다.
 - 이 기준은 current repo 문서, generated repository 문서, 그리고 이를 만드는 template/script source-of-truth에 함께 적용한다.
 - placeholder, 예시 경로, 아직 생성되지 않은 경로, 단순 path literal 설명은 링크로 만들지 않는다.
@@ -45,5 +45,5 @@ root instruction, local instruction, rule 문서가 어떻게 함께 작동하�
 - 저장소 안에 Codex skill을 만들거나 수정할 때는 `skill-creator`를 사용한다.
 - skill은 명확한 `SKILL.md` 설명과 정렬된 메타데이터를 갖추도록 작성한다.
 - 특별한 이유가 없다면 `agents/openai.yaml`에 `policy.allow_implicit_invocation: true`를 둔다.
-- local starter skill은 `.codex/skills/` 아래에 두고, 명확한 `SKILL.md` 설명과 정렬된 metadata를 갖추도록 작성한다.
+- project-specific skill은 반복되는 전문 절차가 관찰된 뒤 별도 작업으로 만들고, 명확한 `SKILL.md` 설명과 정렬된 metadata를 갖춘다.
 - 각 skill은 관련 `rule/rules/*.md` 문서를 참조형으로 연결하고, 저장소 공통 규칙을 skill 본문에 중복 작성하지 않는다.

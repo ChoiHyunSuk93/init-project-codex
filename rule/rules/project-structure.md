@@ -7,12 +7,12 @@
 ## 최상위 영역
 
 - [`AGENTS.md`](../../AGENTS.md): 저장소 전역 orchestration 지침
+- [`CLAUDE.md`](../../CLAUDE.md): 공통 [`AGENTS.md`](../../AGENTS.md)를 import하는 Claude Code 진입점
 - [`PROJECT_OVERVIEW.md`](../../PROJECT_OVERVIEW.md): 프로젝트 전체 요구사항과 핵심 흐름의 기준 문서
-- `.codex/`: 프로젝트 스코프 Codex 설정과 planner/generator/evaluator 정의
 - `.github/`: 공개 저장소 운영 자동화와 정책 파일
 - `hs-init-project/`: 실제 skill 본문, metadata, template, script가 들어 있는 제품 디렉토리
 - `rule/`: authoritative Codex 실행 규칙. 탐색 시작점은 [`rule/index.md`](../index.md)다.
-- `subagents_docs/`: planner, generator, evaluator 작업 문서. 기본 진입점은 [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md)이고, phase 로드맵은 [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md), 신규 cycle은 `subagents_docs/cycles/` 아래의 단일 문서 모델을 사용한다.
+- `subagents_docs/`: coordinator와 delegated role의 작업 문서. 기본 진입점은 [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md)이고, phase 로드맵은 [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md), 신규 cycle은 `subagents_docs/cycles/` 아래의 단일 문서 모델을 사용한다.
 - `docs/guide/`: 사람이 읽는 사용자 가이드 문서. 기본 진입점은 [`docs/guide/README.md`](../../docs/guide/README.md)다.
 - `docs/implementation/`: 사람이 읽는 구현 기록 문서. 제어 파일은 [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md)다.
 
@@ -24,7 +24,6 @@
 
 ## Non-Runtime 영역
 
-- `.codex/`
 - `.github/`
 - `rule/`
 - `subagents_docs/`

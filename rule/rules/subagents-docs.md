@@ -2,57 +2,32 @@
 
 ## 목적
 
-`subagents_docs/`를 cycle-backed implementation work에서 메인 에이전트와 subagent가 공유하는 작업 문서 영역으로 정의한다.
+`subagents_docs/`를 이 저장소에서 실제로 work-sharing과 장기 handoff가 필요한 경우에만 사용하는 작업 문서 영역으로 정의한다.
 
-## 범위
+## 사용 조건
 
-- `subagents_docs/`는 subagent working area다.
-- `docs/guide/`와 `docs/implementation/`는 사람이 읽는 문서 영역이다.
-- subagent 작업 기록은 `subagents_docs/`에만 둔다.
-- 분석, 질문, 리뷰, 설명 전용 요청은 implementation cycle을 열지 않고 `subagents_docs/` working record를 만들지 않는다.
-- 독립적인 문서 분석이나 비교 독해는 병렬 `explorer` 호출을 우선 고려하고, shared handoff가 없으면 cycle 문서를 만들지 않아도 된다.
-- `subagents_docs/` 문서 언어와 path 표기 규칙은 [`rule/rules/language-policy.md`](language-policy.md)를 따른다.
-- cycle 문서 경로, header, section provenance는 [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md)를 따른다.
+- 분석 전용 요청이나 shared handoff가 없는 작은 작업에는 working record를 만들지 않는다.
+- 명시적 work-sharing, 여러 단계 handoff, 장기 실행, 감사 가능한 상태 전이가 필요할 때 cycle 문서를 사용한다.
+- 구현 cycle은 [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md)의 관련 phase 또는 phase section에 연결한다.
+- 사용자-facing guide나 최종 결과 문서 대신 사용하지 않는다.
 
-## 디렉토리 역할
+## 소유권
 
-- [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md): [`PROJECT_OVERVIEW.md`](../../PROJECT_OVERVIEW.md)를 기준으로 phase와 완료 체크리스트를 관리하는 작업 로드맵
-- `subagents_docs/cycles/`: planner, generator, evaluator가 함께 참조하는 phase별 단일 working document
+- coordinator가 cycle header, 상태, 공통 journal과 roadmap 갱신의 단일 writer다.
+- delegated subagent는 같은 cycle 파일을 직접 수정하지 않고 task result, 변경 범위, 검증 근거, 남은 위험을 coordinator에게 반환한다.
+- coordinator는 반환 결과를 정확한 역할 section에 통합하고 provenance를 기록한다.
+- 병렬 subagent끼리 같은 파일이나 작업 기록을 공유하지 않는다.
 
-## 문서 계약
+## 문서 모델
 
-- exact cycle document contract는 [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md)를 기준으로 한다.
-- overview, roadmap, phase gate는 [`rule/rules/planning-roadmap.md`](planning-roadmap.md)를 기준으로 한다.
-- `subagents_docs/`의 active working record는 `subagents_docs/cycles/` 아래에만 둔다.
+- 신규 cycle은 `subagents_docs/cycles/<NN>-<slug>.md`에 둔다.
+- 같은 작업은 같은 파일을 유지하고 section version으로 반복을 추적한다.
+- exact header, status, section, provenance, dirty-worktree 규칙은 [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md)를 따른다.
+- overview, roadmap, phase gate는 [`rule/rules/planning-roadmap.md`](planning-roadmap.md)를 따른다.
+- 문서 언어와 안정적인 path는 [`rule/rules/language-policy.md`](language-policy.md)를 따른다.
 
-### 역할별 소유권
+## 경계
 
-- coordinator 또는 delegated planner는 planner section을 소유한다.
-- coordinator 또는 delegated generator는 generator section을 소유한다.
-- evaluator는 evaluator section만 소유한다.
-- section별 필수 provenance와 상태 전이는 [`rule/rules/cycle-document-contract.md`](cycle-document-contract.md)를 따른다.
-
-## 순환 규칙
-
-- small direct change는 cycle 문서를 생략할 수 있다.
-- medium change와 large change, 또는 multi-agent handoff가 있는 구현은 cycle 문서를 사용한다.
-- 구현 cycle은 `subagents_docs/roadmap.md`의 한 phase 또는 phase section에 연결한다.
-- 의존 관계가 있는 다음 phase는 선행 phase가 `PASS`가 되고 필수 체크리스트가 충족되기 전에는 시작하지 않는다.
-- medium change는 `main(plan+implementation) -> evaluator`가 기본이다.
-- large-clear change는 `main-led decomposition + delegated implementation + evaluator`가 기본이다.
-- large-ambiguous change는 `parallel explorer analysis + planner assist if needed + main-approved plan + delegated implementation + evaluator`가 기본이다.
-- evaluator는 generator가 만든 구현 결과를 해당 plan과 acceptance criteria 기준으로 대표 사용자 surface 직접 검증을 포함한 strongest feasible 검증으로 평가한다.
-- evaluator가 구현 결과에서 부족한 점이나 blocker를 확인하면 해당 phase의 checklist와 notes를 갱신하고, `FAIL`이면 외부 입력이 정말 필요한 경우가 아니면 같은 phase에서 다시 계획, 구현, 평가한다.
-- 여러 계획이 독립이면 병렬로 돌릴 수 있지만, 의존성이 있으면 순차로 처리한다.
-- 문서 분석 단계에서는 독립적인 질문을 explorer 병렬 호출로 나누고, implementation cycle 진입 전까지는 evaluation handoff를 열지 않는다.
-
-## 문서 경계
-
-- `subagents_docs/`에는 작업용 문서만 둔다.
-- 신규 working record는 `subagents_docs/cycles/`에 쓴다.
-- 사용자-facing 최종 브리핑은 evaluator pass 이후 [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md)를 기준으로 `docs/implementation/`에 새 요약본으로 남긴다.
-- plan-only 상태나 generator-only 상태를 근거로 [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md) 아래 최종 브리핑을 만들지 않는다.
-- 기존 `docs/implementation/` 브리핑은 과거 구현 이력으로 보존하고, 현재 변경사항 동기화 대상으로 탐색하거나 수정하지 않는다.
-- 역할별 소유 문서를 섞어 쓰지 않는다.
-- 메인 에이전트는 이 문서 흐름의 planning/implementation/integration 책임을 질 수 있고, 필요할 때만 subagent를 선택적으로 사용한다.
-- coordinator는 completed/unused subagent thread를 정리하고, cleanup 없이 thread를 방치하지 않는다.
+- `subagents_docs/`에는 계획, 작업 분할, 구현 handoff, 검증 근거 같은 working state만 둔다.
+- `docs/implementation/`에는 검증을 통과한 사용자-facing 최종 브리핑만 새 이력으로 추가한다.
+- 과거 cycle과 구현 브리핑은 현재 정책에 맞춰 다시 쓰지 않는다.

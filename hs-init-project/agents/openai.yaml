@@ -1,33 +1,6 @@
 interface:
   display_name: "HS Init Project Harness"
-  short_description: "Bootstrap Codex repo structure with required planner/generator/evaluator harness and starter local skills"
-  default_prompt: >-
-    Use $hs-init-project to initialize or retrofit a repository with Codex
-    AGENTS structure, `PROJECT_OVERVIEW.md`, `subagents_docs/roadmap.md`,
-    `rule/index.md` plus `rule/rules/*.md`, `.codex/config.toml`,
-    `.codex/agents/*.toml`, adaptive planner/generator/evaluator support, and
-    starter local skills under `.codex/skills/`. If language is not already
-    fixed, first send only the plain-text lines `1. English` and
-    `2. Korean(한국어)`, then wait. Do not treat analysis-only, question-only,
-    review-only, or explanation-only requests as implementation work. In
-    existing repositories, inspect first, ask the smallest missing structural
-    questions, and only then materialize files. Generated repositories must use
-    a single source-root plus non-runtime boundary model, include
-    `PROJECT_OVERVIEW.md` as the project-wide requirements specification, and
-    include `subagents_docs/roadmap.md` as the phase roadmap with required
-    completion checklists and phase gates. Generated `rule/rules/development-standards.md`
-    must explicitly include required code implementation principles covering
-    existing structure first, reuse over duplication, clear responsibility
-    separation, no hardcoding, fail fast with no silent fallback, YAGNI,
-    explicit naming and behavior, testability, and observability; conflicting
-    implementations are incorrect even if they appear to work. Generated
-    `.codex/agents/planner.toml`, `.codex/agents/generator.toml`, and
-    `.codex/agents/evaluator.toml` must omit `model` and
-    `model_reasoning_effort` so both settings inherit from the parent agent.
-    Generated harness rules should let the main agent choose the appropriate
-    adaptive workflow, may use subagents when needed, and must keep evaluator
-    validation separate and grounded in the representative user surface when one
-    exists. Close completed or no-longer-needed subagent threads after their
-    outputs are integrated.
+  short_description: "Bootstrap a minimal Codex and Claude project contract"
+  default_prompt: "Use $hs-init-project to initialize or retrofit this repository with a minimal cross-agent project contract."
 policy:
   allow_implicit_invocation: true
