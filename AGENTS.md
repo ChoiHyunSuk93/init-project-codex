@@ -8,7 +8,7 @@
 - root 수준 안내는 이 파일에 둔다.
 - 상세한 기준 규칙은 [`rule/index.md`](rule/index.md)와 `rule/rules/*.md`에 둔다.
 - 사용자-facing 워크플로 문서는 `docs/guide/`에 둔다.
-- evaluator 통과 뒤의 사용자-facing 최종 구현 브리핑은 `docs/implementation/`의 관심사 카테고리 아래에 둔다.
+- acceptance criteria와 필요한 검증을 통과한 사용자-facing 최종 구현 브리핑은 `docs/implementation/`의 관심사 카테고리 아래에 둔다.
 - subagent 작업 문서는 `subagents_docs/`에서 읽고 쓴다.
 - skill의 source of truth는 `hs-init-project/` 아래에 둔다.
 
@@ -19,7 +19,7 @@
 - 상세 보조 동작은 `hs-init-project/references/`에 둔다.
 - 재사용 가능한 생성 템플릿은 `hs-init-project/assets/`에 둔다.
 - 결정론적 helper 스크립트는 `hs-init-project/scripts/`에 둔다.
-- local starter skill이 필요하면 `.codex/skills/` 아래에 두고, `SKILL.md` 설명과 `agents/openai.yaml` metadata를 명확하게 맞춘다.
+- 프로젝트 고유 skill이 실제로 필요하면 canonical project skill 경로에 별도 작업으로 추가하고, `SKILL.md` 설명과 `agents/openai.yaml` metadata를 맞춘다.
 
 ## 서브에이전트 하네스
 
@@ -27,23 +27,23 @@
 - 메인 에이전트는 작업 분류, 계획 승인, 구현 통합, handoff 조정의 책임을 가진다.
 - 메인 에이전트는 필요할 때 subagent를 자율적으로 호출할 수 있고, 문서 분석이나 비교 독해가 필요하면 병렬 `explorer` 호출을 우선 고려한다.
 - 사용자가 명시적으로 구현/변경/materialize를 요청하지 않았으면 분석, 질문, 리뷰, 설명 요청을 구현으로 오인하지 말고 분석 단계에서 멈춘다.
-- 작은 변경은 `main/generator -> evaluator`로 처리한다.
-- 중간 변경은 `main(plan+implementation) -> evaluator`로 처리한다.
-- 큰 변경이지만 비교적 명확하면 `main-led decomposition + delegated implementation + evaluator`로 처리한다.
-- 큰 변경이면서 모호하면 `parallel explorer analysis + planner assist if needed + main-approved plan + delegated implementation + evaluator`로 처리한다.
-- evaluator는 구현 결과를 plan과 acceptance criteria 기준으로 평가한다.
-- 재계획이나 경로 승격은 evaluator가 실패나 blocker를 확인했거나, 메인 에이전트가 작업 규모/모호성이 커졌다고 판단했을 때 시작한다.
+- 작은 변경은 메인 에이전트가 직접 구현하고 집중 검증한다.
+- 범위가 넓지만 명확한 변경은 메인 에이전트가 짧게 계획하고 구현·통합한다.
+- 큰 변경은 충돌하지 않는 bounded slice에 실질적 이득이 있을 때만 동적 subagent에 위임한다.
+- 큰 모호성이 있으면 구현 전에 독립적인 read-only 탐색으로 불확실성을 줄인다.
+- 고위험 변경, release gate, 보안·데이터 변경은 독립 검증을 고려한다.
+- 재계획이나 경로 승격은 검증 실패나 blocker가 확인됐거나 작업 규모/모호성이 커졌을 때 시작한다.
 - subagent를 띄우거나 조정하기 전에 [`rule/rules/subagent-orchestration.md`](rule/rules/subagent-orchestration.md)를 먼저 읽는다.
 - overview, roadmap, phase gate는 [`rule/rules/planning-roadmap.md`](rule/rules/planning-roadmap.md)를 따른다.
 - exact cycle 문서 경로, header 상태 전이, append-only section, provenance, dirty-worktree 평가는 [`rule/rules/cycle-document-contract.md`](rule/rules/cycle-document-contract.md)를 따른다.
 - 문서 언어와 안정적인 filename/path 규칙은 [`rule/rules/language-policy.md`](rule/rules/language-policy.md)를 따른다.
-- cycle working document가 필요한 경우 `Planner vN` / `Generator vN` / `Evaluator vN` append-only 형태를 유지한다.
+- cycle working document가 필요한 경우 역할별 section을 append-only로 유지하되 공통 header와 최종 통합은 coordinator가 소유한다.
 - 구현 cycle은 [`subagents_docs/roadmap.md`](subagents_docs/roadmap.md)의 한 phase 또는 phase section에 연결하고, 의존 phase는 선행 phase가 `PASS`가 된 뒤에만 시작한다.
 - 작은 직접 변경은 shared handoff가 없으면 cycle 문서를 생략할 수 있고, 중간 이상 변경이나 명시적 work-sharing이 있으면 cycle 문서를 사용한다.
 - subagent 작업 문서를 `docs/implementation/` 아래에 두지 말고 `subagents_docs/`를 사용한다.
-- `.codex/agents/*.toml`에서는 `model`과 `model_reasoning_effort`를 생략해 두 설정을 부모 agent에서 상속하고, 기본 하네스에서 별도로 override하지 않는다.
-- subagent 응답이 느리더라도 메인 에이전트는 우선 기존 handoff와 통합 책임을 유지하고, 완료되었거나 더 이상 필요 없는 subagent thread는 작업 종료 전에 정리한다.
-- stale session이나 thread limit 때문에 새 subagent를 띄우지 못하면, 메인 에이전트는 thread cleanup을 먼저 수행한다.
+- 범용 planner, generator, evaluator custom agent 파일이나 starter skill은 만들지 않는다.
+- 병렬 subagent는 같은 파일이나 공통 journal을 직접 수정하지 않고 결과를 coordinator에게 반환한다.
+- subagent lifecycle은 host가 제공하는 실행·중단 기능을 따르고, 존재하지 않는 close API를 전제하지 않는다.
 
 ## 저장소 규칙
 

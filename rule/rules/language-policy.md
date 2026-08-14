@@ -15,7 +15,7 @@ current repo와 generated structure에서 문서 본문 언어, 제어 파일 �
 - generated repository의 사람이 읽는 문서와 `AGENTS.md` 본문은 사용자가 선택한 언어를 따른다.
 - generated repository의 `PROJECT_OVERVIEW.md` 본문도 선택된 언어를 따른다.
 - generated repository의 `subagents_docs/` working document도 선택된 언어를 따른다.
-- generated repository의 `.codex/skills/*/SKILL.md` 본문도 선택된 언어를 따른다.
+- generated repository의 사람이 읽는 규약 문서는 선택된 언어를 따른다.
 - English mode에서는 사람이 읽는 생성 문서를 영어로 쓴다.
 - Korean mode에서는 사람이 읽는 생성 문서를 한국어로 쓴다.
 

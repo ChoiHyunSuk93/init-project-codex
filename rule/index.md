@@ -46,7 +46,7 @@
 ### cycle-document-contract
 - Path: [`rule/rules/cycle-document-contract.md`](rules/cycle-document-contract.md)
 - Scope: repository-wide workflow
-- Applies to: `subagents_docs/cycles/`, `.codex/agents/`, cycle-aware docs
+- Applies to: `subagents_docs/cycles/`, dynamic subagent handoff, cycle-aware docs
 - Authority: global
 - Summary: cycle 문서가 열렸을 때의 경로, header 상태 전이, append-only section, provenance, dirty worktree 평가 기준을 정의한다.
 
@@ -67,9 +67,9 @@
 ### subagent-orchestration
 - Path: [`rule/rules/subagent-orchestration.md`](rules/subagent-orchestration.md)
 - Scope: repository-wide workflow
-- Applies to: `.codex/agents/`, `subagents_docs/`, root coordination
+- Applies to: dynamic subagent work, `subagents_docs/`, root coordination
 - Authority: global
-- Summary: adaptive harness 선택, 메인 에이전트 통합 책임, selective delegation, evaluator 분리 규칙을 정의한다.
+- Summary: adaptive harness 선택, 메인 에이전트 통합 책임, selective delegation, 위험 기반 독립 검증 규칙을 정의한다.
 
 ### subagents-docs
 - Path: [`rule/rules/subagents-docs.md`](rules/subagents-docs.md)

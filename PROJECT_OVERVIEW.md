@@ -6,46 +6,48 @@
 ## 목적
 
 - Codex가 신규 또는 기존 저장소에 일관된 작업 구조를 생성하도록 돕는 `hs-init-project` skill을 유지한다.
-- 생성 구조는 얇은 root `AGENTS.md`, authoritative `rule/`, 사용자-facing `docs/`, working-record `subagents_docs/`, `.codex` harness를 포함한다.
-- 프로젝트 요구사항 명세와 phase 기반 로드맵을 생성 구조의 기본 흐름으로 포함한다.
+- 생성 구조는 제품 중립적인 최소 규약, 얇은 agent 진입점, 프로젝트 요구사항 명세만 기본으로 포함한다.
+- 범용 custom subagent, 범용 starter skill, 빈 작업 기록 계층은 생성하지 않는다.
+- Codex와 Claude Code의 차이는 공통 규약을 가리키는 얇은 제품별 진입점으로만 흡수한다.
 
 ## 대상 사용자
 
-- Codex로 새 저장소를 초기화하거나 기존 저장소에 Codex 작업 구조를 얹는 사용자
-- 생성된 저장소에서 요구사항, phase 계획, 구현 cycle, 검수 결과를 이어서 관리하는 에이전트와 유지보수자
+- Codex 또는 Claude Code로 새 저장소를 초기화하거나 기존 저장소에 공통 작업 규약을 얹는 사용자
+- 생성된 저장소에서 프로젝트 요구사항과 규칙을 유지하는 에이전트와 유지보수자
 
 ## 핵심 흐름
 
-- 언어 선택이 없으면 `1. English` / `2. Korean(한국어)`만 먼저 묻고 기다린다.
+- 요청이나 session에서 언어를 합리적으로 판단하고, 실제로 불명확할 때만 한 번 질문한다.
 - 저장소가 신규인지 기존인지 확인하고, 기존 저장소는 source root, docs, rule, overwrite 충돌을 먼저 inspect한다.
-- `PROJECT_OVERVIEW.md`를 요구사항 기준으로 만들고, `subagents_docs/roadmap.md`에 phase와 완료 체크리스트를 만든다.
-- 각 구현 cycle은 roadmap phase에 연결하고, evaluator 검수 후 checklist와 상태를 갱신한다.
-- 의존 phase는 선행 phase가 `PASS`가 된 뒤에만 시작한다.
-- evaluator가 통과한 새 구현 변경은 `docs/implementation/` 아래에 새 최종 브리핑 이력 문서로 남긴다.
+- `PROJECT_OVERVIEW.md`를 요구사항 기준으로 만들고, `rule/index.md`를 최소 규약 탐색 진입점으로 만든다.
+- 작업 크기와 모호성에 따라 main agent가 직접 수행하거나 필요한 경우에만 동적 subagent를 사용한다.
+- roadmap, cycle, implementation record는 실제 프로젝트나 작업이 요구할 때 해당 프로젝트에서 별도로 만든다.
 
 ## 요구사항
 
-- fresh mode와 existing-project mode 모두 `PROJECT_OVERVIEW.md`와 `subagents_docs/roadmap.md`를 생성해야 한다.
+- fresh mode와 existing-project mode 모두 `PROJECT_OVERVIEW.md`와 최소 규약을 안전하게 생성해야 한다.
 - fresh mode는 초기 사용자 요구사항을 기준으로 오버뷰를 만들고, 부족한 정보는 placeholder와 open question으로 남긴다.
-- existing-project mode는 관찰된 구조, source root, 문서, 테스트/빌드 신호, 현재 요청을 기준으로 오버뷰와 로드맵을 작성한다.
-- `rule/rules/planning-roadmap.md`가 overview, roadmap, phase checklist, phase gate의 authoritative rule이어야 한다.
-- 템플릿 산출물과 `scripts/materialize_repo.sh`의 direct-generation 경로는 같은 구조와 문구를 생성해야 한다.
-- 생성되는 starter local skill과 agent metadata는 새 phase-gate 구조를 참조해야 한다.
-- 생성되는 planner, generator, evaluator agent 설정은 `model`과 `model_reasoning_effort`를 명시하지 않고 부모 agent의 선택을 상속해야 한다.
-- `docs/implementation/`의 기존 브리핑은 과거 구현 이력으로 보존해야 하며, 최신화나 동기화 대상은 README, 오버뷰, 로드맵, guide, rule 같은 현재 상태 문서로 제한해야 한다.
+- existing-project mode는 관찰된 구조, source area, 문서, 테스트/빌드 신호, 현재 요청을 기준으로 오버뷰를 작성하거나 보강한다.
+- 생성 규칙은 project structure, development, testing, documentation, agent workflow의 다섯 관심사로 제한한다.
+- 모든 생성 문서는 `assets/` template 하나를 source of truth로 사용하고, materializer는 선택과 치환만 담당한다.
+- `--target codex|claude|both`, `--project-mode fresh|existing`, `--readme-mode create|merge|preserve`를 분리한다.
+- existing-project mode는 기존 사용자 문서를 기본 보존하고, 명시적 충돌 정책 없이 덮어쓰지 않는다.
+- 프로젝트 전용 agent, skill, roadmap, cycle, release 절차는 생성 대상 프로젝트에서 별도 작업으로 정의한다.
 
 ## 비범위
 
 - 생성 대상 프로젝트의 실제 애플리케이션 기능, 기술 스택, 실행 명령을 임의로 확정하지 않는다.
 - 사용자가 명시하지 않은 package, CI, product feature를 생성하지 않는다.
+- 범용 planner, generator, evaluator custom agent를 생성하지 않는다.
+- 범용 change-analysis, implementation, test/debug, docs sync, quality review skill을 생성하지 않는다.
 - `docs/guide/`를 rule 복사본이나 작업 로그 저장소로 쓰지 않는다.
 - 기존 구현 브리핑을 현재 변경사항에 맞추기 위해 불필요하게 탐색하거나 수정하지 않는다.
 
 ## 제약과 결정
 
 - source of truth는 `hs-init-project/` 아래의 skill 본문, templates, references, scripts다.
-- 템플릿만 수정하면 existing-project direct-generation 결과가 어긋날 수 있으므로 `scripts/materialize_repo.sh`도 함께 반영한다.
-- agent 역할별 지침과 필요한 sandbox 설정은 유지하되, 모델과 reasoning 설정은 agent 파일에서 override하지 않는다.
+- materializer 안에 문서 본문 heredoc을 중복하지 않는다.
+- agent 역할은 파일로 고정하지 않고 제품이 제공하는 기본 또는 동적 subagent에 작업 단위로 부여한다.
 - 실제 entrypoint와 control document 참조는 Markdown link를 사용하고, placeholder나 아직 생성되지 않은 경로는 literal로 유지한다.
 - 생성 문서 본문은 선택된 언어를 따르지만 filename, directory, config key는 안정적인 영어 경로를 유지한다.
 

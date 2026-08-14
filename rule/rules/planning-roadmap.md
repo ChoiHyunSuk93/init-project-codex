@@ -36,7 +36,7 @@
 - 구현 cycle은 `subagents_docs/roadmap.md`의 한 phase 또는 명확한 phase section에 연결해야 한다.
 - 의존 관계가 있는 후속 phase는 선행 phase의 `Required Checklist`가 충족되고 `Status`가 `PASS`가 되기 전에는 시작하지 않는다.
 - 독립 phase만 병렬로 진행할 수 있다.
-- evaluator가 `FAIL`을 기록하면 해당 phase의 체크리스트와 notes를 최신화하고, 같은 phase에서 재계획과 재구현을 반복한다.
+- 검증이 `FAIL`이면 해당 phase의 체크리스트와 notes를 최신화하고, 같은 phase에서 재계획과 재구현을 반복한다.
 - phase가 `PASS`가 되면 검수 근거와 연결 cycle을 `subagents_docs/roadmap.md`에 반영한 뒤 다음 phase로 넘어간다.
 - 로드맵이 실제 요구사항이나 구현 결과와 어긋나면 다음 구현을 시작하기 전에 `PROJECT_OVERVIEW.md` 또는 `subagents_docs/roadmap.md`를 먼저 갱신한다.
 
@@ -45,4 +45,4 @@
 - `PROJECT_OVERVIEW.md`는 오래 유지되는 요구사항 명세이며, 짧은 작업 메모나 cycle 진행 로그를 담지 않는다.
 - `subagents_docs/roadmap.md`는 phase 상태와 완료 체크리스트를 관리하는 작업 문서이며, 사용자-facing 최종 브리핑을 대체하지 않는다.
 - cycle별 계획, 구현, 평가는 `subagents_docs/cycles/`에 둔다.
-- evaluator `PASS` 이후의 사용자-facing 요약은 [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md)를 기준으로 `docs/implementation/` 아래 concern-based category에 둔다.
+- acceptance criteria와 필요한 검증이 `PASS`가 된 뒤의 사용자-facing 요약은 [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md)를 기준으로 `docs/implementation/` 아래 concern-based category에 둔다.

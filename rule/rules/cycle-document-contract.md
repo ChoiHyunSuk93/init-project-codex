@@ -8,7 +8,7 @@
 ## 적용 범위
 
 - `subagents_docs/cycles/`
-- `.codex/agents/*.toml`
+- dynamic subagent handoff를 사용하는 cycle-aware prompt
 - [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md)
 - cycle-aware prompt와 harness reference
 - cycle 문서를 참조하거나 생성하는 rule/doc/prompt
@@ -26,9 +26,9 @@
   - `Status`
   - `Current Plan Version`
   - `Next Handoff`
-- 허용되는 `Status` 값은 `in_progress`, `PASS`, `FAIL`만 사용한다.
+- 허용되는 `Status` 값은 `in_progress`, `BLOCKED`, `PASS`, `FAIL`만 사용한다.
 - coordinator가 header를 authoritative하게 갱신한다.
-- cycle 문서가 아직 없을 때만 coordinator 또는 delegated planner가 초기 스캐폴드를 만들 수 있다.
+- cycle 문서 생성과 본문 통합도 coordinator가 단일 writer로 담당한다.
 
 ## coordinator 상태 전이
 
@@ -48,13 +48,19 @@
   - `Status: FAIL`
   - `Current Plan Version: Evaluator vN`
   - `Next Handoff`: 다음 planning owner를 반영해 `main` 또는 `planner`
+- 외부 입력이나 환경 변경 없이는 진행할 수 없는 blocker가 확인된 직후
+  - `Status: BLOCKED`
+  - `Current Plan Version`: blocker를 확인한 최신 section
+  - `Next Handoff`: 필요한 사용자 입력 또는 외부 상태를 구체적으로 기록
 
 ## section 모델
 
 - 본문은 append-only로 유지한다.
 - section 이름은 `Planner vN`, `Generator vN`, `Evaluator vN` 형식을 사용한다.
-- 각 section은 해당 phase를 실제로 담당한 coordinator 또는 delegated role만 수정한다.
-- 다른 phase section이나 coordinator header를 덮어쓰지 않는다.
+- 이 이름은 기록 phase를 구분하는 label이며 같은 이름의 custom agent 파일을 요구하지 않는다.
+- delegated role은 결과를 coordinator에게 반환하고 coordinator가 해당 role section을 append한다.
+- coordinator는 반환된 내용의 의미를 바꾸지 않고 provenance와 실제 검증 근거를 함께 통합한다.
+- 병렬 agent가 이 문서나 coordinator header를 직접 수정하지 않는다.
 - 역할 간 참조는 같은 문서 안의 정확한 section 이름으로 남긴다.
 
 ## provenance 요구
@@ -62,14 +68,14 @@
 ### planner
 
 - 신규 cycle인지, 또는 어떤 `Evaluator vN` 결과를 받아 재계획하는지 명시한다.
-- plan을 coordinator가 직접 작성했는지, planner assist나 explorer 분석을 받아 정리했는지 남긴다.
+- plan을 coordinator가 직접 작성했는지, planning assist나 read-only 탐색을 받아 정리했는지 남긴다.
 - 목표, 범위, 비범위, 사용자 관점 결과, acceptance criteria, 제약, 위험 요소, 의존관계, open questions, 다음 handoff를 포함한다.
 - 연결된 roadmap phase와 해당 phase의 필수 체크리스트를 포함한다.
 
 ### generator
 
 - 구현 기준 planner section을 명시한다.
-- 구현을 coordinator가 직접 했는지, generator 또는 다른 delegated implementation slice를 통합했는지 남긴다.
+- 구현을 coordinator가 직접 했는지, delegated implementation slice를 통합했는지 남긴다.
 - 실제 반영 범위와 변경 파일을 남긴다.
 - 검증 시 사용한 workspace/baseline scope를 명시한다.
 - 검증, 남은 위험/제약, 다음 handoff를 남긴다.

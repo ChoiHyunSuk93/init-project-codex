@@ -11,7 +11,7 @@ rule 문서, guide 문서, implementation 기록 문서의 차이를 정의한�
 - `rule/`: 기준 Codex 실행 규칙. 탐색 시작점은 [`rule/index.md`](../index.md)다.
 - `docs/guide/`: 사람이 실제로 따라야 하는 사용자 가이드. 기본 진입점은 [`docs/guide/README.md`](../../docs/guide/README.md)다.
 - `docs/implementation/`: 사람이 읽는 최종 구현 브리핑과 결과 문서. category 기반으로 정리하고 `briefings/` 디렉토리는 만들지 않는다. 제어 파일은 [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md)다.
-- `subagents_docs/`: planner, generator, evaluator가 읽고 쓰는 작업 문서. 기본 진입점은 [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md)이고 phase 로드맵은 [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md)다.
+- `subagents_docs/`: coordinator와 delegated role의 작업 문서. 기본 진입점은 [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md)이고 phase 로드맵은 [`subagents_docs/roadmap.md`](../../subagents_docs/roadmap.md)다.
 
 ## 기본 제어 파일
 
@@ -34,7 +34,7 @@ rule 문서, guide 문서, implementation 기록 문서의 차이를 정의한�
 
 - `README.md`로 충분한 경우 `docs/guide/AGENTS.md`는 기본적으로 만들지 않는다.
 - Codex가 구현 기록을 일관되게 배치하고 유지할 수 있도록 [`docs/implementation/AGENTS.md`](../../docs/implementation/AGENTS.md)는 기본적으로 만든다.
-- [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md)는 planner, generator, evaluator의 작업 규칙을 담는 기본 진입점으로 둔다.
+- [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md)는 coordinator와 delegated role의 작업 규칙을 담는 기본 진입점으로 둔다.
 - `docs/guide/`와 `docs/implementation/`을 기준 규칙 권한으로 취급하지 않는다.
 - `subagents_docs/`는 사용자-facing 문서가 아니라 작업 문서 영역으로 취급한다.
 - `subagents_docs/`의 문서는 선택된 언어 설정을 따르며, exact 언어 규칙과 filename/path 불변 조건은 [`rule/rules/language-policy.md`](language-policy.md)를 따른다.
@@ -49,8 +49,8 @@ rule 문서, guide 문서, implementation 기록 문서의 차이를 정의한�
 - 실행, 배포, 테스트 실행, 디자인 요청처럼 실제 사용자 워크플로가 분명해지면 guide 문서를 추가하거나 수정한다.
 - 관찰된 구조, 테스트 디렉토리, 툴링 목록, 구현 메모만으로는 guide 문서를 만들지 않는다.
 - 현재 상태를 반영해야 하는 문서는 `README.md`, `PROJECT_OVERVIEW.md`, `subagents_docs/roadmap.md`, `docs/guide/`, `rule/`처럼 현행 사용법, 요구사항, 규칙, phase 상태를 설명하는 문서로 한정한다.
-- planner, generator, evaluator가 읽고 쓰는 작업 문서는 `subagents_docs/`에 두고, 사용자-facing 최종 브리핑은 `docs/implementation/`의 category 기반 이력 문서로 둔다.
-- 구현 변경은 evaluator `PASS` 이후 가장 가까운 category 안에 새 구현 브리핑 문서로 기록하고, 카테고리 안의 번호 순서를 유지한다.
+- plan, delegated work, validation 작업 문서는 `subagents_docs/`에 두고, 사용자-facing 최종 브리핑은 `docs/implementation/`의 category 기반 이력 문서로 둔다.
+- 구현 변경은 acceptance criteria와 필요한 검증이 `PASS`가 된 뒤 가장 가까운 category 안에 새 구현 브리핑 문서로 기록하고, 카테고리 안의 번호 순서를 유지한다.
 - 기존 `docs/implementation/` 기록은 과거 구현 이력으로 보존한다. 오기, 깨진 링크, 잘못된 검증 메타데이터, 명시적 사용자 요청이 있는 경우를 제외하고 현재 변경사항에 맞추기 위해 과거 기록을 탐색하거나 수정하지 않는다.
 - 명시 규칙이 추가되거나 바뀌면 [`rule/rules/rule-maintenance.md`](rule-maintenance.md)를 따라 관련 `rule/rules/` 문서와 [`rule/index.md`](../index.md)를 함께 갱신한다.
 
