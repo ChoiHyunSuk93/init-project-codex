@@ -227,14 +227,16 @@ print_inspection() {
   if [ -d "$ROOT" ]; then
     find "$ROOT" -mindepth 1 -maxdepth 2 \
       \( -name .git -o -name node_modules -o -name .venv -o -name vendor \) -prune -o \
-      \( -name AGENTS.md -o -name CLAUDE.md -o -name PROJECT_OVERVIEW.md -o -name README.md -o -path '*/rule' -o -path '*/docs' -o -path '*/src' -o -path '*/test' -o -path '*/tests' \) \
+      \( -name AGENTS.md -o -name CLAUDE.md -o -name PROJECT_OVERVIEW.md -o -name README.md -o -path '*/rule' -o -path '*/docs' -o -path '*/subagents_docs' -o -path '*/src' -o -path '*/test' -o -path '*/tests' \) \
       -print 2>/dev/null | sed "s|^$ROOT/|  - |"
   fi
   printf 'Selected output conflicts:\n'
   for rel in AGENTS.md PROJECT_OVERVIEW.md rule/index.md \
     rule/rules/project-structure.md rule/rules/development-standards.md \
     rule/rules/testing-standards.md rule/rules/documentation.md \
-    rule/rules/agent-workflow.md; do
+    rule/rules/agent-workflow.md docs/guide/README.md \
+    docs/implementation/AGENTS.md subagents_docs/AGENTS.md \
+    subagents_docs/roadmap.md; do
     if [ -e "$ROOT/$rel" ]; then
       printf '  - %s\n' "$rel"
     fi
@@ -277,6 +279,10 @@ add_plan rule/rules/development-standards.md "$ASSET_DIR/rule/development-standa
 add_plan rule/rules/testing-standards.md "$ASSET_DIR/rule/testing-standards.$LANGUAGE.md"
 add_plan rule/rules/documentation.md "$ASSET_DIR/rule/documentation.$LANGUAGE.md"
 add_plan rule/rules/agent-workflow.md "$ASSET_DIR/rule/agent-workflow.$LANGUAGE.md"
+add_plan docs/guide/README.md "$ASSET_DIR/docs/guide/README.$LANGUAGE.md"
+add_plan docs/implementation/AGENTS.md "$ASSET_DIR/docs/implementation/AGENTS.$LANGUAGE.md"
+add_plan subagents_docs/AGENTS.md "$ASSET_DIR/subagents_docs/AGENTS.$LANGUAGE.md"
+add_plan subagents_docs/roadmap.md "$ASSET_DIR/subagents_docs/roadmap.$LANGUAGE.md"
 
 case "$TARGET" in
   claude|both)
@@ -329,6 +335,16 @@ while IFS='|' read -r rel template; do
   fi
 done < "$PLAN_FILE"
 
+cycles_dir="$ROOT/subagents_docs/cycles"
+if [ -L "$cycles_dir" ] || { [ -e "$cycles_dir" ] && [ ! -d "$cycles_dir" ]; }; then
+  printf 'CONFLICT subagents_docs/cycles (must be an in-repository directory)\n' >&2
+  conflicts=$((conflicts + 1))
+elif [ -d "$cycles_dir" ]; then
+  printf 'UNCHANGED subagents_docs/cycles/\n'
+else
+  printf 'CREATE subagents_docs/cycles/\n'
+fi
+
 if [ "$README_MODE" = preserve ]; then
   printf 'PRESERVE README.md\n'
 elif [ "$README_MODE" = merge ]; then
@@ -364,6 +380,8 @@ while IFS='|' read -r rel template; do
   mkdir -p "$(dirname "$ROOT/$rel")"
   cp "$rendered" "$ROOT/$rel"
 done < "$PLAN_FILE"
+
+mkdir -p "$cycles_dir"
 
 merge_readme() {
   template=$1
@@ -427,8 +445,10 @@ if [ "$README_MODE" = merge ] && ! is_preserved README.md; then
   merge_readme "$ASSET_DIR/README/root.$LANGUAGE.md" "$ROOT/README.md"
 fi
 
-printf 'Materialized minimal %s harness at %s\n' "$TARGET" "$ROOT"
+printf 'Materialized documented %s harness at %s\n' "$TARGET" "$ROOT"
 printf 'Project mode: %s; README mode: %s; language: %s\n' "$PROJECT_MODE" "$README_MODE" "$LANGUAGE"
 if [ -n "$SOURCE_ROOT_DIR" ]; then
   printf 'Observed source hint: %s\n' "$SOURCE_ROOT_DIR"
 fi
+printf 'Next: replace HS_INIT_SEMANTIC_TODO markers from observed facts, then run:\n'
+printf '  python3 %s/validate_materialized_repo.py --root %s --project-mode %s\n' "$SCRIPT_DIR" "$ROOT" "$PROJECT_MODE"

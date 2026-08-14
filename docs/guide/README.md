@@ -3,6 +3,10 @@
 이 디렉토리는 사람이 실제로 따라야 하는 사용자 가이드를 위한 공간이다.
 이 `README.md`는 이 디렉토리의 기본 진입점이자 안내 문서의 인덱스 역할을 한다.
 
+## 가이드 인덱스
+
+- [`프로젝트 초기화 워크플로`](프로젝트-초기화-워크플로.md): fresh/existing 저장소의 inspect, materialize, 실제 source 분석, semantic completion, 작업 기록과 검증 절차
+
 ## 이 디렉토리에 두는 내용
 
 - 실행 가이드
@@ -17,7 +21,7 @@
 - 문서 수가 늘어나면 이 `README.md`를 인덱스로 유지하고, 세부 내용은 개별 문서로 분리한다.
 - 저장소 구조 요약, 구현 상세, 프로젝트 규약 복사본은 이 디렉토리에 두지 않는다.
 - 독자가 따라야 할 안내만 두고, 실행 규칙은 [`rule/index.md`](../../rule/index.md)와 `rule/rules/` 아래의 문서에 둔다.
-- planner, generator, evaluator가 읽고 쓰는 작업 문서는 `subagents_docs/`에 둔다.
+- main agent와 delegated agent가 사용하는 작업 문서는 [`subagents_docs/AGENTS.md`](../../subagents_docs/AGENTS.md)와 관련 cycle에 둔다.
 
 ## 권한 범위
 

@@ -1,5 +1,9 @@
 # 개발 기준 규칙
 
+## 관찰된 프로젝트 관례
+
+- `HS_INIT_SEMANTIC_TODO`: 실제 source/config에서 확인한 architecture, naming, formatting, dependency, error-handling 관례를 기록한다. 미확정 항목은 명시한다.
+
 ## 우선순위
 
 1. 사용자 요구사항과 관찰 가능한 정확성

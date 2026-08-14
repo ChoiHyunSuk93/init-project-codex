@@ -13,7 +13,7 @@
 ## 생성 기준
 
 - 신규 프로젝트에서는 초기 사용자 요구사항을 바탕으로 먼저 `PROJECT_OVERVIEW.md`를 만든다.
-- 신규 프로젝트에서 요구사항이 부족하면 안전한 placeholder와 open question을 남기고, 없는 기능이나 스택을 지어내지 않는다.
+- 신규 프로젝트의 초기 materialization에는 안전한 semantic marker를 둘 수 있지만, 완료 전에는 사용자 확인 사실 또는 명시적인 open question으로 교체하고 없는 기능이나 스택을 지어내지 않는다.
 - 기존 프로젝트에서는 source root, 주요 모듈, 기존 문서, 테스트/빌드 자동화, 현재 사용자 요청을 먼저 검토한 뒤 `PROJECT_OVERVIEW.md`를 관찰된 사실 기준으로 작성하거나 보강한다.
 - 기존 프로젝트의 기존 `PROJECT_OVERVIEW.md`가 의미 있으면 무작정 교체하지 말고 현재 구조와 요청에 맞게 정리한다.
 - `subagents_docs/roadmap.md`는 항상 `PROJECT_OVERVIEW.md`의 요구사항과 제약에서 phase를 파생해야 한다.

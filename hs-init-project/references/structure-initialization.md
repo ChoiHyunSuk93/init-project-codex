@@ -7,6 +7,9 @@ Materialize a shared, product-neutral core:
 ```text
 AGENTS.md
 PROJECT_OVERVIEW.md
+docs/
+├── guide/README.md
+└── implementation/AGENTS.md
 rule/
 ├── index.md
 └── rules/
@@ -15,6 +18,10 @@ rule/
     ├── testing-standards.md
     ├── documentation.md
     └── agent-workflow.md
+subagents_docs/
+├── AGENTS.md
+├── roadmap.md
+└── cycles/
 ```
 
 For `target=claude` or `target=both`, also create `CLAUDE.md`. Do not generate product-specific custom agents, skills, hooks, settings, or runtime config.
@@ -23,17 +30,19 @@ For `target=claude` or `target=both`, also create `CLAUDE.md`. Do not generate p
 
 Before writing:
 
-- list existing instruction, overview, README, rule, source, test, and documentation paths
+- list existing instruction, overview, README, rule, source, test, automation, and documentation paths
 - distinguish a fresh repository from one with meaningful content
 - identify conflicts with every planned output
-- preserve an existing meaningful `PROJECT_OVERVIEW.md` unless replacement is explicitly authorized
-- accept monorepos and multiple intentional source roots; do not force a single source root
+- preserve a meaningful `PROJECT_OVERVIEW.md`, guide index, roadmap, or local instruction file unless replacement is explicitly authorized
+- accept monorepos and multiple intentional source areas; do not force a single source root
 
 Use:
 
 ```bash
 sh hs-init-project/scripts/materialize_repo.sh --root <repo> --inspect
 ```
+
+The inspect output is a conflict and navigation aid. It is not a substitute for reading actual source and configuration in an existing repository.
 
 ## Materialization
 
@@ -67,17 +76,27 @@ Supported controls:
 ## README Policy
 
 - `create` writes the full README template and refuses an existing file unless `--overwrite` is explicit.
-- `merge` preserves all unmanaged content. It appends or replaces only the section between the materializer's start/end markers.
+- `merge` preserves unmanaged content and replaces only the materializer marker section.
 - `preserve` never writes `README.md`.
 - Existing-project mode defaults to `preserve`; fresh mode defaults to `create`.
 
 ## Template Policy
 
-- All generated prose lives under `assets/`.
-- The materializer selects a language/target asset, replaces stable placeholders, and writes it.
+- Keep all generated prose under `assets/`.
+- Select one language/target asset and replace only stable placeholders in the materializer.
 - Do not add generated document bodies as shell heredocs or duplicate fresh/existing builders.
-- Existing mode changes conflict behavior and observed placeholders, not the source template.
+- Treat `HS_INIT_SEMANTIC_TODO` as an intentionally unresolved marker that the invoking agent must replace after observing the project.
+
+## Semantic Retrofit
+
+After materialization:
+
+1. Read the target repository following [existing-project-analysis.md](existing-project-analysis.md) when `project-mode=existing`.
+2. Replace semantic markers in `PROJECT_OVERVIEW.md`, `docs/guide/README.md`, and `subagents_docs/roadmap.md` with user-provided or observed facts.
+3. Refine generated structure, development, testing, and documentation rules where the repository has stronger observed conventions.
+4. Preserve main-agent/subagent provenance and planned phase gates in the generated work-record documents.
+5. Run `scripts/validate_materialized_repo.py`; do not report completion while it fails.
 
 ## Completion
 
-After materialization, the invoking agent must replace placeholders using only observed or user-provided facts, run the validation suite, and report created, updated, preserved, skipped, and unresolved paths.
+Report created, updated, preserved, skipped, unresolved, and evidence-bearing paths separately. A successful template copy is only materialization, not completed project initialization.

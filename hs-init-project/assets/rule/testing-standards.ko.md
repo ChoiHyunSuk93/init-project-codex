@@ -1,5 +1,9 @@
 # 테스트와 검증 규칙
 
+## 확인된 검증 진입점
+
+- `HS_INIT_SEMANTIC_TODO`: 실제 manifest, task, CI 또는 기존 문서에서 확인한 unit/integration/E2E/build/lint 명령과 적용 범위를 기록한다. 추측 명령은 기록하지 않는다.
+
 ## 선택 기준
 
 - 저장소에 이미 있는 테스트 구조, naming, 명령, framework를 우선한다.

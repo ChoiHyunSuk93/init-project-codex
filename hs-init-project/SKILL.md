@@ -1,15 +1,16 @@
 ---
 name: hs-init-project
-description: Initialize or retrofit a repository with a minimal, product-neutral agent rule harness. Use when Codex should create thin AGENTS.md or CLAUDE.md entrypoints, PROJECT_OVERVIEW.md, and a small indexed rule set for a new or existing project while preserving existing content and avoiding project-specific stacks, custom agents, or generic starter skills.
+description: Initialize or retrofit a new or existing repository with thin Codex or Claude entrypoints, PROJECT_OVERVIEW.md, indexed rules, human-facing docs, and adaptive work records. Use when Codex must create a durable project harness and, for an existing codebase, inspect real source, configuration, tests, commands, and documentation before replacing template placeholders with observed project facts.
 ---
 
-# Initialize A Project Rule Harness
+# Initialize A Project Harness
 
-Create the smallest durable instruction structure that lets coding agents discover project requirements and rules. Treat project-specific agents, skills, tooling, CI, and product architecture as later project work.
+Create a small, product-neutral harness that records project facts, guides agent work, and preserves both in-progress work provenance and verified implementation history. Treat stack choices, product features, CI, and project-specific agents or skills as later project work.
 
 Read [references/language-output.md](references/language-output.md) when choosing document language.
 Read [references/structure-initialization.md](references/structure-initialization.md) before inspecting or materializing a repository.
-Read [references/subagent-orchestration.md](references/subagent-orchestration.md) when writing the generated agent workflow rule.
+Read [references/existing-project-analysis.md](references/existing-project-analysis.md) for every existing-project initialization.
+Read [references/subagent-orchestration.md](references/subagent-orchestration.md) when writing the generated agent workflow and work-record rules.
 
 ## Intent Gate
 
@@ -19,23 +20,33 @@ Read [references/subagent-orchestration.md](references/subagent-orchestration.md
 
 ## Workflow
 
-1. Inspect the repository.
-   - Determine whether it is fresh or existing.
-   - Find current instruction files, overview documents, rule trees, README content, source areas, tests, and user-owned documentation.
-   - Do not infer a single source root when the repository is a monorepo or has multiple intentional runtime roots.
+1. Inspect before writing.
+   - Determine whether the repository is fresh or existing.
+   - Find instruction files, overview documents, README content, source areas, manifests, runtime entrypoints, tests, automation, and user-owned documentation.
+   - Do not treat directory names alone as source analysis or force one source root on a monorepo.
 2. Select explicit inputs.
    - `target`: `codex`, `claude`, or `both`
    - `language`: `en` or `ko`
    - `project-mode`: `fresh` or `existing`
    - `readme-mode`: `create`, `merge`, or `preserve`
-3. Preview the materialization.
-   - Run `scripts/materialize_repo.sh` with `--dry-run` first.
-   - In existing repositories, default to `--readme-mode preserve` unless the user explicitly wants the managed README section.
-   - Resolve file conflicts before using `--overwrite`.
-4. Materialize the minimal structure.
-5. Replace template placeholders only with user-provided or observed facts.
-6. Validate generated links, the five-rule index, language/target output, and preservation behavior.
-7. Report created, updated, preserved, and unresolved paths separately.
+3. Preview with `scripts/materialize_repo.sh --dry-run` and resolve every conflict.
+   - In existing repositories, default to `--readme-mode preserve`.
+   - Preserve meaningful existing control documents unless replacement or merge is explicitly authorized.
+4. Materialize the baseline structure.
+5. Complete the project semantics.
+   - In fresh projects, replace semantic markers from the user's stated purpose and keep genuinely unknown facts explicit.
+   - In existing projects, follow [references/existing-project-analysis.md](references/existing-project-analysis.md), read representative real source and configuration, and trace observed run/build/test entrypoints.
+   - Update `PROJECT_OVERVIEW.md`, `docs/guide/README.md`, `subagents_docs/roadmap.md`, and relevant generated rules with observed or user-provided facts.
+   - Do not finish with placeholder markers, directory-only inventories, or unverified commands.
+6. Validate semantic completion.
+
+   ```bash
+   python3 /path/to/hs-init-project/scripts/validate_materialized_repo.py \
+     --root <repo> \
+     --project-mode fresh|existing
+   ```
+
+7. Report created, updated, preserved, unresolved, and evidence-bearing paths separately.
 
 ## Generated Baseline
 
@@ -43,14 +54,14 @@ Always generate:
 
 - `AGENTS.md`
 - `PROJECT_OVERVIEW.md`
-- `rule/index.md`
-- `rule/rules/project-structure.md`
-- `rule/rules/development-standards.md`
-- `rule/rules/testing-standards.md`
-- `rule/rules/documentation.md`
-- `rule/rules/agent-workflow.md`
+- `rule/index.md` and five rules for structure, development, testing, documentation, and agent workflow
+- `docs/guide/README.md`
+- `docs/implementation/AGENTS.md`
+- `subagents_docs/AGENTS.md`
+- `subagents_docs/roadmap.md`
+- `subagents_docs/cycles/` as the location for work-sharing or audit-worthy cycle records
 
-Generate `CLAUDE.md` only for `target=claude` or `target=both`. It must remain a thin adapter that imports `AGENTS.md` and points to `rule/index.md`.
+Generate `CLAUDE.md` only for `target=claude` or `target=both`. Keep it as a thin adapter that imports `AGENTS.md` and routes to `rule/index.md`.
 
 Handle `README.md` according to `readme-mode`:
 
@@ -65,49 +76,50 @@ Do not generate these as baseline infrastructure:
 - `.codex/config.toml`
 - `.codex/agents/` or `.claude/agents/`
 - `.agents/skills/`, `.codex/skills/`, or `.claude/skills/`
-- `subagents_docs/`, roadmaps, cycles, or implementation histories
 - package manifests, stack choices, hooks, permissions, CI, or product features
 
-Create any of those later only when the target project has a concrete, project-specific need and the user authorizes that work.
+Add those only after the target project demonstrates a concrete need and the user authorizes the work.
 
-## Rule Contract
+## Work Record Contract
 
-- Keep `AGENTS.md` thin and route detailed behavior through `rule/index.md`.
-- Keep exactly five baseline rule concerns: structure, development, testing, documentation, and agent workflow.
-- Prefer observed repository conventions over generic defaults.
-- Keep analysis and implementation intent distinct.
-- Use subagents only when independent exploration, bounded parallel work, or risk-based independent validation materially helps.
-- Do not require a fixed planner/generator/evaluator pipeline.
-- Keep shared working documents coordinator-owned when parallel agents are involved.
-- Prioritize correctness, acceptance criteria, safety, regression coverage, and verification evidence over novelty.
+- Keep durable requirements in `PROJECT_OVERVIEW.md` and phase status in `subagents_docs/roadmap.md`.
+- For medium or larger changes, explicit work-sharing, multiple handoffs, or audit-worthy state transitions, create `subagents_docs/cycles/<NN>-<slug>.md`.
+- Keep cycle sections append-only as `Planner vN`, `Generator vN`, and `Evaluator vN`; record whether the main agent or a delegated agent produced each result.
+- Keep the cycle header and shared roadmap coordinator-owned. Delegated agents return results instead of editing shared records.
+- After acceptance criteria and required verification pass, add a concise user-facing record under the nearest `docs/implementation/<category>/NN-name.md` category.
+- Small direct changes without shared handoff may omit a cycle. Do not create empty implementation records in advance.
 
 ## Existing Repository Safety
 
 - Preserve meaningful existing files by default.
-- Never overwrite the complete README as a side effect of choosing existing-project mode.
+- Never overwrite the complete README merely because existing-project mode was selected.
 - Never reinterpret existing `docs/`, `rule/`, source, test, or instruction paths without inspecting them.
-- `--overwrite` applies only to files selected for materialization; `--preserve PATH` always wins.
+- `--overwrite` applies only to selected materialization paths; `--preserve PATH` always wins.
 - Use `--dry-run` to show the exact plan before writing.
-- If a conflict cannot be resolved from observed facts, ask the smallest necessary question.
+- If observed facts cannot resolve a material conflict, ask the smallest necessary question.
 
 ## Semantic Completion
 
-The materializer creates deterministic templates; it does not know the user's requirements by itself.
+The materializer creates deterministic templates; the invoking agent owns factual completion.
 
-- In fresh projects, adapt `PROJECT_OVERVIEW.md` from the user's stated purpose and keep unknowns explicit.
-- In existing projects, refine it only from observed modules, workflows, tests, docs, and current requested work.
-- Keep a meaningful existing overview unless the user requested replacement.
-- Do not claim commands, frameworks, architecture, users, or delivery surfaces that were not observed.
+- Preserve and refine a meaningful existing overview instead of replacing it with a generic template.
+- Cite real repository-relative paths in the overview's observed-evidence block.
+- Record only commands confirmed in manifests, task definitions, CI, scripts, or existing documentation.
+- Mark a fact as unresolved when evidence is insufficient; never invent frameworks, architecture, users, or delivery surfaces.
+- Do not report initialization complete until `validate_materialized_repo.py` passes.
 
-## Validation
+## Skill Validation
 
-Before finishing:
+Before finishing changes to this skill:
 
 ```bash
 python3 /path/to/skill-creator/scripts/quick_validate.py hs-init-project
 sh -n hs-init-project/scripts/materialize_repo.sh
+python3 -m py_compile \
+  hs-init-project/scripts/validate_materialized_repo.py \
+  hs-init-project/scripts/validate_scaffold.py
 python3 hs-init-project/scripts/validate_scaffold.py
 git diff --check
 ```
 
-Use the installed `skill-creator` path available in the current environment. Also inspect `git diff --stat` and the generated-file inventory so deleted baseline components cannot silently return.
+Use the installed `skill-creator` path available in the current environment. Inspect `git diff --stat` and the generated-file inventory so required documentation and work-record paths cannot silently disappear again.
